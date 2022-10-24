@@ -1,0 +1,42 @@
+onda
+pergunta de número
+CONTROL Num Questionio versus recrutar Tel
+Tipo de questionário
+Idade do sujeito da pesquisa
+Sexo do sujeito da pesquisa
+Relação do entrevistado com a criança <15 anos Assunto da pesquisa
+Idade do entrevistado para a criança <15 anos Assunto da pesquisa
+Sexo do entrevistado para a criança <15 anos Sujeito da pesquisa
+Número de pessoas em casa
+Departamento
+Mais elevado grau
+situação profissional
+Em qual indústria você trabalha
+A criança vai à escola?
+criança cuidada em casa/com a família?
+criança mantida em assistência. Mastro.
+Babá?
+nb filhos na assistente
+o assistente acolhe crianças em idade escolar?
+mantidos em um berçário?
+quantas crianças na creche
+frequência de creche
+Número de crianças em sua classe
+criança que come na cantina?
+ir para o acampamento diurno?
+ir para o acampamento de verão durante a escola?
+indo para o acampamento de verão durante as férias?
+profissão que leva a muitos contatos?
+número de contatos profissionais
+Tem ou não tem mais de 20 contactos profissionais
+Número de alunos da turma
+Estudante que come na cantina?
+dia1mês1
+Validação de CONTROLE dia1mês1 no período de onda 1 ou 2
+diasemana1
+Férias dia1mês1
+Número de contatos inseridos DIA 1
+PESSOA DE IDADE
+modo(s) de viagem semana
+modo(s) de viagem nós
+faixa(s) etária(s) de contatos no ambiente profissional

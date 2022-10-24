@@ -1,0 +1,41 @@
+vague
+num questio
+CONTRÔLE Num Questio versus recrut Tel
+Type de questionnaire
+Age du sujet de l'enquête
+Sexe du sujet de l'enquête
+Lien du répondant pour l'enfant <15 ans Sujet de l'enquête
+Age du répondant pour l'enfant <15 ans Sujet de l'enquête
+Sexe du répondant pour l'enfant <15 ans Sujet de l'enquête
+Nombre de personnes au foyer
+Département
+diplôme le plus élevé
+situation professionnelle 
+Dans quel secteur d'activité travaillez-vous
+L'enfant est-t-il scolarisé ?
+enfant  gardé maison/en famille ?
+enfant gardé chez assist. Mat.\ nassistante maternelle ?
+nb enfants chez assistante
+l'assistante accueille des enft scolarisés ?
+gardé en crèche ?
+combien d'enfants dans la creche
+fréquence halte-garderie
+Nbr d'enfants dans sa classe
+enfant qui mange  à la cantine ?
+va au centre aéré ?
+va au centre aéré durant ecole ?
+va au centre aéré durant vacances ?
+profession qui entraîne beaucoup de contacts ?
+nombre de contacts en milieu pro
+A ou non plus de 20 contacts professionnels
+Nombre d'étudiants dans la classe
+Etudiant qui mange  à la cantine ?
+jour1mois1
+CONTRÔLE validation jour1mois1 en période vague 1 ou 2
+joursemaine1
+Vacances jour1mois1
+Nombre de contacts saisis JOUR 1
+AGE PERSONNE
+mode(s) deplacement semaine
+mode(s) deplacement we
+tranche(s) d'âge des contacts en milieu pro
