@@ -35,54 +35,53 @@ def change_column(data):
     pergunta de número
     CONTROL Num Questionio versus recrutar Tel
     Tipo de questionário
-    Idade do sujeito da pesquisa
-    Sexo do sujeito da pesquisa
-    Relação do entrevistado com a criança <15 anos Assunto da pesquisa
-    Idade do entrevistado para a criança <15 anos Assunto da pesquisa
-    Sexo do entrevistado para a criança <15 anos Sujeito da pesquisa
-    Número de pessoas em casa
-    Departamento
-    Mais elevado grau
-    situação profissional
-    Em qual indústria você trabalha
-    A criança vai à escola?
-    criança cuidada em casa/com a família?
-    criança mantida em assistência. Mat.\ n babá?
-    nb filhos na assistente
-    o assistente acolhe crianças em idade escolar?
-    mantidos em um berçário?
-    quantas crianças na creche
-    frequência de creche
-    Número de crianças em sua classe
-    criança que come na cantina?
-    ir para o acampamento diurno?
-    ir para o acampamento de verão durante a escola?
-    indo para o acampamento de verão durante as férias?
-    profissão que leva a muitos contatos?
-    número de contatos profissionais
-    Tem ou não tem mais de 20 contactos profissionais
-    Número de alunos da turma
-    Estudante que come na cantina?
-    dia1mês1
-    Validação de CONTROLE dia1mês1 no período de onda 1 ou 2
-    diasemana1
-    Férias dia1mês1
-    Número de contatos inseridos DIA 1
-    PESSOA DE IDADE
-    modo(s) de viagem semana
-    modo(s) de viagem nós
-    faixa(s) etária(s) de contatos no ambiente profissional
+    Q1
+    Q2
+    cQ2
+    Q1_cQ1
+    cQ6
+    Q_
+    Q_1
+    Q4_cQ8
+    Q6_cQ9
+    Q7_cQ10
+    cQ11
+    cQ12
+    cQ13
+    cQ13a
+    cQ13b
+    cQ14
+    cQ14a
+    cQ15
+    cQ16
+    cQ17
+    cQ18
+    cQ18a
+    cQ18b
+    Q8
+    Q8a
+    Q8c
+    Q9
+    Q10
+    Q3
+    Q5a_cQ4
+    Q5b_cQ4b
+    Q8b
     '''
     colunas = a.split('\n')
     colunas = [i.replace('    ','') for i in colunas]
     data.columns = colunas[:-1]
     return data
-def remove_adultos(df):
-    df = df.drop("Lien du répondant pour l'enfant <15 ans Sujet de l'enquête", axis=1)
-    df = df.drop("Age du répondant pour l'enfant <15 ans Sujet de l'enquête", axis=1)
-    df = df.drop("Sexe du répondant pour l'enfant <15 ans Sujet de l'enquête", axis=1)
-    df = df.drop("Type de questionnaire", axis=1)
-    df = df.drop("index", axis=1)
+def remove_adultos(df,aux):
+    if(aux==0):
+        remocao = [i for i in df.columns if i[0]=='c']
+        df = df.drop('Q_',axis = 1)
+    else:
+        remocao = [i for i in df.columns if ((i[0]=='Q') & ('_c' not in i))]
+    for i in remocao:
+        df = df.drop(i, axis=1)
+    df = df.drop("CONTROL Num Questionio versus recrutar Tel",axis = 1)
+    df = df.drop("Tipo de questionário",axis = 1)
     return df
 
 def profissional(i,adultos):
@@ -209,9 +208,8 @@ def get_json(contatos,df):
             age2.append(str(cont2))
             cont2 += 1
 
-    contacts = {
-    }
+    contacts = {}
 
     for z,j in zip(age2,range(contatos.shape[0])):
-        contacts[str(z)] = [get_contacts(j,i,contatos) for i in number if not math.isnan(contatos.iloc[0,i])]
+        contacts[str(z)] = [get_contacts(j,i,contatos) for i in number if(not math.isnan(contatos.iloc[j,i]))]
     return contacts
