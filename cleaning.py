@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def change_age(data):
     idade = [i for i in data.columns if('AGE' in i)]
@@ -35,10 +36,10 @@ def change_column(data):
     pergunta de número
     CONTROL Num Questionio versus recrutar Tel
     Tipo de questionário
-    Q1
+    Q1_cQ1
     Q2
     cQ2
-    Q1_cQ1
+    cQ1
     cQ6
     Q_
     Q_1
@@ -75,7 +76,6 @@ def change_column(data):
 def remove_adultos(df,aux):
     if(aux==0):
         remocao = [i for i in df.columns if i[0]=='c']
-        df = df.drop('Q_',axis = 1)
     else:
         remocao = [i for i in df.columns if ((i[0]=='Q') & ('_c' not in i))]
     for i in remocao:
@@ -196,7 +196,7 @@ def get_contacts(k,i,contatos):
 def get_json(contatos,df):
 
     number = [get_number(contatos.columns,i) for i in contatos.columns if 'age min' in i]
-    age = ['adulto' if i==1 else 'crianca' for i in df['Type de questionnaire']]
+    age = ['adulto' if i==1 else 'crianca' for i in df['Tipo de questionário']]
     cont1 = 0
     cont2 = 0
     age2 = []
@@ -213,3 +213,99 @@ def get_json(contatos,df):
     for z,j in zip(age2,range(contatos.shape[0])):
         contacts[str(z)] = [get_contacts(j,i,contatos) for i in number if(not math.isnan(contatos.iloc[j,i]))]
     return contacts
+
+def plot_mes(df,save):
+    dic = {}
+
+    for i,j in zip(df['dia/mês'].values,df['Número de Contatos'].values):
+        if(not math.isnan(i)):
+            r = str(int(i))
+            dia = int(r[:-2])
+            mês = int(r[-2:])
+            if(mês in dic.keys()):
+                dic[mês][dia-1] += j
+            else:
+                dic[mês] = [0]*31
+                dic[mês][dia-1] += j
+    fig, axs = plt.subplots(len(dic.keys()), figsize=(16, 16), )
+
+    meses = [str(i) for i in list(dic.keys())]
+    meses.sort()
+    name =['Fevereiro','Março','Abril','Maio']
+
+    font = {'family': 'monospace',
+            'size': 15,
+            }
+
+    titulo = {'family': 'monospace',
+            }
+
+    for mês,count in zip( meses ,range((len(dic.keys())) )):
+        a = range(1,32)
+        x = dic[int(mês)]
+        axs[count].bar(a,x,color = 'salmon')
+        axs[count].set_ylabel("Número de Contatos",fontdict=font)
+        axs[count].set_xlabel(f"{name[count]}",fontdict= font)
+    fig.suptitle('Número de Contatos por Mês', fontdict=titulo,size = 18)
+    plt.savefig(f'./img/{save}.jpg', dpi=300)
+    plt.show()
+
+def plot_contatos_idade(df,criancas,adultos,save):
+    idade_contatos = []
+    for i in df:
+        if(i[0] == 'c'):
+            idade_contatos.append([criancas[criancas['index'] == i]['Q1_cQ1'].values[0],len(df[i])])
+        else:
+            idade_contatos.append([adultos[adultos['index'] == int(i)]['Q1_cQ1'].values[0],len(df[i])])
+
+    hist = []
+    value = []
+    for i in idade_contatos:
+        if(i[0] in hist):
+            value[hist.index(i[0])] += i[1]
+        else:
+            hist.append(i[0])
+            value.append(i[1])
+    
+    plt.figure(figsize=(12,6))
+    plt.bar(hist,value,color = 'darkcyan')
+
+    font = {'family': 'monospace',
+            'size': 16,
+            }
+
+    plt.ylabel("Número de Contatos",fontdict=font)
+    plt.xlabel("Idade",fontdict=font)
+    plt.title('Histograma do número de contatos',fontdict=font)
+    plt.grid(True)
+
+    plt.savefig(f'./img/{save}.jpg', dpi=300)
+    plt.show()
+def locomotion(df,coluna):
+    hist = [0]*3
+    for i in df[coluna].values:
+        for j in range(len(i)):
+            hist[j] += i[j]
+    hist.sort()
+    return hist
+def locomotion_adultos(df):
+    hist1 = locomotion(df,'Q5a_cQ4')
+    hist2 = locomotion(df,'Q5b_cQ4b')
+
+    c = ['indianred','steelblue','springgreen']
+    legenda = ['Carro Particular','Transporte Público','A pé']
+    plt.figure(figsize=(6,10))
+
+    for j in range(len(hist1)):
+        bot = 0
+        bot2 = 0
+        for i in range(j):
+            bot += hist1[i]
+            bot2 += hist2[i]
+        plt.bar('Dia da Semana',hist1[j],bottom = bot,color = c[j],label = legenda[j])
+        plt.bar('Finais de Semana e Feriados',hist2[j],bottom = bot2,color = c[j])
+    plt.xlabel('Locomoção')
+    plt.ylabel("Número de Adultos")
+    plt.legend()
+    plt.title('Locomoção dos Adultos')
+    plt.show()
