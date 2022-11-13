@@ -250,7 +250,7 @@ def plot_mes(df,save):
     plt.savefig(f'./img/{save}.jpg', dpi=300)
     plt.show()
 
-def plot_contatos_idade(df,criancas,adultos,save):
+def plot_contatos_idade(df,criancas,adultos,save,titulo):
     idade_contatos = []
     for i in df:
         if(i[0] == 'c'):
@@ -276,36 +276,100 @@ def plot_contatos_idade(df,criancas,adultos,save):
 
     plt.ylabel("Número de Contatos",fontdict=font)
     plt.xlabel("Idade",fontdict=font)
-    plt.title('Histograma do número de contatos',fontdict=font)
+    plt.title(titulo,fontdict=font)
     plt.grid(True)
 
     plt.savefig(f'./img/{save}.jpg', dpi=300)
     plt.show()
+
 def locomotion(df,coluna):
     hist = [0]*3
     for i in df[coluna].values:
         for j in range(len(i)):
             hist[j] += i[j]
     hist.sort()
-    return hist
-def locomotion_adultos(df):
+    return np.array(hist)
+
+def locomotion_adultos(df,titulos,save,tam = 0.4):
+    font = {'family': 'monospace',
+            'size': 14,
+            }
     hist1 = locomotion(df,'Q5a_cQ4')
     hist2 = locomotion(df,'Q5b_cQ4b')
 
     c = ['indianred','steelblue','springgreen']
     legenda = ['Carro Particular','Transporte Público','A pé']
+    X_axis = np.arange(2)
+    X = np.arange(-tam/2,tam,tam/2)[:-1]
     plt.figure(figsize=(6,10))
 
-    for j in range(len(hist1)):
-        bot = 0
-        bot2 = 0
-        for i in range(j):
-            bot += hist1[i]
-            bot2 += hist2[i]
-        plt.bar('Dia da Semana',hist1[j],bottom = bot,color = c[j],label = legenda[j])
-        plt.bar('Finais de Semana e Feriados',hist2[j],bottom = bot2,color = c[j])
-    plt.xlabel('Locomoção')
-    plt.ylabel("Número de Adultos")
+    for i in range(len(X)):
+        plt.bar(X[i],hist1[i],tam,color = c[i],label = legenda[i])
+        plt.bar(X[i]+3*tam,hist2[i],tam,color = c[i])
+    
+    plt.xticks([0,1], ['Semana','Finais de Semana\nou\nFeriados'],fontdict=font)
+    plt.xlabel('Dias',fontdict=font)
+    plt.ylabel("Número de Adultos",fontdict=font)
     plt.legend()
-    plt.title('Locomoção dos Adultos')
+    plt.title(titulos,fontdict=font)
+    plt.savefig(f'./img/{save}.jpg', dpi=300)
     plt.show()
+
+def stacked_bar(df,size1,size2,axs,name,number1,number2):
+    font = {'family': 'monospace',
+            'size': 14,
+            }
+    hist = np.zeros((size2,size1))
+    for i in df:
+        a = [(j[number1],j[number2]) for j in df[i]]
+        for j in a:
+            #print(a)
+            if((not math.isnan(j[0])) and (not math.isnan(j[1]))):
+                hist[int(j[0])-1][int(j[1])-1] += 1
+    total = hist[0] + hist[1]
+    hist = hist/total
+    hist = hist.T
+    cont = 0
+    print(hist)
+    for dados,nomes in zip(hist,name):
+        axs.barh(nomes,dados[0] ,color = 'steelblue' ,label = 'Contato Físico' if cont == 0 else "")
+        axs.barh(nomes,dados[1],left=dados[0],color = 'darkslategray',label = 'Sem Contato Físico'if cont == 0 else "" )
+        cont += 1
+    axs.legend()
+    axs.set_ylabel('Duração',fontdict=font)
+    return axs
+
+def multiple_stacked_bar(df):
+
+    fig, axs = plt.subplots(3,figsize=(12,10))
+    fig.tight_layout(pad=5.0)
+    axs[0] = stacked_bar(
+        df,
+        5,
+        2,
+        axs[0],
+        ['< 5 minutos','5min -\n 15 min','15min - 1h','1h - 4h','> 4h'],
+        6,
+        -1
+    )
+    axs[1] = stacked_bar(
+        df,
+        5,
+        2,
+        axs[1],
+        ['Diariamente','Semanalmente','Mensalmente','Anualmente','Primeira Vez'],
+        6,
+        5
+    )
+    axs[2] = stacked_bar(
+        df,
+        5,
+        5,
+        axs[2],
+        ['Diariamente','Semanalmente','Mensalmente','Anualmente','Primeira Vez'],
+        -1,
+        5
+    )
+    #plt.legend()
+    #axs[0].set_xlabel('Proporção de Conexões',fontdict=font)
+    #plt.show()
