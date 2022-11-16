@@ -315,7 +315,7 @@ def locomotion_adultos(df,titulos,save,tam = 0.4):
     plt.savefig(f'./img/{save}.jpg', dpi=300)
     plt.show()
 
-def stacked_bar(df,size1,size2,axs,name,number1,number2):
+def stacked_bar(df,size1,size2,axs,name,number1,number2,label,color,ylabel):
     font = {'family': 'monospace',
             'size': 14,
             }
@@ -323,25 +323,27 @@ def stacked_bar(df,size1,size2,axs,name,number1,number2):
     for i in df:
         a = [(j[number1],j[number2]) for j in df[i]]
         for j in a:
-            #print(a)
             if((not math.isnan(j[0])) and (not math.isnan(j[1]))):
                 hist[int(j[0])-1][int(j[1])-1] += 1
-    total = hist[0] + hist[1]
+    total = np.sum(hist,axis = 0)
     hist = hist/total
     hist = hist.T
     cont = 0
-    print(hist)
+    left = 0
     for dados,nomes in zip(hist,name):
-        axs.barh(nomes,dados[0] ,color = 'steelblue' ,label = 'Contato Físico' if cont == 0 else "")
-        axs.barh(nomes,dados[1],left=dados[0],color = 'darkslategray',label = 'Sem Contato Físico'if cont == 0 else "" )
+        for i in range(len(dados)):
+            axs.barh(nomes, dados[i], left = left ,color =  color[i],label = label[i] if cont == 0 else "")
+            left += dados[i]
+            #axs.barh(nomes,dados[1],left=dados[0],color = ,label = 'Sem Contato Físico'if cont == 0 else "" )
         cont += 1
+        left = 0
     axs.legend()
-    axs.set_ylabel('Duração',fontdict=font)
+    axs.set_ylabel(ylabel,fontdict=font)
     return axs
 
-def multiple_stacked_bar(df):
+def multiple_stacked_bar(df,titulo):
 
-    fig, axs = plt.subplots(3,figsize=(12,10))
+    fig, axs = plt.subplots(3,figsize=(12,18))
     fig.tight_layout(pad=5.0)
     axs[0] = stacked_bar(
         df,
@@ -350,7 +352,10 @@ def multiple_stacked_bar(df):
         axs[0],
         ['< 5 minutos','5min -\n 15 min','15min - 1h','1h - 4h','> 4h'],
         6,
-        -1
+        -1,
+        ['Contato Físico','Sem Conato Físico'],
+        ['steelblue','darkslategray'],
+        'Duração'
     )
     axs[1] = stacked_bar(
         df,
@@ -359,7 +364,10 @@ def multiple_stacked_bar(df):
         axs[1],
         ['Diariamente','Semanalmente','Mensalmente','Anualmente','Primeira Vez'],
         6,
-        5
+        5,
+        ['Contato Físico','Sem Conato Físico'],
+        ['steelblue','darkslategray'],
+        'Frequência'
     )
     axs[2] = stacked_bar(
         df,
@@ -368,8 +376,54 @@ def multiple_stacked_bar(df):
         axs[2],
         ['Diariamente','Semanalmente','Mensalmente','Anualmente','Primeira Vez'],
         -1,
-        5
+        5,
+        ['< 5 minutos','5min -\n 15 min','15min - 1h','1h - 4h','> 4h'],
+        ['darkslategray','teal','steelblue','dodgerblue','deepskyblue'][::-1],
+        'Frequência'
     )
+    fig.suptitle(titulo, fontsize=16)
     #plt.legend()
     #axs[0].set_xlabel('Proporção de Conexões',fontdict=font)
     #plt.show()
+
+def conncection_idade(df,criancas,adultos):
+
+    idade = []
+    idade_contatos = []
+    hist = []
+    value = []
+
+    for i in df:
+        idade_contatos.append([j[2] for j in df[i]])
+        if(i[0] == 'c'):
+            idade.append(criancas[criancas['index'] == i]['Q1_cQ1'].values[0])
+        else:
+            idade.append(adultos[adultos['index'] == int(i)]['Q1_cQ1'].values[0])
+    
+
+    for i,j in zip(idade,idade_contatos):
+        if(i in hist):
+            value[hist.index(i)].append(j)
+        else:
+            hist.append(i)
+            value.append([j])
+
+    for i in range(len(value)):
+        value[i] = np.array([item for sublist in value[i] for item in sublist])
+    
+    media = [np.mean(i) for i in value]
+    mediana = [np.median(i) for i in value]
+
+    font = {'family': 'monospace',
+            'size': 16,
+            }
+            
+    plt.figure(figsize=(12,6))
+    plt.bar(hist,media,color = 'darkslategray',label = 'Média')
+    plt.bar(hist,mediana,color = 'seagreen', label = 'Mediana')
+    plt.grid(True)
+    plt.legend()
+    plt.xticks(np.arange(0, np.max(np.array(hist)), 10))
+    plt.xlabel('Idade dos Entrevistado',fontdict=font)
+    plt.ylabel('Idade dos Contatos',fontdict=font)
+    plt.show()
