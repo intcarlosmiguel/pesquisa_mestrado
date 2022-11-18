@@ -11,6 +11,7 @@ def change_age(data):
         data.drop(i, inplace=True, axis=1)
     data['AGE PERSONNE'] = idades
     return data
+
 def change_mode(data):
     modes = [i for i in data.columns if('mode(s)' in i)]
     for i in range(len(modes)):
@@ -22,6 +23,7 @@ def change_mode(data):
             data.drop(j, inplace=True, axis=1)
         data[modes[i]] = modes_
     return data 
+
 def change_traches(data):
     tranches = [i for i in data.columns if('tranche(s)' in i)][0]
     tranche = list(data.columns).index(tranches)
@@ -31,6 +33,7 @@ def change_traches(data):
         data.drop(i, inplace=True, axis=1)
     data[tranches] = tranche
     return data
+
 def change_column(data):
     a = '''onda
     pergunta de número
@@ -64,8 +67,8 @@ def change_column(data):
     Q8c
     Q9
     Q10
-    Q3
-    Q5a_cQ4
+    Q3_cQ7
+    Q5a_cQ4a
     Q5b_cQ4b
     Q8b
     '''
@@ -73,6 +76,7 @@ def change_column(data):
     colunas = [i.replace('    ','') for i in colunas]
     data.columns = colunas[:-1]
     return data
+
 def remove_adultos(df,aux):
     if(aux==0):
         remocao = [i for i in df.columns if i[0]=='c']
@@ -86,60 +90,60 @@ def remove_adultos(df,aux):
 
 def profissional(i,adultos):
     prof = []
-    profissao = adultos['situation professionnelle '][int(i)]
+    profissao = adultos['Q6_cQ9'][int(i)]
     prof.append(profissao)
     if(profissao!=7):
         if(profissao>7):
             return prof
         else:
-            a1 = float(adultos['Dans quel secteur d\'activité travaillez-vous'][int(i)])
+            a1 = float(adultos['Q7_cQ10'][int(i)])
             if(math.isnan(a1)):
                 prof.append(0)
             else:
                 prof.append(int(a1))
-            a2 = float(adultos['profession qui entraîne beaucoup de contacts ?'][int(i)])
+            a2 = float(adultos['Q8'][int(i)])
             if(math.isnan(a2)):
                 prof.append(0)
             else:
                 prof.append(int(a2))
             if(prof[-1]==1):
-                prof.append([adultos['nombre de contacts en milieu pro'][int(i)],adultos["tranche(s) d'âge des contacts en milieu pro"][int(i)],adultos['A ou non plus de 20 contacts professionnels'][int(i)]])
+                prof.append([adultos['Q8a'][int(i)],adultos["Q8b"][int(i)],adultos['Q8c'][int(i)]])
             return prof
     else:
-        a1 = adultos['Nombre d\'étudiants dans la classe'][int(i)]
-        a2 = adultos['Etudiant qui mange  à la cantine ?'][int(i)]
+        a1 = adultos['Q9'][int(i)]
+        a2 = adultos['Q10'][int(i)]
         prof.append(a1)
         prof.append(a2)
         return prof
 
 def create_adult(df,a,writer):
     adulto = {}
-    adulto['Idade'] = df["Age du sujet de l'enquête"].values
-    adulto['Sexo'] = df["Sexe du sujet de l'enquête"].values
-    adulto['Casa'] = df["AGE PERSONNE"].values
-    adulto["Escolaridade"] = df["diplôme le plus élevé"].values
-    adulto["Locomocao_Semana"] = df["mode(s) deplacement semaine"].values
-    adulto["Locomocao_Final_De_Semana"] = df["mode(s) deplacement we"].values
+    adulto['Idade'] = df["Q1_cQ1"].values
+    adulto['Sexo'] = df["Q2"].values
+    adulto['Casa'] = df["Q3_cQ7"].values
+    adulto["Escolaridade"] = df["Q4_cQ8"].values
+    adulto["Locomocao_Semana"] = df["Q5a_cQ4a"].values
+    adulto["Locomocao_Final_De_Semana"] = df["Q5b_cQ4b"].values
     adulto["Profissional"] = a
-    adulto["Onda"] = df["vague"].values
+    adulto["Onda"] = df["onda"].values
     adulto["id"] = [i for i in range(df.index[-1]+1)]
-    pd.DataFrame.from_dict(adulto).to_excel(writer, sheet_name='Adultos')
+    pd.DataFrame.from_dict(adulto).to_excel(writer, sheet_name='Adultos',index = False)
 
 def create_children(df,a,writer):
     adulto = {}
-    adulto['Idade'] = df["Age du sujet de l'enquête"].values
-    adulto['Sexo'] = df["Sexe du sujet de l'enquête"].values
-    adulto['Casa'] = df["AGE PERSONNE"].values
-    adulto["Escolaridade"] = df["diplôme le plus élevé"].values
-    adulto["Locomocao_Semana"] = df["mode(s) deplacement semaine"].values
-    adulto["Locomocao_Final_De_Semana"] = df["mode(s) deplacement we"].values
+    adulto['Idade'] = df["Q1_cQ1"].values
+    adulto['Sexo'] = df["cQ2"].values
+    adulto['Casa'] = df["Q3_cQ7"].values
+    adulto["Escolaridade"] = df["Q4_cQ8"].values
+    adulto["Locomocao_Semana"] = df["Q5a_cQ4a"].values
+    adulto["Locomocao_Final_De_Semana"] = df["Q5b_cQ4b"].values
     adulto["Escola"] = a
-    adulto["Onda"] = df["vague"].values
+    adulto["Onda"] = df["onda"].values
     adulto["id"] = ['c'+str(i) for i in range(df.index[-1]+1)]
-    pd.DataFrame.from_dict(adulto).to_excel(writer, sheet_name='Crianças')
+    pd.DataFrame.from_dict(adulto).to_excel(writer, sheet_name='Crianças',index= False)
 
 def school(i,df):
-    escola = df["L'enfant est-t-il scolarisé ?"][i]
+    escola = df["cQ11"][i]
     if(math.isnan(escola)):
         es = []
         es.append(2)
@@ -147,43 +151,44 @@ def school(i,df):
     else:
         es = [escola]
         es1 = []
-        if(escola == 1):
-            a1 = df["Nbr d'enfants dans sa classe"][i]
-            a2 = df["enfant qui mange  à la cantine ?"][i]
-            a3 = df["va au centre aéré ?"][i]
+        if(escola == 1): # Se estiver na escola
+            a1 = df["cQ16"][i]
+            a2 = df["cQ17"][i]
+            a3 = df["cQ18"][i]
             es1.append(a1)
             es1.append(a2)
             es1.append(a3)
             if(a3==1):
-                a4 = df["va au centre aéré durant ecole ?"][i]
-                a5 = df["va au centre aéré durant vacances ?"][i]
+                a4 = df["cQ18a"][i]
+                a5 = df["cQ18b"][i]
                 es1.append([a4,a5])
             es.append(es1)
             es.append([])
             return es
         if(escola == 2):
-            a1 = df["enfant  gardé maison/en famille ?"][i]
-            a2 = df["enfant gardé chez assist. Mat.\ nassistante maternelle ?"][i]
+            a1 = df["cQ12"][i]
+            a2 = df["cQ13"][i]
             es1.append(a1)
             es1.append(a2)
             if(a2== 1):
-                a3 = df["nb enfants chez assistante"][i]
-                a4 = df["l'assistante accueille des enft scolarisés ?"][i]
+                a3 = df["cQ13a"][i]
+                a4 = df["cQ13b"][i]
                 es1.append([a3,a4])
-            a1 = df["gardé en crèche ?"][i]
+            a1 = df["cQ14"][i]
             es1.append(a1)
             if(a1==1):
-                a2 = df["combien d'enfants dans la creche"][i]
+                a2 = df["cQ14a"][i]
                 es1.append([a2])
-            a3 = df["fréquence halte-garderie"][i]
+            a3 = df["cQ15"][i]
             es1.append(a3)
             es.append([])
             es.append(es1)
-            return es
+        return es
 
 def get_number(vetor,value):
     number = np.arange(0,len(vetor),1)
     return number[vetor==value][0]
+
 def get_contacts(k,i,contatos):
     contacts = []
     for j in range(i,i+4):
@@ -294,10 +299,10 @@ def locomotion_adultos(df,titulos,save,tam = 0.4):
     font = {'family': 'monospace',
             'size': 14,
             }
-    hist1 = locomotion(df,'Q5a_cQ4')
+    hist1 = locomotion(df,'Q5a_cQ4a')
     hist2 = locomotion(df,'Q5b_cQ4b')
 
-    c = ['indianred','steelblue','springgreen']
+    c = ['indianred','steelblue','mediumseagreen']
     legenda = ['Carro Particular','Transporte Público','A pé']
     X_axis = np.arange(2)
     X = np.arange(-tam/2,tam,tam/2)[:-1]
