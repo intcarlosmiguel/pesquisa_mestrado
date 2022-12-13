@@ -432,3 +432,72 @@ def conncection_idade(df,criancas,adultos):
     plt.xlabel('Idade dos Entrevistado',fontdict=font)
     plt.ylabel('Idade dos Contatos',fontdict=font)
     plt.show()
+
+
+def check_faixa(idade,faixas):
+    for faixa in range(len(faixas)):
+        if(faixa == 0):
+            if(idade < 1):
+                return int(faixa)
+        else:
+            i = faixas[faixa]
+            if((idade<=i[1]) and(idade>=i[0])):
+                return int(faixa)
+
+def calc_adj(A,adultos,faixa,contacts):
+    for adulto in adultos['index']:
+        idade = check_faixa(adultos['Q1_cQ1'][adultos['index'] == adulto].values,faixa)
+        adulto = str(adulto)
+        if(contacts[adulto] == []):
+            continue
+        idades = np.array([check_faixa(i[2],faixa) for i in contacts[adulto]])
+        for i in idades:
+            A[idade][i] += 1
+    return A
+
+def adj(adultos,criancas,contacts,contacts02,Nmortos):
+
+    faixa = [
+        [0,0],
+        [1,5],
+        [6,19],
+    ]
+    [faixa.append([i,i+9]) for i in range(20,100,10)]
+    faixa[-1] = [90,100000]
+
+    A = np.zeros((len(faixa),len(faixa)))
+    A = calc_adj(A,adultos,faixa,contacts)
+    A = calc_adj(A,adultos,faixa,contacts02)
+    A = calc_adj(A,criancas,faixa,contacts)
+    A = calc_adj(A,criancas,faixa,contacts02)
+
+    for i in range(len(A)):
+        if(np.sum(A[i])!= 0):
+            A[i] = A[i]/np.sum(A[i])
+
+    figure, ax = plt.subplots(figsize = (28,28),dpi = 300)
+
+    axes = ax.matshow(A, interpolation ='nearest',cmap = 'copper_r')
+    figure.colorbar(axes)
+
+    for (i, j), z in np.ndenumerate(A):
+        if(z>0.35):
+            ax.text(j, i, '{:0.2f}'.format(z), ha='center', va='center',color = 'white')
+        else:
+            ax.text(j, i, '{:0.2f}'.format(z), ha='center', va='center')
+
+    xaxis = np.arange(len(list(Nmortos.keys())))
+    lista = list(Nmortos.keys())
+    lista[-1] = "Idade => 90"
+    lista[0] = "1 > Idade"
+
+    ax.set_xticks(xaxis)
+    ax.set_yticks(xaxis)
+    ax.set_xticklabels(lista)
+    ax.set_yticklabels(lista)
+
+    plt.title("Conexão entre as faixas de idade")
+    plt.savefig("./img/map.jpg")
+    plt.show()
+
+    return A
