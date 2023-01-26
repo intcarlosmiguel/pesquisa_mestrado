@@ -20,53 +20,43 @@ def calculate(G):
     return np.array([media,mediana,std,clustering,r[0][1],path,diametro])
 
 def sorting(array,sorted_by):
-    sort_ = np.argsort(sorted_by)
+    sort_ = np.argsort(sorted_by)[::-1]
     return array[sort_],sorted_by[sort_]
 
-def conf_model_p(A,deg,p,all_vizinhos,site):
+def conf_model_p(A,deg,p,all_vizinhos,site,n_existir):
 
-    vizinhos = all_vizinhos[site]
-
+    vizinhos = np.array(all_vizinhos[site])
+    vizinhos = vizinhos[deg[vizinhos] > 0]
     if(len(vizinhos)> 1):
-        """ edges = np.array(list(combinations(vizinhos,2)))
-        rand = np.random.random(size=len(edges))
-        edges = edges[rand <=p]
-        edges = [tuple(i) for i in edges]
-        for i,j in edges:
-            if((deg[i] == 0) or (deg[j] == 0)  or ((i,j) in A) or ((j,i) in A)):
-                continue
-            A.append((i,j))
-            deg[i] -= 1
-            deg[j] -= 1
-            all_vizinhos[i].append(j)
-            all_vizinhos[j].append(i) """
-
-        vizinhos = np.array(vizinhos)
-        vizinhos = vizinhos[deg[vizinhos] > 0]
-        #vizinhos,_ = sorting(vizinhos,deg[vizinhos])
-
+        vizinhos,_ = sorting(vizinhos,deg[vizinhos])
+        #print(vizinhos,_)
         for i in vizinhos:
 
             shuff = vizinhos.copy()
             shuff = shuff[shuff != i]
             np.random.shuffle(shuff)
+
             for j in shuff:
                 if(deg[i] == 0):
                     break
 
                 rand = np.random.random(1)[0]
-                if(rand < p):
+                if(rand <= p):
                     if((deg[j] == 0) or ((i,j) in A) or ((j,i) in A)):
                         continue
-
+                    if(((i,j) in n_existir) or ((j,i) in n_existir)):
+                        continue
                     A.append((i,j))
                     deg[i] -= 1
                     deg[j] -= 1
                     all_vizinhos[i].append(j)
-                    all_vizinhos[j].append(i) 
+                    all_vizinhos[j].append(i)
+                else:
+                    if(((i,j) not in n_existir) or ((j,i) not in n_existir)):
+                        n_existir.append((i,j))
     
         
-    return A,deg,all_vizinhos
+    return A,deg,all_vizinhos,n_existir
 
 def generate_config_model(T,degree,seed,p = 0):
     resultado = np.array([configuration_model(degree,i+seed,i,p) for i in range(T)])
@@ -76,7 +66,7 @@ def generate_config_model(T,degree,seed,p = 0):
     
 
 def visualize(degree,T):
-    p = [0.5,1.]
+    p = [0.5]
     zeed = [3500,1000,2000]
     metrics = [generate_config_model(T,degree,seed,probabilidade) for probabilidade,seed in zip(p,zeed)]
     for i in range(len(metrics)):
@@ -93,20 +83,17 @@ def configuration_model(degree,seed,number,p = 0):
     deg.sort()
     deg = np.array(deg[::-1])
     vizinhos = {i:[] for i in range(len(deg))}
-
+    n_existir = []
     clear_output(wait=True)
     
     for i in range(len(deg)):
-
         shuff = np.arange(len(deg))
         shuff = shuff[shuff != i]
         np.random.shuffle(shuff)
 
         for j in shuff:
-            #if(j==841):
-            #    print(i,j,deg[i],deg[j])
             if(deg[i] == 0):
-                A,deg,vizinhos = conf_model_p(A,deg,p,vizinhos,i)
+                A,deg,vizinhos,n_existir = conf_model_p(A,deg,p,vizinhos,i,n_existir)
                 break
             if((deg[j] == 0) or ((i,j) in A) or ((j,i) in A)):
                 continue
@@ -117,17 +104,13 @@ def configuration_model(degree,seed,number,p = 0):
 
             vizinhos[i].append(j)
             vizinhos[j].append(i)
-
-            """ if(deg[i] == 0):
-                A,deg,vizinhos = conf_model_p(A,deg,p,vizinhos,i)
-            if(deg[j] == 0):
-                A,deg,vizinhos = conf_model_p(A,deg,p,vizinhos,j) """
     #print(np.arange(len(deg))[deg>0])
     G = nx.Graph()
     for i in A:
         G.add_edge(i[0],i[1])
     if(not nx.is_connected(G)):
-        return configuration_model(degree,seed+500,number,p)
+        largest_cc = max(nx.connected_components(G), key=len)
+        print('Errou!')
     print(number+1,p)
     return calculate(G)
 
