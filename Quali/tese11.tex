@@ -250,7 +250,7 @@ Outras duas métricas importantes são a densidade $\rho(G)$ e a reciprocidade $
 Por fim temos uma métrica para analisar o Agrupamento de uma Rede, ou seja quanto que os vértices estão unidos. Essa métrica será definida a partir da probabilidade de um vizinho do nó $i$ estar conectado com outro vizinho de $i$. Existe a definição desse valor a partir da Matriz de Adjacência pela \ref{clustering1}, porém é mais compreensível compreensível pela \ref{clustering2}
 
 \begin{equation}
-  cl(G) = \frac{\sum_{(i,j,k): i\neq j \neq k}A(i,j)A(j,k)(k,j)}{\sum_{(i,j,k): i\neq j \neq k}A(i,j)A(j,k)},
+  cl(G) = \frac{\sum_{(i,j,k): i\neq j \neq k}A(i,j)A(j,k)A(k,j)}{\sum_{(i,j,k): i\neq j \neq k}A(i,j)A(j,k)},
   \label{clustering1}
 \end{equation}
 
@@ -262,6 +262,28 @@ Por fim temos uma métrica para analisar o Agrupamento de uma Rede, ou seja quan
 Em que 
 
 \subsection{Métricas de Centralidade}
+
+Ao estudar redes estamos interessados em entender suas estruturas e propriedades, isso já é possível dadas as métricas que apresentamos anteriormente. Contudo, essas métricas globais nos trazem informações sobre a rede como um todo e as propriedades que ela apresenta podem estar diluídas na rede como um todo ou concentrada em sítios específicos. Portanto estudar os sítios em si e a sua importância perante a rede é necessário, para isso usaremos as chamadas Métricas de Centralidade.
+
+Centralidade nesse contexto está ligado à importância, quando falamos de Métricas de Centralidade queremos estudar a importância topológica de cada nó perante a rede. Mas em que sentido seria essa importância? Depende do problema, talvez seja necessário estudar qual o autor mais importante em uma rede de citações de artigos ou qual pessoa devemos retirar de uma rede social para inibir a propagação de \textit{fake-news} para ambas existe uma métrica apropriada para atingir tais objetivos.
+
+A primeira métrica a ser avaliada é propriamente o número de conexões de cada sítio, o grau $k_i$. Ao avaliarmos essa métrica consideramos o sítio central aquele que tem o maior $k_i$, ou seja estamos atrás daquele sítio que apresenta mais ligações.
+
+A segunda métrica importante é a Centralidade de Excentricidade (CE). Excentricidade está definido no dicionário como "desvio ou distância para o centro", no nosso caso a CE vai apontar qual sítio é mais central baseado na maior distância que o sítio pode percorrer na rede, sendo ele o mais central aquele que tem a menor distância máxima. Formalmente $CE(i) \forall i \in \mathpzc{N}$ é definida como:
+
+\begin{equation}
+  CE(i) = \frac{1}{\max_{\forall j \in \mathpzc{N}} l_{i,j}}
+\end{equation}
+
+Nessa mesma ideia podemos avaliar outras duas métricas parecidas: Centralidade de Proximidade (CP) e Centralidade Harmônica (CH). Em ambas estamos interessados a entender qual é o nó mais central a partir de quanto ele dista dos outros, a diferença entre as duas é que a primeira é calculado pelo inverso da média aritmética e a segunda com a média harmônica.
+
+\begin{equation}
+  CP(i) = \frac{N - 1}{\sum_{j \neq i} l_{i,j}}
+\end{equation}
+
+\begin{equation}
+  CH(i) = \frac{1}{N - 1}\sum_{j \neq i}\frac{1}{l_{i,j}}
+\end{equation}
 
 \section{Modelos de Formação de Redes}
 
@@ -287,17 +309,17 @@ Diferente do Modelo de Erdös-Rényi podemos encontrar o caso na qual nós sabem
 
   \caption{Modelo de Configuração}\label{alg:MC}
   \begin{algorithmic}
-  \Require $graus$ \Comment{Essa lista em ordem decrescente}
+  \Require $k$ \Comment{Essa lista está em ordem decrescente de grau.}
   \Require $edges$\\
 
-  \While{$i \in \mathpzc{N}$}
-    \State $k_i \gets graus_i$
+  \While{($i \in \mathpzc{N}$) and ($k_i \in k$)} \Comment{Os sítios são escolhidos em ordem decrescente de grau.}
+    \State $\kappa_i \gets k_i$
     \While{$j \in \mathpzc{N}$}
       \If{($i \neq j$) and ($k_i \neq 0$)}
           \If{(i,j not in $edges$) and ($k_j \neq 0$)}
             \State $edges$.insert((i,j))
-            \State $k_i \gets k_i - 1$
-            \State $k_j \gets k_j - 1$
+            \State $\kappa_i \gets \kappa_i - 1$
+            \State $\kappa_j \gets \kappa_j - 1$
           \EndIf
       \EndIf
     \EndWhile
@@ -362,8 +384,8 @@ Para evitar esse problema \cite{Manzo2020} propõe um modelo para formamos uma r
 
 \begin{enumerate}
   \item Quando um dado sítio $i$ atinge o grau requerido pelo MC selecionamos todos os vizinhos $\nu(i)$;
-  \item Selecionamos dois sítios aleatoriamente $v$ e $n$ e conectamos com probabilidade $p$;
-  \item Se ela existir os conectamos e salvamos para que ela não se repita no MC, caso contrário salvamos para que ela não se repita nesse algoritmo. Por fim também reduzimos em 1 o valor de $\kappa_i$ e $\kappa_j$ ;
+  \item Selecionamos dois sítios $v,n \in \nu(i)$ e conectamos com probabilidade $p$;
+  \item Se ela existir os conectamos e salvamos para que ela não se repita no MC, caso contrário salvamos para que ela não se repita nesse algoritmo. Por fim também reduzimos em 1 o valor de $\kappa_v$ e $\kappa_n$ ;
   \item Fazemos 2. até testarmos todas as ligações possíveis e paramos esse algoritmo para dar continuidade ao MC.
 \end{enumerate}
 
@@ -378,15 +400,17 @@ Para evitar esse problema \cite{Manzo2020} propõe um modelo para formamos uma r
   \Require $i \in G(\mathpzc{N} ,\mathpzc{L})$\\
 
   \While{$v \in \nu(i)$}
-    \While{$n \in \nu(i)$}
-      \If{($v \neq n$) and ($\kappa_i \neq 0$) and ($\kappa_j \neq 0$)}
+    \While{$n \in \nu(i)$} \Comment{Nesse caso não há preferência na escolha de $n$ e $v$.}
+      \If{($v \neq n$) and ($\kappa_n \neq 0$) and ($\kappa_v \neq 0$)}
           \State $r$ $\gets$ random\_number([0,1])
-          \If{($r <= p$) and (v,n not in $edges$) and (n,v not in $n\_existir$)}
-            \State $edges$.insert((v,n)) \Comment{Essa matriz vem do MC}
-            \State $\kappa_v \gets \kappa_v - 1$
-            \State $\kappa_n \gets \kappa_n - 1$
+          \If{($r <= p$)}
+            \If{($v,n$ not in $edges$) and ($v,n$ not in $n\_existir$)}
+              \State $edges$.insert(($v,n$)) \Comment{Essa matriz vem do MC}
+              \State $\kappa_v \gets \kappa_v - 1$
+              \State $\kappa_n \gets \kappa_n - 1$
+            \EndIf
           \Else
-          \If{i,j not in $n\_existir$}
+          \If{$n,v$ not in $n\_existir$}
             \State $n\_existir$.insert((v,n))
             \EndIf
           \EndIf
@@ -611,16 +635,16 @@ Os valores com probabilidade $p = 0$ batem perfeitamente com os resultados do au
     \multicolumn{1}{c}{{\shortstack{\textbf{Diâmetro}}}}     \\
 
     \hline\\\rowcolor{Gray}
-    p = 0                               & 9.72                            & 8.00         & 6.56               & 0.01              & -0.06                         & 3.47                & 6.00     \\
-    p = 0.5                             & 9.72                            & 8.00         & 6.56               & 0.42              & -0.62                         & 4.37                & 7.40     \\\rowcolor{Gray}
-    p = 1.0                             & 9.72                            & 8.00         & 6.56               & 0.56              & -0.57                         & 5.62                & 10.37   
+    p = 0 & 9.72(0.00) & 8.00(0.00) & 6.56(0.00) & 0.01(0.00) & -0.06(0.01) & 3.47(0.00) & 6.00(0.03)  \\
+p = 0.5                             & 9.72(0.00)                      & 8.00(0.00)   & 6.56(0.00)         & 0.43(0.01)        & -0.62(0.01)                   & 4.37(0.05)          & 7.46(0.50)  \\
+p = 1.0                             & 9.72(0.00)                      & 8.00(0.00)   & 6.56(0.00)         & 0.56(0.01)        & -0.57(0.01)                   & 5.62(0.11)          & 10.39(0.66)
 
   
 \end{tabular}
 
   \captionsetup{margin={10pt,10pt},font=small,skip=0pt,position=below}
 
-  \caption*{Aqui aparece os resultados advindos do meu código na qual foram feitas 1000 simulações de redes para a rede francesa que se aproximam bastante do apresentado no artigo. Os que não bateram certo estão na faixa de erro mostrada anteriormente. \\Fonte: Elaborada pelo autor.}
+  \caption*{Aqui aparece os resultados advindos do meu código na qual foram feitas 1000 simulações de redes para a rede francesa que se aproximam bastante do apresentado no artigo junto com os desvios padrões entre parênteses. Os que não bateram certo estão na faixa de erro mostrada anteriormente. \\Fonte: Elaborada pelo autor.}
 \label{table:Miguel}
 \end{table}
 

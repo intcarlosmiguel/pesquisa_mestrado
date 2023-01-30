@@ -388,22 +388,57 @@ void generate_configuration_model(double p, int T){
     double r2 = 0;
     double diametro = 0;
 
+    double media2 = 0;
+    double median2 = 0;
+    double std2 = 0;
+    double as2 = 0;
+    double l2 = 0;
+    double r22 = 0;
+    double diametro2 = 0;
+
     for (int i = 0; i < T; i++){
+
         media += resultados[i][0];
+        media2 += pow(resultados[i][0],2);
+
         median += resultados[i][1];
+        median2 += pow(resultados[i][1],2);
+
         std += resultados[i][2];
+        std2 += pow(resultados[i][2],2);
+
         as += resultados[i][3];
+        as2 += pow(resultados[i][3],2);
+
         r2 += resultados[i][4];
+        r22 += pow(resultados[i][4],2);
+
         l += resultados[i][5];
+        l2 += pow(resultados[i][5],2);
+
         diametro += resultados[i][6];
+        diametro2 += pow(resultados[i][6],2);
+
     }
+
+    media2 = pow(media2/T - pow(media/T,2),0.5);
+    median2 = pow(median2/T - pow(median/T,2),0.5);;
+    std2 = pow(std2/T - pow(std/T,2),0.5);
+    as2 = pow(as2/T - pow(as/T,2),0.5);
+    l2 = pow(l2/T - pow(l/T,2),0.5);
+    r22 = pow(r22/T - pow(r2/T,2),0.5);
+    diametro2 = pow(diametro2/T - pow(diametro/T,2),0.5);
+
+    //printf("%f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",p,media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
     FILE* file;
-    file = fopen("./resultado.txt","a");
-    fprintf(file,"%f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",p,media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
+    file = fopen("./resultados.txt","a");
+    fprintf(file,"%f\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\n",p,media/T,media2,median/T,median2,std/T,std2,as/T,as2,r2/T,r22,l/T,l2,diametro/T,diametro2);
     fclose(file);
 }
 
 int main(int argc,char *argv[ ]){
     int T = atoi(argv[1]);
-    //generate_configuration_model((double) i/100,T);
+    generate_configuration_model((double) 0,T);
+    generate_configuration_model((double) 0.5,T);
+    generate_configuration_model((double) 1.0,T);
 }

@@ -53,6 +53,7 @@ def conf_model_p(A,deg,p,all_vizinhos,site,n_existir):
                     all_vizinhos[j].append(i)
                 else:
                     if(((i,j) not in n_existir) or ((j,i) not in n_existir)):
+                        pass
                         n_existir.append((i,j))
     
         

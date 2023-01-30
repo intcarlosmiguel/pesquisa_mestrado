@@ -6,22 +6,22 @@
 \contentsline {section}{\numberline {2.2}Métricas de Redes}{17}{}%
 \contentsline {subsection}{\numberline {2.2.1}Métricas Globais de Redes}{17}{}%
 \contentsline {subsection}{\numberline {2.2.2}Métricas de Centralidade}{18}{}%
-\contentsline {section}{\numberline {2.3}Modelos de Formação de Redes}{18}{}%
-\contentsline {subsection}{\numberline {2.3.1}Rede de Erdös-Rényi}{18}{}%
-\contentsline {subsection}{\numberline {2.3.2}Modelo de Configuração}{18}{}%
-\contentsline {section}{\numberline {2.4}Modelos de Infecção}{19}{}%
-\contentsline {chapter}{\numberline {3}\uppercase {Metodologia}}{20}{}%
-\contentsline {chapter}{\numberline {4}\uppercase {conclus\~ao}}{23}{}%
-\contentsline {chapter}{\numberline {}\uppercase {Refer\^encias}}{24}{}%
+\contentsline {section}{\numberline {2.3}Modelos de Formação de Redes}{19}{}%
+\contentsline {subsection}{\numberline {2.3.1}Rede de Erdös-Rényi}{19}{}%
+\contentsline {subsection}{\numberline {2.3.2}Modelo de Configuração}{19}{}%
+\contentsline {section}{\numberline {2.4}Modelos de Infecção}{20}{}%
+\contentsline {chapter}{\numberline {3}\uppercase {Metodologia}}{21}{}%
+\contentsline {chapter}{\numberline {4}\uppercase {conclus\~ao}}{24}{}%
+\contentsline {chapter}{\numberline {}\uppercase {Refer\^encias}}{25}{}%
 \setcounter {tocdepth}{1}
-\contentsline {chapter}{\numberline {}AP\^ENDICE{} A{} -$\!$-{} \uppercase {Testando o apêndice}}{26}{}%
+\contentsline {chapter}{\numberline {}AP\^ENDICE{} A{} -$\!$-{} \uppercase {Testando o apêndice}}{27}{}%
 \setcounter {tocdepth}{0}
-\contentsline {section}{\numberline {A.1}Teste}{26}{}%
-\contentsline {subsection}{\numberline {A.1.1}teste}{26}{}%
+\contentsline {section}{\numberline {A.1}Teste}{27}{}%
+\contentsline {subsection}{\numberline {A.1.1}teste}{27}{}%
 \setcounter {tocdepth}{1}
-\contentsline {chapter}{\numberline {}AP\^ENDICE{} B{} -$\!$-{} \uppercase {teste2}}{27}{}%
+\contentsline {chapter}{\numberline {}AP\^ENDICE{} B{} -$\!$-{} \uppercase {teste2}}{28}{}%
 \setcounter {tocdepth}{0}
-\contentsline {section}{\numberline {B.1}teste}{27}{}%
+\contentsline {section}{\numberline {B.1}teste}{28}{}%
 \setcounter {tocdepth}{1}
-\contentsline {chapter}{\numberline {}ANEXO{} A{} -$\!$-{} \uppercase {Testando o anexo}}{28}{}%
+\contentsline {chapter}{\numberline {}ANEXO{} A{} -$\!$-{} \uppercase {Testando o anexo}}{29}{}%
 \setcounter {tocdepth}{0}
