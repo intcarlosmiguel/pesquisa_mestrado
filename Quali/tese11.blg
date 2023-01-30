@@ -1,0 +1,67 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: tese11.aux
+The style file: abntex2-num.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Database file #1: abntex2-options.bib
+Database file #2: exemplo.bib
+Warning--I didn't find a database entry for "abnt-url-package=url"
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
++---------------------------------------------------------+
+| Estilo bibliográfico abntex2-num.bst versão v-1.9.6           |
+| Em caso de dúvidas ou problemas com este estilo procure |
+| http://www.abntex.net.br/                               |
++---------------------------------------------------------+
+You've used 26 entries,
+            6714 wiz_defined-function locations,
+            1364 strings with 15149 characters,
+and the built_in function-call counts, 20082 in all, are:
+= -- 1688
+> -- 680
+< -- 30
++ -- 313
+- -- 202
+* -- 1439
+:= -- 2712
+add.period$ -- 102
+call.type$ -- 26
+change.case$ -- 281
+chr.to.int$ -- 56
+cite$ -- 26
+duplicate$ -- 954
+empty$ -- 1496
+format.name$ -- 1087
+if$ -- 4865
+int.to.chr$ -- 0
+int.to.str$ -- 0
+missing$ -- 465
+newline$ -- 144
+num.names$ -- 104
+pop$ -- 667
+preamble$ -- 1
+purify$ -- 110
+quote$ -- 0
+skip$ -- 1093
+stack$ -- 1
+substring$ -- 577
+swap$ -- 437
+text.length$ -- 20
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 138
+width$ -- 0
+write$ -- 368
+(There was 1 warning)

@@ -5,9 +5,9 @@
 #include <omp.h>
 #include "mtwister.h"
 #include "calc.h"
+#include "rede.h"
 #include <math.h>
 
-int s =0;
 
 struct Graph{
     int **mat;
@@ -16,7 +16,11 @@ struct Graph{
     int Nodes;
     int edges;
     int existir;
+    int* infect;
+    int* infect2;
 };
+
+
 
 
 double global_clustering(int** viz,int N){
@@ -116,25 +120,26 @@ double* degree_list(int** viz,int N){
     return degree;
 }
 
-void degree_distribution(int N,int** viz,int edges,double* media1,double* median1,double* std1){
+void degree_distribution(struct Graph G,double* media1,double* median1,double* std1){
 
     double media = 0;
     double media2 = 0;
-    int* degree_ = (int*) malloc(sizeof(int*)*N);
-    int median = (N+1)/2 - 1;
-    media = (double)2*(edges)/N;
+    int* degree_ = (int*) malloc(sizeof(int*)*G.Nodes);
+    int median = (G.Nodes+1)/2 - 1;
+    media = (double)2*(G.edges)/G.Nodes;
 
-    for (int i = 0; i < N; i++){
-        degree_[i] = viz[i][0];
+    for (int i = 0; i < G.Nodes; i++){
+        degree_[i] = G.viz[i][0];
         media2 += pow(degree_[i]-media,2);
     }
     
-    degree_ = bubble_sort(degree_,N);
+    degree_ = bubble_sort(degree_,G.Nodes);
 
-    *media1 += media;
-    *std1 += pow(media2/(N-1),0.5);
-    *median1 += degree_[median];
-    
+    *media1 = media;
+    *std1 = pow(media2/(G.Nodes-1),0.5);
+    *median1 = degree_[median];
+
+    free(degree_);
 }
 
 int check_existence(int** outro, int N,int site, int vizinho){
@@ -144,6 +149,36 @@ int check_existence(int** outro, int N,int site, int vizinho){
         if((outro[i][0] == vizinho) && (outro[i][1] == site)) return 1;
     }
     return 0;
+}
+
+void infecao_si(struct Graph G,int* infect,int* infect2,double beta,int* tempo, int time){
+    int i;
+    for (i = 0; i < G.Nodes; i++){
+        if(infect[i] == 0){
+            int num_infect = 0;
+            for (int j = 1; j < G.viz[i][0]+1; j++) num_infect += (infect[G.viz[i][j]] == 1)? 1: 0;
+            double probability = (1 - pow(1 - beta,num_infect));
+            infect2[i] = (genrand64_real2() < probability)? 1: 0;
+        }
+        else  infect2[i] = 1;
+    }
+    for (i = 0; i < G.Nodes; i++) tempo[time] += (G.infect2[i] == 1)? 1: 0;
+}
+
+struct Graph init(struct Graph G, double probability,int time,double beta){
+
+    int i;
+    G.infect = (int*) malloc(G.Nodes*sizeof(int));
+    int* tempo = (int*) malloc(time*sizeof(int));
+    for ( i = 0; i < time; i++) tempo[i] = 0;
+
+    for (i = 0; i < G.Nodes; i++){
+        G.infect[i] = (genrand64_real2() < probability)? 1: 0;
+        G.infect2[i] = G.infect[i];
+    }
+    for (int i = 0; i < time; i++) ((i+1)%2 != 0 )? infecao_si(G,G.infect,G.infect2,beta,tempo,i) : infecao_si(G,G.infect2,G.infect,beta,tempo,i);
+    
+    return G;
 }
 
 struct Graph conf_model_p(struct Graph G,int* degree,int ego,double p){
@@ -281,6 +316,7 @@ struct Graph configuration_model(int* degree,int N, double p,int seed){
         //printf("Ego: %d\n",i);
         G = add_edge(G,degree,shuff,N-1,i,p);
     }
+    free(G.n_existir);
     free(shuff);
     return G;
 }
@@ -294,9 +330,56 @@ int* get_degree(int N){
     return degree;
 }
 
+void create_network(struct Graph G,double p){
+    char arquivo[20];
+    sprintf(arquivo, "dados_%.2f.txt", p);
+    FILE* file;
+    file = fopen(arquivo,"w");
+    for (int i = 0; i < G.edges; i++) fprintf(file,"%d\t%d\n",G.mat[i][0],G.mat[i][1]);
+    
+    fclose(file);
+}
+
+void result(struct Graph G,double p,double* resultados){
+
+    resultados[3] = avarage_clustering(G.viz,G.Nodes);
+    resultados[5] = av_path_length(G.viz, G.Nodes,&resultados[6]);
+
+    double *deg = degree_list(G.viz,G.Nodes);
+    double *clustering = list_clustering(G.viz,G.Nodes);
+
+    resultados[4] = correlation(deg,clustering,G.Nodes);
+    degree_distribution(G,&resultados[0],&resultados[1],&resultados[2]);
+
+    free(deg);
+    free(clustering);
+}
+
 void generate_configuration_model(double p, int T){
 
     int N = size_txt();
+    
+    double** resultados = (double **)malloc(T*sizeof(double*));
+    #pragma omp parallel for
+    for (int i = 0; i < T; i++){
+
+        if(T!=1) printf("\e[1;1H\e[2J");
+        struct Graph G;
+        int* degree = get_degree(N);
+        G = configuration_model(degree,N,p,i);
+        resultados[i] = (double*) malloc(7*sizeof(double));
+        result(G,p,resultados[i]);
+        printf("%d\n",i+1);
+        if(T == 1) create_network(G,p);
+        
+        for(int j = 0; j < G.edges; j++) free(G.mat[j]);
+        for(int j = 0; j < N; j++)free(G.viz[j]);
+        
+        free(G.mat);
+        free(G.viz);
+        free(degree);
+    }
+
     double media = 0;
     double median = 0;
     double std = 0;
@@ -304,50 +387,23 @@ void generate_configuration_model(double p, int T){
     double l = 0;
     double r2 = 0;
     double diametro = 0;
-    double d = 0;
-    
 
     for (int i = 0; i < T; i++){
-
-        if(T!=1) printf("\e[1;1H\e[2J");
-        struct Graph G;
-        int* degree = get_degree(N);
-        G = configuration_model(degree,N,p,i);
-        //print_matrix(viz,N);
-        s = i;
-        as += avarage_clustering(G.viz,N);
-        l += av_path_length(G.viz, N,&d);
-        diametro += d;
-        printf("%d\n",i+1);
-        d = 0;
-        double *deg = degree_list(G.viz,N);
-        double *clustering = list_clustering(G.viz,N);
-        r2 += correlation(deg,clustering,N);
-
-        degree_distribution(N,G.viz,G.edges,&media,&median,&std);
-
-
-
-        for(int j = 0; j < G.edges; j++) free(G.mat[j]);
-        for(int j = 0; j < N; j++) free(G.viz[j]);
-        
-        free(G.mat);
-        free(G.viz);
-        free(degree);
-        free(deg);
-        free(clustering);
+        media += resultados[i][0];
+        median += resultados[i][1];
+        std += resultados[i][2];
+        as += resultados[i][3];
+        r2 += resultados[i][4];
+        l += resultados[i][5];
+        diametro += resultados[i][6];
     }
-    //if(T!=1) printf("\e[1;1H\e[2J");
-    //printf("Média Mediana Desvio Clustering Pearson MCM Diâmetro\n");
     FILE* file;
     file = fopen("./resultado.txt","a");
-    fprintf(file,"%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
+    fprintf(file,"%f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",p,media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
     fclose(file);
 }
 
 int main(int argc,char *argv[ ]){
     int T = atoi(argv[1]);
-    generate_configuration_model(0,T);
-    generate_configuration_model(0.5,T);
-    generate_configuration_model(1,T);
+    //generate_configuration_model((double) i/100,T);
 }

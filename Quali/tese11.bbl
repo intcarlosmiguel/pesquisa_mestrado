@@ -1,0 +1,163 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v-1.9.6 }
+
+\bibitem{historic}
+\abntrefinfo{Huremović}{HUREMOVIć}{2019}
+{HUREMOVIć, D. Psychiatry of pandemics (a mental health response to infection
+  outbreak) || brief history of pandemics (pandemics throughout history).
+Springer International Publishing, v. 10.1007/978-3-030-15346-5, may 2019.}
+
+\bibitem{area}
+\abntrefinfo{Dobson e Carper}{DOBSON; CARPER}{1996}
+{DOBSON, A.~P.; CARPER, E.~R. Infectious diseases and human population history.
+\emph{{BioScience}}, Oxford University Press ({OUP}), v.~46, n.~2, p. 115--126,
+  fev. 1996.
+Dispon{\'\i}vel em: $<$https://doi.org/10.2307/1312814$>$.}
+
+\bibitem{whats}
+\abntrefinfo{Grennan}{GRENNAN}{2019}
+{GRENNAN, D. What is a pandemic?
+\emph{{JAMA}}, American Medical Association ({AMA}), v.~321, n.~9, p.~910, mar.
+  2019.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1001/jama.2019.0700$>$.}
+
+\bibitem{Euler1736}
+\abntrefinfo{Euler}{EULER}{1736}
+{EULER, L. Solutio problematis ad geometriam situs pertinentis.
+\emph{Commentarii Academiae Scientiarum Imperialis Petropolitanae}, v.~8, p.
+  128--140, 1736.}
+
+\bibitem{Koenigsberg}
+\abntrefinfo{Boguslawski}{BOGUSLAWSKI}{2011}
+{BOGUSLAWSKI, P. Modelling and analysing 3d building interiors with the dual
+  half-edge data structure.
+01 2011.}
+
+\bibitem{Grafos01}
+\abntrefinfo{Szwarcfiter}{SZWARCFITER}{2018}
+{SZWARCFITER, J.~L. \emph{TEORIA COMPUTACIONAL DE GRAFOS}. 1. ed. [S.l.]:
+  Elsevier, 2018.
+ISBN 9788535288841; 8535288848; 9788535288858; 8535288856.}
+
+\bibitem{Grafos}
+\abntrefinfo{Goldbarg}{GOLDBARG}{2012}
+{GOLDBARG, M. \emph{Grafos: Conceitos, algoritmos e aplicações}. [S.l.:
+  s.n.], 2012.
+ISBN 978-85-352-5716-8.}
+
+\bibitem{network}
+\abntrefinfo{Barabási}{BARABáSI}{2016}
+{BARABáSI, A.-L. \emph{Network Science}. [S.l.]: Cambridge University Press,
+  2016.
+ISBN 9781107076266; 1107076269.}
+
+\bibitem{networks}
+\abntrefinfo{Newman}{NEWMAN}{2018}
+{NEWMAN, M. \emph{Networks}. 2. ed. [S.l.]: Oxford University Press, 2018.
+ISBN 0198805098; 9780198805090.}
+
+\bibitem{Costa2007}
+\abntrefinfo{Costa et al.}{COSTA et al.}{2007}
+{COSTA, L. da F. et al. Characterization of complex networks: A survey of
+  measurements.
+\emph{Advances in Physics}, Informa {UK} Limited, v.~56, n.~1, p. 167--242,
+  jan. 2007.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1080/00018730601170527$>$.}
+
+\bibitem{Kleinberg}
+\abntrefinfo{Kleinberg}{KLEINBERG}{2001}
+{KLEINBERG, J. The small-world phenomenon: An algorithmic perspective.
+\emph{Conference Proceedings of the Annual ACM Symposium on Theory of
+  Computing}, 04 2001.}
+
+\bibitem{POLYMOD}
+\abntrefinfo{Mossong et al.}{MOSSONG et al.}{2017}
+{MOSSONG, J. et al. \emph{POLYMOD social contact data}. Zenodo, 2017.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/3746312$>$.}
+
+\bibitem{Mossong2008}
+\abntrefinfo{Mossong et al.}{MOSSONG et al.}{2008}
+{MOSSONG, J. et al. Social contacts and mixing patterns relevant to the spread
+  of infectious diseases.
+\emph{{PLoS} Medicine}, Public Library of Science ({PLoS}), v.~5, n.~3, p.~e74,
+  mar. 2008.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1371/journal.pmed.0050074$>$.}
+
+\bibitem{Belga2009}
+\abntrefinfo{Niel et al.}{NIEL et al.}{2020}
+{NIEL, H. et al. \emph{Social contact data for Belgium (2006)}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/4059864$>$.}
+
+\bibitem{Belga2010}
+\abntrefinfo{Lander et al.}{LANDER et al.}{2020}
+{LANDER, W. et al. \emph{Social contact data for Belgium (2010-2011)}. Zenodo,
+  2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/4302055$>$.}
+
+\bibitem{China}
+\abntrefinfo{Zhang et al.}{ZHANG et al.}{2020}
+{ZHANG, J. et al. \emph{Social contact data for China mainland}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/3878754$>$.}
+
+\bibitem{France}
+\abntrefinfo{Béraud et al.}{BéRAUD et al.}{2020}
+{BéRAUD, G. et al. \emph{Social contact data for France}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/3886590$>$.}
+
+\bibitem{HongKong}
+\abntrefinfo{Leung et al.}{LEUNG et al.}{2020}
+{LEUNG, K. et al. \emph{Social contact data for Hong Kong}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/3874808$>$.}
+
+\bibitem{Peru}
+\abntrefinfo{Grijalva et al.}{GRIJALVA et al.}{2017}
+{GRIJALVA, C.~G. et al. \emph{Peruvian Social Contact Data}. Zenodo, 2017.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/1095665$>$.}
+
+\bibitem{Russia}
+\abntrefinfo{Litvinova et al.}{LITVINOVA et al.}{2020}
+{LITVINOVA, M. et al. \emph{Social contact data for Russia}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/3874674$>$.}
+
+\bibitem{Thailand}
+\abntrefinfo{{Mahikul Wiriya} et al.}{{Mahikul Wiriya} et al.}{2020}
+{{Mahikul Wiriya} et al. \emph{Social contact data for Thailand}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/4086739$>$.}
+
+\bibitem{Vietnam}
+\abntrefinfo{{Horby Peter} et al.}{{Horby Peter} et al.}{2018}
+{{Horby Peter} et al. \emph{Social Contact Data For Vietnam}. Zenodo, 2018.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/1289474$>$.}
+
+\bibitem{Zambia}
+\abntrefinfo{Dodd et al.}{DODD et al.}{2019}
+{DODD, P.~J. et al. \emph{Social contact data for Zambia and South Africa (CODA
+  dataset)}. Zenodo, 2019.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/2548693$>$.}
+
+\bibitem{Zimbabwe}
+\abntrefinfo{Melegaro et al.}{MELEGARO et al.}{2020}
+{MELEGARO, A. et al. \emph{Social contact data for Zimbabwe}. Zenodo, 2020.
+Dispon{\'\i}vel em: $<$https://zenodo.org/record/3886638$>$.}
+
+\bibitem{Manzo2020}
+\abntrefinfo{Manzo e Rijt}{MANZO; RIJT}{2020}
+{MANZO, G.; RIJT, A. van~de. Halting {SARS}-{CoV}-2 by targeting high-contact
+  individuals.
+\emph{Journal of Artificial Societies and Social Simulation}, Journal of
+  Artificial Societies and Social Simulation, v.~23, n.~4, 2020.
+Dispon{\'\i}vel em: $<$https://doi.org/10.18564/jasss.4435$>$.}
+
+\bibitem{Block2020}
+\abntrefinfo{Block et al.}{BLOCK et al.}{2020}
+{BLOCK, P. et al. Social network-based distancing strategies to flatten the
+  {COVID}-19 curve in a post-lockdown world.
+\emph{Nature Human Behaviour}, Springer Science and Business Media {LLC}, v.~4,
+  n.~6, p. 588--596, jun. 2020.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1038/s41562-020-0898-6$>$.}
+
+\end{thebibliography}
