@@ -1,0 +1,341 @@
+\chapter{Metodologia}
+
+Por conseguinte é natural a utilização de Redes Complexas como modelagem para estudos da Covid-19. Para tanto precisamos agora de dados sobre redes de contágio que contenham informações relevantes para esse estudo, como idade, tempo de contato, se faz parte de grupo de risco ou não, dentre outros.
+
+Entretanto, não é fácil encontrar um banco de dados tão completo assim e não enviesado pela recente pandemia. Em 2008, visando o estudo da pandemia de influenza a Comissão Europeia criou o projeto chamado POLYMOD \cite{POLYMOD} que tinha o intuito da coleta de dados para entender como quais seriam os padrões de contatos da Europa \cite{Mossong2008}.
+
+Apoiado nesse estudo, pesquisas posteriores se inspiraram no molde do POLYMOD \cite{Belga2009,Belga2010,China,France,HongKong,Peru,Russia,Thailand,Vietnam,Zambia,Zimbabwe}. Apesar da grande quantidade de pessoas e contatos há um problema essencial: não há garantia de que as pessoas da entrevista se conectem em si. Por exemplo, no caso da França \cite{France} foram feitas ligações aleatórias extraída da população francesa excluindo territórios ultramarinos, assim nossa análise em rede estaria bastante limitada.
+
+Para evitar esse problema \cite{Manzo2020} propõe um modelo para formamos uma rede baseado nos dados franceses. A partir dos dois dias de entrevista é calculado a média de contatos por dia de cada pessoa (arredondado para cima) e utiliza o Modelo de Configuração para a formação de uma Rede Sintética. No entanto, o modelo de formação de redes gera um agrupamento médio limitado e ele é muito importante na suavização de epidemias \cite{Block2020}. Nesse sentido Manzo propõe que antes de excluirmos um dado sítio do Modelo de Configuração, passamos por cada vizinho dele e os conectamos entre si com uma probabilidade $p$. Ou seja:
+
+\begin{enumerate}
+  \item Quando um dado sítio $i$ atinge o grau requerido pelo MC selecionamos todos os vizinhos $\nu(i)$;
+  \item Selecionamos dois sítios $v,n \in \nu(i)$ e conectamos com probabilidade $p$;
+  \item Se ela existir os conectamos e salvamos para que ela não se repita no MC, caso contrário salvamos para que ela não se repita nesse algoritmo. Por fim também reduzimos em 1 o valor de $\kappa_v$ e $\kappa_n$ ;
+  \item Fazemos 2. até testarmos todas as ligações possíveis e paramos esse algoritmo para dar continuidade ao MC.
+\end{enumerate}
+
+\begin{algorithm}
+
+  \caption{Implementação de Manzo}\label{alg:cap}
+  \begin{algorithmic}
+  \Require $edges$
+  \Require $\kappa$
+  \Require $n\_existir$ \Comment{É necessário salvar quais ligações não vão existir.}
+  \Require $p$
+  \Require $i \in G(\mathpzc{N} ,\mathpzc{L})$\\
+
+  \While{$v \in \nu(i)$}
+    \While{$n \in \nu(i)$} \Comment{Nesse caso não há preferência na escolha de $n$ e $v$.}
+      \If{($v \neq n$) and ($\kappa_n \neq 0$) and ($\kappa_v \neq 0$)}
+          \State $r$ $\gets$ random\_number([0,1])
+          \If{($r <= p$)}
+            \If{($v,n$ not in $edges$) and ($v,n$ not in $n\_existir$)}
+              \State $edges$.insert(($v,n$)) \Comment{Essa matriz vem do MC}
+              \State $\kappa_v \gets \kappa_v - 1$
+              \State $\kappa_n \gets \kappa_n - 1$
+            \EndIf
+          \Else
+          \If{$n,v$ not in $n\_existir$}
+            \State $n\_existir$.insert((v,n))
+            \EndIf
+          \EndIf
+      \EndIf
+    \EndWhile
+  \EndWhile
+  \end{algorithmic}
+
+\end{algorithm}
+
+\begin{figure}[!h]
+  \centering
+  \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+  \caption{Ilustração do Modelo de Manzo}
+  \begin{tikzpicture}[make origin horizontal center of bounding box]
+    %Values
+    \def\xa{2};
+    \def\ya{sqrt(4-sqrt(\xa))}
+
+    \def\xc{0.5};
+    \def\yc{sqrt(4-sqrt(\xc))};
+
+    \def\xb{0.5};
+    \def\yb{sqrt(4-sqrt(\xb))};
+
+    \def\xd{1.5};
+    \def\yd{sqrt(4-sqrt(\xd))};
+
+    \def\xe{1.3};
+    \def\ye{sqrt(4-sqrt(\xe))};
+
+    \draw[black, thick] (0,0) -- ($\xa*(1,0) + \ya*(0,1)$);
+
+    \draw[black, thick, dotted]($\xa*(1,0) + \ya*(0,1)$) -- ($\xa*(0.5,0) + \ya*(0,0.01)$);
+
+    
+    \draw[black, thick] (0,0) -- ($\xb*(1,0) + \yb*(0,1)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xb*(1,0) + \yb*(0,1.5)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xa*(1,0) + \ya*(0,1)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xc*(1,0.5) + \yc*(0.3,0.5)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xc*(1,0.5) + \yc*(-0.3,0.5)$);
+
+    \draw[black, thick] (0,0) -- ($\xc*(1,0) + \yc*(0,-1)$);
+    \draw[black, thick, dotted] ($\xc*(1,0) + \yc*(0,-1)$) -- ($\xa*(0.7,0) + \ya*(0,0.01)$);
+    \draw[black, thick, dotted] ($\xc*(1,0) + \yc*(0,-1)$) -- ($\xc*(-1.5,0) + \yc*(0,-1)$);
+    
+
+    \draw[black, thick] (0,0) -- ($\xd*(-1,0) + \yd*(0,-1)$);
+    \draw[black, thick, dotted] ($\xd*(-1,0) + \yd*(0,-1)$) -- ($\xd*(-1,0) + \yd*(0,0.01)$);
+    \draw[black, thick, dotted] ($\xd*(-1,0) + \yd*(0,-1)$) -- ($\xd*(-1.8,0) + \yd*(0,-1)$);
+
+    \draw[black, thick] (0,0) -- ($\xe*(0,1) + \ye*(-1,0)$);
+
+    % Nós
+
+    \draw[black, fill=white, anchor=center] (0,0) circle [radius=0.25] node {3};
+    \draw[black, fill=white] ($\xc*(1,0) + \yc*(0,1)$) circle [radius=0.25] node {5};
+    \draw[black, fill=white] ($\xe*(0,1) + \ye*(-1,0)$) circle [radius=0.25] node {0};
+    \draw[black, fill=white] ($\xd*(-1,0) + \yd*(0,-1)$) circle [radius=0.25] node {80};
+    \draw[black, fill=white] ($\xb*(1,0) + \yb*(0,-1)$) circle [radius=0.25] node {32};
+    \draw[black, fill=white] ($\xa*(1,0) + \ya*(0,1)$) circle [radius=0.25] node {18};
+    \node at (0,3) {$p = 0$};
+  \end{tikzpicture}
+  \begin{tikzpicture}[make origin horizontal center of bounding box]
+    %Values
+    \def\xa{2};
+    \def\ya{sqrt(4-sqrt(\xa))}
+
+    \def\xc{0.5};
+    \def\yc{sqrt(4-sqrt(\xc))};
+
+    \def\xb{0.5};
+    \def\yb{sqrt(4-sqrt(\xb))};
+
+    \def\xd{1.5};
+    \def\yd{sqrt(4-sqrt(\xd))};
+
+    \def\xe{1.3};
+    \def\ye{sqrt(4-sqrt(\xe))};
+
+    \draw[black, thick] (0,0) -- ($\xa*(1,0) + \ya*(0,1)$);
+
+    \draw[black, thick, dotted]($\xa*(1,0) + \ya*(0,1)$) -- ($\xa*(0.5,0) + \ya*(0,0.01)$);
+
+    
+    \draw[black, thick] (0,0) -- ($\xb*(1,0) + \yb*(0,1)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xb*(1,0) + \yb*(0,1.5)$);
+    \draw[black, thick] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xa*(1,0) + \ya*(0,1)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xc*(1,0.5) + \yc*(0.3,0.5)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xc*(1,0.5) + \yc*(-0.3,0.5)$);
+
+    \draw[black, thick] (0,0) -- ($\xc*(1,0) + \yc*(0,-1)$);
+    \draw[black, thick, dotted] ($\xc*(1,0) + \yc*(0,-1)$) -- ($\xa*(0.7,0) + \ya*(0,0.01)$);
+    %\draw[black, thick, dotted] ($\xc*(1,0) + \yc*(0,-1)$) -- ($\xc*(-1.5,0) + \yc*(0,-1)$);
+    
+
+    \draw[black, thick] (0,0) -- ($\xd*(-1,0) + \yd*(0,-1)$);
+    \draw[black, thick] ($\xd*(-1,0) + \yd*(0,-1)$) -- ($\xc*(1,0) + \yc*(0,-1)$);
+    \draw[black, thick, dotted] ($\xd*(-1,0) + \yd*(0,-1)$) -- ($\xd*(-1.8,0) + \yd*(0,-1)$);
+
+    \draw[black, thick] (0,0) -- ($\xe*(0,1) + \ye*(-1,0)$);
+
+    % Nós
+
+    \draw[black, fill=white, anchor=center] (0,0) circle [radius=0.25] node {3};
+    \draw[black, fill=white] ($\xc*(1,0) + \yc*(0,1)$) circle [radius=0.25] node {5};
+    \draw[black, fill=white] ($\xe*(0,1) + \ye*(-1,0)$) circle [radius=0.25] node {0};
+    \draw[black, fill=white] ($\xd*(-1,0) + \yd*(0,-1)$) circle [radius=0.25] node {80};
+    \draw[black, fill=white] ($\xb*(1,0) + \yb*(0,-1)$) circle [radius=0.25] node {32};
+    \draw[black, fill=white] ($\xa*(1,0) + \ya*(0,1)$) circle [radius=0.25] node {18};
+    \node at (0,3) {$p = 0.5$};
+  \end{tikzpicture}
+  \begin{tikzpicture}[make origin horizontal center of bounding box]
+    %Values
+    \def\xa{2};
+    \def\ya{sqrt(4-sqrt(\xa))}
+
+    \def\xc{0.5};
+    \def\yc{sqrt(4-sqrt(\xc))};
+
+    \def\xb{0.5};
+    \def\yb{sqrt(4-sqrt(\xb))};
+
+    \def\xd{1.5};
+    \def\yd{sqrt(4-sqrt(\xd))};
+
+    \def\xe{1.3};
+    \def\ye{sqrt(4-sqrt(\xe))};
+
+    \draw[black, thick] (0,0) -- ($\xa*(1,0) + \ya*(0,1)$);
+
+    %\draw[black, thick, dotted]($\xa*(1,0) + \ya*(0,1)$) -- ($\xa*(0.5,0) + \ya*(0,0.01)$);
+
+    
+    \draw[black, thick] (0,0) -- ($\xb*(1,0) + \yb*(0,1)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xb*(1,0) + \yb*(0,1.5)$);
+    \draw[black, thick] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xa*(1,0) + \ya*(0,1)$);
+    \draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xc*(1,0.5) + \yc*(0.3,0.5)$);
+    %\draw[black, thick, dotted] ($\xb*(1,0) + \yb*(0,1)$) -- ($\xc*(1,0.5) + \yc*(-0.3,0.5)$);
+
+    \draw[black, thick] (0,0) -- ($\xc*(1,0) + \yc*(0,-1)$);
+    %\draw[black, thick, dotted] ($\xc*(1,0) + \yc*(0,-1)$) -- ($\xa*(0.7,0) + \ya*(0,0.01)$);
+    %\draw[black, thick, dotted] ($\xc*(1,0) + \yc*(0,-1)$) -- ($\xc*(-1.5,0) + \yc*(0,-1)$);
+    
+
+    \draw[black, thick] (0,0) -- ($\xd*(-1,0) + \yd*(0,-1)$);
+    \draw[black, thick] ($\xd*(-1,0) + \yd*(0,-1)$) -- ($\xc*(1,0) + \yc*(0,-1)$);
+    \draw[black, thick] ($\xd*(-1,0) + \yd*(0,-1)$) -- ($\xb*(1,0) + \yb*(0,1)$);
+    \draw[black, thick] ($\xb*(1,0) + \yb*(0,-1)$) -- ($\xa*(1,0) + \ya*(0,1)$);
+
+    \draw[black, thick] (0,0) -- ($\xe*(0,1) + \ye*(-1,0)$);
+
+    % Nós
+
+    \draw[black, fill=white, anchor=center] (0,0) circle [radius=0.25] node {3};
+    \draw[black, fill=white] ($\xc*(1,0) + \yc*(0,1)$) circle [radius=0.25] node {5};
+    \draw[black, fill=white] ($\xe*(0,1) + \ye*(-1,0)$) circle [radius=0.25] node {0};
+    \draw[black, fill=white] ($\xd*(-1,0) + \yd*(0,-1)$) circle [radius=0.25] node {80};
+    \draw[black, fill=white] ($\xb*(1,0) + \yb*(0,-1)$) circle [radius=0.25] node {32};
+    \draw[black, fill=white] ($\xa*(1,0) + \ya*(0,1)$) circle [radius=0.25] node {18};
+    \node at (0,3) {$p = 1$};
+  \end{tikzpicture}
+  \captionsetup{font=small}
+  \caption{Funcionamento do Modelo de Configuração, escolhemos dois sítios $i$ e $j$ aleatoriamente e os conectamos. O Algoritmo pode gerar várias topologias de redes, porém ainda limitadas pelas quantidades $\{k_i\}$ de graus impostas pelo MC.\\ Fonte: Elaborado pelo autor}
+  \label{img:MC_P}
+\end{figure}
+
+O Modelo é mostrado na Figura \ref{img:MC_P}, na qual mostramos o estágio quando encontramos um dado sítio que atinge o grau especificado. Assim como nos modelos de formação de rede existem várias redes que podem ser formadas dada uma probabilidade $p$. Outrossim, se o sítio já tiver atingido o grau requerido pelo MC, então ele não precisa entrar nesse algoritmo. A partir desse modelo o autor consegue os seguintes resultados mostrados na Tabela \ref{table:Manzo} e os meus estão na Tabela \ref{table:Miguel}.
+
+\begin{table}[H]
+  \centering
+  \captionsetup{margin={9pt,14pt},font=normalsize,skip=0.5pt,labelsep=endash}
+
+  \caption{Tabela do resultado de Manzo}
+  \hspace*{-\leftmargin}\begin{tabular}{lccccccc}
+
+    \hline
+
+    \multicolumn{1}{l|}{ \textbf{\shortstack{Probabi\\-lidade}}} & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Grau \\ Médio}}}  & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Grau \\ Mediano}}} &
+    \multicolumn{1}{c|}{\textbf{\shortstack{Desvio \\ Padrão \\ Grau}}} &
+    \multicolumn{1}{c|}{\textbf{\shortstack{Agrupa-\\mento \\ Médio}}} & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Corr \\ Agrup-\\ Grau}}} & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Menor \\ Caminho \\ Médio}}} & 
+    \multicolumn{1}{c}{{\shortstack{\textbf{Diâmetro}}}}     \\
+
+    \hline\\
+    \rowcolor{Gray}
+p = 0         & 9.72 (0.00) & 8 (0.00)     & 6.56 (0.00)        & 0.01 (0.00)       & -0.06 (0.01)                  & 3.47 (0.00)         & 6 (0.00)     \\
+  p = 0.5       & 9.72 (0.00) & 8 (0.00)     & 6.56 (0.00)        & 0.43 (0.00)       & -0.62 (0.01)                  & 4.38 (0.03)         & 7.45 (0.5)   \\
+  \rowcolor{Gray}
+  p = 1.0       & 9.72 (0.00) & 8 (0.00)     & 6.56 (0.00)        & 0.57 (0.01)       & -0.56 (0.01)                  & 5.52 (0.09)         & 10.10 (0.59)
+
+  
+\end{tabular}
+
+  \captionsetup{margin={10pt,10pt},font=small,skip=0pt,position=below}
+
+  \caption*{Aqui aparece os resultados advindos do autor para a rede francesa feitas em 100 simulações de redes. Apresentando as características da rede e em parêntese o erro associado a cada valor. \\Fonte: Elaborada pelo autor.}
+\label{table:Manzo}
+\end{table}
+
+Os valores com probabilidade $p = 0$ batem perfeitamente com os resultados do autor, os outros valores se aproximam bastante do que aparece no artigo, porém ainda na mesma faixa de erro. Podemos ver que o Grau permanece o mesmo para que seja respeitado o MC já o agrupamento aumenta bastante com o incremento de $p$ chegando a seu valor máximo em $0.56$ que é limitado pelo MC.
+
+\begin{table}[H]
+  \centering
+  \captionsetup{margin={9pt,14pt},font=normalsize,skip=0.5pt,labelsep=endash}
+
+  \caption{Tabela do meu resultado.}
+  \hspace*{-\leftmargin}\begin{tabular}{lccccccc}
+
+    \hline
+
+    \multicolumn{1}{l|}{ \textbf{\shortstack{Probabi\\-lidade}}} & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Grau \\ Médio}}}  & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Grau \\ Mediano}}} &
+    \multicolumn{1}{c|}{\textbf{\shortstack{Desvio \\ Padrão \\ Grau}}} &
+    \multicolumn{1}{c|}{\textbf{\shortstack{Agrupa-\\mento \\ Médio}}} & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Corr \\ Agrup-\\ Grau}}} & 
+    \multicolumn{1}{c|}{\textbf{\shortstack{Menor \\ Caminho \\ Médio}}} & 
+    \multicolumn{1}{c}{{\shortstack{\textbf{Diâmetro}}}}     \\
+
+    \hline\\\rowcolor{Gray}
+    p = 0 & 9.72(0.00) & 8.00(0.00) & 6.56(0.00) & 0.01(0.00) & -0.06(0.01) & 3.47(0.00) & 6.00(0.03)  \\
+p = 0.5                             & 9.72(0.00)                      & 8.00(0.00)   & 6.56(0.00)         & 0.43(0.01)        & -0.62(0.01)                   & 4.37(0.05)          & 7.46(0.50)  \\
+p = 1.0                             & 9.72(0.00)                      & 8.00(0.00)   & 6.56(0.00)         & 0.56(0.01)        & -0.57(0.01)                   & 5.62(0.11)          & 10.39(0.66)
+
+  
+\end{tabular}
+
+  \captionsetup{margin={10pt,10pt},font=small,skip=0pt,position=below}
+
+  \caption*{Aqui aparece os resultados advindos do meu código na qual foram feitas 1000 simulações de redes para a rede francesa que se aproximam bastante do apresentado no artigo junto com os desvios padrões entre parênteses. Os que não bateram certo estão na faixa de erro mostrada anteriormente. \\Fonte: Elaborada pelo autor.}
+\label{table:Miguel}
+\end{table}
+
+
+
+\newpage
+\mycomment{
+
+
+\begin{table}[h]
+  \centering
+\captionsetup{margin={9pt,14pt},font=normalsize,skip=0.5pt,labelsep=endash}
+\caption{Distribui\c c\~ao dos documentos analisados por programa de p\'os-gradua\c c\~ao}
+        \begin{tabular}{l|c|c|c}
+           %\specialrule{1pt}{0pt}{0pt}
+%    \multirow{2}{*}{\textbf{Programas de p\'os-gradua\c{c}\~ao~~~~~~~}}
+    & \multicolumn{2}{c|}{\textbf{Categoria}}  &  \multirow{2}{*}{\textbf{~Total~}} \\
+            \cline{2-3}
+             & \textbf{~~~~~Teses~~~~~} & \textbf{Disserta\c{c}\~oes} &  \\
+            \hline
+            Cirurgia  & 1 & 1 & 2 \\
+            Enfermagem & 4 &4 & 8 \\
+            Engenharia Civil & 2 & 8 & 10 \\
+            Farmacologia & 8 & 6 & 14 \\
+            F\'isica & 3 & 6 & 9 \\
+            Qu\'imica Inorg\^anica & 4 &1 & 5 \\
+            {\bf Total}   & {\bf 22} & {\bf 26} & {\bf 48} \vspace{-0.6mm}\\ \bottomrule[1pt]
+        \end{tabular}
+\captionsetup{margin={10pt,10pt},font=small,skip=0pt,position=below}
+\caption*{Fonte: Elaborada pelo autor.}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+\caption{Figura teste}
+\includegraphics[scale=0.5]{ufc.jpg}
+\captionsetup{font=small,position=below,skip=-1pt}
+ \caption*{Fonte: Lara e Smit.}
+ \label{fig1}
+\end{figure}
+
+\vskip2cm
+
+
+\begin{grafico}[h]
+\centering
+\captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+\caption{Grafico de teste}
+\includegraphics[scale=0.5]{ufc.jpg}
+\vspace{-0,15cm}
+\captionsetup{font=small}
+  \caption*{Fonte: Elaborado pelo autor.}
+  \label{graf1}
+\end{grafico}
+\newpage
+\begin{grafico}[h]
+\centering
+\captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+\caption{Grafico de teste2}
+\includegraphics[scale=0.5]{ufc.jpg}
+\vspace{-0,15cm}
+\captionsetup{font=small}
+  \caption*{Fonte: Elaborado pelo autor.}
+  \label{graf2}
+\end{grafico}
+
+}

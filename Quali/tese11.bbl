@@ -74,6 +74,12 @@ Dispon{\'\i}vel em: $<$https://doi.org/10.1080/00018730601170527$>$.}
 \emph{Conference Proceedings of the Annual ACM Symposium on Theory of
   Computing}, 04 2001.}
 
+\bibitem{PageRank}
+\abntrefinfo{Franco}{FRANCO}{2005}
+{FRANCO, B. M. . G. M. .~S. Inside pagerank.
+\emph{ACM Transactions on Internet Technology 2005-feb 01 vol. 5 iss. 1}, v.~5,
+  feb 2005.}
+
 \bibitem{POLYMOD}
 \abntrefinfo{Mossong et al.}{MOSSONG et al.}{2017}
 {MOSSONG, J. et al. \emph{POLYMOD social contact data}. Zenodo, 2017.

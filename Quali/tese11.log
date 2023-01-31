@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.1.25)  30 JAN 2023 17:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.1.25)  31 JAN 2023 11:37
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -148,6 +148,8 @@ Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
 \ALG@tmplength=\skip60
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/share/texlive/texmf-dist/tex/latex/import/import.sty
+Package: import 2020/04/01  v 6.2
 ) (/usr/share/texlive/texmf-dist/tex/latex/graphics/color.sty
 Package: color 2021/12/07 v1.3c Standard LaTeX Color (DPC)
  (/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
@@ -834,26 +836,26 @@ LaTeX Info: Redefining \citeonline on input line 866.
 Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
 \symrsfs=\mathgroup8
 )
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 42.
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 43.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (./tese11.aux)
 \openout1 = `tese11.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 42.
-LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
  (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count339
@@ -915,88 +917,88 @@ Package caption Info: End \AtBeginDocument code.
 <ufc.pdf, id=4, 312.16624pt x 399.4925pt>
 File: ufc.pdf Graphic file (type pdf)
 <use ufc.pdf>
-Package pdftex.def Info: ufc.pdf  used on input line 79.
+Package pdftex.def Info: ufc.pdf  used on input line 80.
 (pdftex.def)             Requested size: 44.46509pt x 56.9055pt.
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 79.
+LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 80.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 79.
+LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 80.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 79.
+LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 80.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 79.
+LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 80.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 79.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 79.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 79.
-LaTeX Font Info:    Trying to load font information for U+rsfs on input line 79.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+LaTeX Font Info:    Trying to load font information for U+rsfs on input line 80.
  (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 ) [0
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./ufc.pdf>]
-Underfull \hbox (badness 1210) in paragraph at lines 79--79
+Underfull \hbox (badness 1210) in paragraph at lines 80--80
 \OT1/ptm/m/n/12 grama de P[]os-Gradua[][]ao em Mo-de-la-gem e
  []
 
 
-Overfull \hbox (2.28003pt too wide) in paragraph at lines 79--79
+Overfull \hbox (2.28003pt too wide) in paragraph at lines 80--80
   $[]$ 
  []
 
 [1]
-Overfull \hbox (12.51755pt too wide) in paragraph at lines 79--79
+Overfull \hbox (12.51755pt too wide) in paragraph at lines 80--80
  []| [] 
  []
 
 
-Underfull \hbox (badness 2393) in paragraph at lines 79--79
+Underfull \hbox (badness 2393) in paragraph at lines 80--80
 [] \OT1/ptm/m/n/10 CES-SANDO A PROPAGA[][]AO DE COVID-19 ELE-MI-NANDO IN-DIV[]IDUOS
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 79--79
+Underfull \hbox (badness 10000) in paragraph at lines 80--80
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 79--79
+Underfull \hbox (badness 10000) in paragraph at lines 80--80
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 79--79
+Underfull \hbox (badness 10000) in paragraph at lines 80--80
 
  []
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 79.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 79.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 79.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
 
-Overfull \hbox (12.51755pt too wide) in paragraph at lines 79--79
+Overfull \hbox (12.51755pt too wide) in paragraph at lines 80--80
  []| [] 
  []
 
 [2]
-Underfull \hbox (badness 1210) in paragraph at lines 79--79
+Underfull \hbox (badness 1210) in paragraph at lines 80--80
 \OT1/ptm/m/n/12 grama de P[]os-Gradua[][]ao em Mo-de-la-gem e
  []
 
 
-Overfull \hbox (2.28003pt too wide) in paragraph at lines 79--79
+Overfull \hbox (2.28003pt too wide) in paragraph at lines 80--80
    $[]$ 
  []
 
@@ -1036,17 +1038,17 @@ Overfull \hbox (2.28003pt too wide) in paragraph at lines 79--79
 \openout7 = `tese11.lsg'.
 
 
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 112--112
-[][] 
- []
-
-
 Overfull \hbox (1.23639pt too wide) in paragraph at lines 113--113
 [][] 
  []
 
 
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 115--115
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 114--114
+[][] 
+ []
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 116--116
 [][] 
  []
 
@@ -1055,11 +1057,6 @@ Overfull \hbox (1.23639pt too wide) in paragraph at lines 115--115
 ] (./tese11.lsb)
 \tf@lsb=\write8
 \openout8 = `tese11.lsb'.
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 119--119
-[][] 
- []
 
 
 Overfull \hbox (1.23639pt too wide) in paragraph at lines 120--120
@@ -1071,6 +1068,11 @@ Overfull \hbox (1.23639pt too wide) in paragraph at lines 121--121
 [][] 
  []
 
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 122--122
+[][] 
+ []
+
 [12
 
 ] (./tese11.toc)
@@ -1079,42 +1081,42 @@ Overfull \hbox (1.23639pt too wide) in paragraph at lines 121--121
 
  [13
 
-]
+] (./chapter/introducao.tex
 Cap\'{\i }tulo 1.
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 140.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 7.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [14
+)) (./chapter/fundamentos.tex [14
 
 
 ]
 Cap\'{\i }tulo 2.
-<Koenigsberg.png, id=68, 853.1875pt x 311.1625pt>
-File: Koenigsberg.png Graphic file (type png)
-<use Koenigsberg.png>
-Package pdftex.def Info: Koenigsberg.png  used on input line 158.
+<./img/Koenigsberg.png, id=68, 853.1875pt x 311.1625pt>
+File: ./img/Koenigsberg.png Graphic file (type png)
+<use ./img/Koenigsberg.png>
+Package pdftex.def Info: ./img/Koenigsberg.png  used on input line 11.
 (pdftex.def)             Requested size: 426.59271pt x 155.58087pt.
-LaTeX Font Info:    Trying to load font information for OT1+pzc on input line 170.
+LaTeX Font Info:    Trying to load font information for OT1+pzc on input line 23.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pzc.fd
 File: ot1pzc.fd 2020/03/25 font definitions for OT1/pzc.
 ) [15
 
- <./Koenigsberg.png>] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 222--224
+ <./img/Koenigsberg.png>] [16]
+Underfull \hbox (badness 10000) in paragraph at lines 75--77
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 222--224
+Underfull \hbox (badness 10000) in paragraph at lines 75--77
 
  []
 
-[17] [18] [19]
+[17] [18] [19] [20]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 360.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 266.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 360.
- [20]
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 266.
+ [21]) (./chapter/metodologia.tex [22]
 Cap\'{\i }tulo 3.
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
@@ -1147,33 +1149,33 @@ Missing character: There is no ; in font nullfont!
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Overfull \hbox (26.58789pt too wide) in paragraph at lines 588--610
+Overfull \hbox (26.58789pt too wide) in paragraph at lines 214--236
  []| [] 
  []
 
-[21
+[23
 
 ]
 Overfull \vbox (20.6145pt too high) has occurred while \output is active []
 
- [22]
-Overfull \hbox (12.84424pt too wide) in paragraph at lines 624--644
+ [24]
+Overfull \hbox (12.84424pt too wide) in paragraph at lines 250--270
  []| [] 
  []
 
-[23]
+[25])
 Cap\'{\i }tulo 4.
-(./tese11.bbl [24
+(./tese11.bbl [26
 
-] [25
+] [27
 
-]) [26]
+]) [28]
 Apendice A.
-[27
+[29
 
 ]
 Apendice B.
-[28
+[30
 
 ]
 Anexo A.
@@ -1181,22 +1183,22 @@ Anexo A.
 | Comentario, sugestao ou critica sobre o abnTeX? Entre em contato: |
 |                  http://abntex.codigolivre.org.br                 |
 +-------------------------------------------------------------------+
-AED: lastpage setting LastPage [29
+AED: lastpage setting LastPage [31
 
 ] (./tese11.aux) ) 
 Here is how much of TeX's memory you used:
- 23922 strings out of 478287
- 506051 string characters out of 5849289
- 806609 words of memory out of 5000000
- 41509 multiletter control sequences out of 15000+600000
- 522422 words of font info for 146 fonts, out of 8000000 for 9000
+ 24009 strings out of 478287
+ 507708 string characters out of 5849289
+ 807020 words of memory out of 5000000
+ 41568 multiletter control sequences out of 15000+600000
+ 531848 words of font info for 168 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 100i,15n,104p,1010b,766s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 100i,15n,104p,1047b,766s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on tese11.pdf (30 pages, 248939 bytes).
+Output written on tese11.pdf (32 pages, 255790 bytes).
 PDF statistics:
- 176 PDF objects out of 1000 (max. 8388607)
- 109 compressed objects within 2 object streams
+ 183 PDF objects out of 1000 (max. 8388607)
+ 114 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  23 words of extra memory for PDF output out of 10000 (max. 10000000)
 

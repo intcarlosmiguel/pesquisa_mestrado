@@ -12,7 +12,7 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
 Database file #1: abntex2-options.bib
-Database file #2: exemplo.bib
+Database file #2: ./bib/exemplo.bib
 Warning--I didn't find a database entry for "abnt-url-package=url"
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
@@ -23,45 +23,45 @@ Reallocated glb_str_end (elt_size=4) to 20 items from 10.
 | Em caso de dúvidas ou problemas com este estilo procure |
 | http://www.abntex.net.br/                               |
 +---------------------------------------------------------+
-You've used 26 entries,
+You've used 27 entries,
             6714 wiz_defined-function locations,
-            1364 strings with 15149 characters,
-and the built_in function-call counts, 20082 in all, are:
-= -- 1688
-> -- 680
-< -- 30
-+ -- 313
-- -- 202
-* -- 1439
-:= -- 2712
-add.period$ -- 102
-call.type$ -- 26
-change.case$ -- 281
-chr.to.int$ -- 56
-cite$ -- 26
-duplicate$ -- 954
-empty$ -- 1496
-format.name$ -- 1087
-if$ -- 4865
+            1370 strings with 15306 characters,
+and the built_in function-call counts, 20549 in all, are:
+= -- 1711
+> -- 693
+< -- 32
++ -- 317
+- -- 206
+* -- 1471
+:= -- 2779
+add.period$ -- 105
+call.type$ -- 27
+change.case$ -- 288
+chr.to.int$ -- 60
+cite$ -- 27
+duplicate$ -- 985
+empty$ -- 1534
+format.name$ -- 1107
+if$ -- 4970
 int.to.chr$ -- 0
 int.to.str$ -- 0
-missing$ -- 465
-newline$ -- 144
-num.names$ -- 104
-pop$ -- 667
+missing$ -- 481
+newline$ -- 149
+num.names$ -- 108
+pop$ -- 687
 preamble$ -- 1
-purify$ -- 110
+purify$ -- 113
 quote$ -- 0
-skip$ -- 1093
+skip$ -- 1122
 stack$ -- 1
-substring$ -- 577
-swap$ -- 437
-text.length$ -- 20
+substring$ -- 583
+swap$ -- 448
+text.length$ -- 21
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 138
+while$ -- 142
 width$ -- 0
-write$ -- 368
+write$ -- 381
 (There was 1 warning)
