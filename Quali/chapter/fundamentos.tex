@@ -22,28 +22,86 @@ Com a solução do problema surge a área da matemática chamada Grafos que é a
 
 Um Grafo $G(\mathpzc{N} ,\mathpzc{L})$ é uma dupla na qual $\mathpzc{N} = \{0,1,2,...,i,...\}$ é um conjunto não vazio de elementos chamados de vértices, ou nós, e $\mathpzc{L}$ é um conjunto não vazio de pares não ordenados de elementos de $\mathpzc{N}$. Dessa forma podemos definir $N = |\mathpzc{N}|$ que mensura a quantidade de vértice que há em $G$ e $L= |\mathpzc{L}|$ que mensura o número de arestas. Essas quantidades também são chamadas de ordem e tamanho \cite{Grafos}, respectivamente, que medem a cardinalidade de $\mathpzc{N}$ e $\mathpzc{L}$.
 
-A partir dessa definição de redes podemos definir a Matriz de Adjacência, ela vai guardar a informação de quem está conectado com quem. Seja uma matriz A quadrada de tamanho $N \times N$, cada elemento da matriz segue a seguinte regra:
+A partir dessa definição de redes podemos definir a Matriz de Adjacência, ela vai guardar a informação de quem está conectado com quem. Seja uma matriz $A$ quadrada de tamanho $N \times N$, cada elemento da matriz segue a seguinte regra:
 \[   
-  a_{i,j} = 
+  A_{i,j} = 
      \begin{cases}
        1 \quad \text{se i e j estão conectados}\\
        0 \quad \text{caso contrário.} \\
      \end{cases}
 \]
 
-A partir dela surgem características importantes de redes. Se $a_{i,j} = a_{j,i} \forall i,j \in \mathpzc{N}$ então a rede é chamada de não direcionada, se $a_{i,j} \neq a_{j,i} \forall i,j \in \mathpzc{N}$ ela é chamada de direcionada. Isso pode ter diferentes interpretações a depender do contexto inserido. Por exemplo na rede de amigos do Facebook, se o usuário A é amigo de B, então B é amigo de A. No caso do Instagram se A segue B não necessariamente B segue A. No primeiro caso é natural modelarmos utilizando redes não direcionadas, enquanto que no segundo usamos redes direcionadas.
+A partir dela surgem características importantes de redes. Se $A_{i,j} = A_{j,i} \forall i,j \in \mathpzc{N}$ então a rede é chamada de não direcionada, se $a_{i,j} \neq a_{j,i} \forall i,j \in \mathpzc{N}$ ela é chamada de direcionada. Isso pode ter diferentes interpretações a depender do contexto inserido. Por exemplo na rede de amigos do Facebook, se o usuário A é amigo de B, então B é amigo de A. No caso do Instagram se A segue B não necessariamente B segue A. No primeiro caso é natural modelarmos utilizando redes não direcionadas, enquanto que no segundo usamos redes direcionadas.
 
 Uma outra forma de guardamos a informação de quem está conectado com quem é a partir da lista de vizinhos. Dois vértices $i$ e $j$ são vizinhos se existe uma ligação entre $i$ e $j$, assim denotamos $\nu(i)$ o conjunto de vizinhos do vértice $i$ para redes não direcionadas. Em redes direcionadas agora temos dois tipos de vizinhos $(i,j)$ e $(k,i)$, portanto denotaremos $\nu_{in}(i)$ todos os vizinhos que têm ligação que chega em $i$ e $\nu_{out}(i)$ todos os vizinhos que têm ligação que sai em $i$.
 
-Por fim, podemos adicionar pesos às nossas ligações, isso têm várias interpretações nos problemas: em uma rede de canos de esgoto, o fluxo que passa em um cano pode ser um peso e em redes de Facebook o nível de amizade pode ser um peso das ligações entre usuários, dentre outros exemplos. Ou podemos adicionar aos vértices como em redes sociais se quisermos estudar a propagação de um vírus a idade ou se ela faz parte de um grupo de risco ou não são parâmetros importantes a serem analizados. Formalmente, um Grafo ponderado $G(\mathpzc{N},\mathpzc{L},\omega)$ é formado por um conjunto de Nós $\mathpzc{N}$, um conjunto de arestas $\mathpzc{L}$ e um mapeamento $\omega: \mathpzc{L}\mapsto \mathbb{R}$ e/ou $\omega: \mathpzc{N}\mapsto \mathbb{R}$. Nesse sentido podemos definir a matrix de pesos $W$ que apresenta uma definição parecida da Matriz de Adjacência, seja $T$ um valor limiar então:
+Por fim, podemos adicionar pesos às nossas ligações, isso têm várias interpretações nos problemas: em uma rede de canos de esgoto, o fluxo que passa em um cano pode ser um peso e em redes de Facebook o nível de amizade pode ser um peso das ligações entre usuários, dentre outros exemplos. Ou podemos adicionar aos vértices como em redes sociais se quisermos estudar a propagação de um vírus a idade ou se ela faz parte de um grupo de risco ou não são parâmetros importantes a serem analisados. Formalmente, um Grafo ponderado $G(\mathpzc{N},\mathpzc{L},\omega)$ é formado por um conjunto de Nós $\mathpzc{N}$, um conjunto de arestas $\mathpzc{L}$ e um mapeamento $\omega: \mathpzc{L}\mapsto \mathbb{R}$ e/ou $\omega: \mathpzc{N}\mapsto \mathbb{R}$. Nesse sentido podemos definir a matrix de pesos $W$ que apresenta uma definição parecida da Matriz de Adjacência, seja $T$ um valor limiar então:
 
 \[   
   w_{i,j} = 
      \begin{cases}
-       \omega(i,j) \quad \text{se i e j estão conectados e} \omega(i,j)> T\\
-       0 \quad \text{caso contrário.} \\
+       \omega(i,j) \quad \text{se i e j estão conectados} \\
+      0 \quad \text{caso contrário.} \\
      \end{cases}
 \]
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+  \caption{Ilustração de Redes e seus Parâmetros}
+  \begin{tikzpicture}[make origin horizontal center of bounding box]
+    \draw[black, thick] (0,0) -- ($(2,0)+(0,1.5)$);
+    \draw[black, thick] (0,0) -- ($(-2,0)+(0,2)$);
+    \draw[black, thick] (0,0) -- ($(-2,0)+(0,-1)$);
+    \draw[black, thick] (0,0) -- ($(-3.5,0)+(0,-1)$);
+    \draw[black, thick] (-3.5,-1) -- ($(-4,0)+(0,1)$);
+    \draw[black, thick] (-2,-1) -- ($(-4,0)+(0,1)$);
+    \draw[black, thick] (-4,1) -- ($(-2,0)+(0,2)$);
+    \draw[black, thick] (-2,-1) -- (-3.5,-1);
+    \draw[black, thick] (-4,1) -- (-5.5,0);
+    \draw[black, thick] (-3.5,-1) -- (-5.5,0);
+    \draw[black, thick] (-4,1) -- (-5.5,-2.5);
+    \draw[black, thick] (-3.5,-1) -- (-5.5,-2.5);
+
+    \draw[black, fill=white] ($(0,0) + (0,0)$) circle [radius=0.3] node {0};
+    \draw[black, fill=white] ($(2,0) + (0,1.5)$) circle [radius=0.3] node {1};
+    \draw[black, fill=white] ($(-2,0) + (0,2)$) circle [radius=0.3] node {5};
+    \draw[black, fill=white] ($(-2,0) + (0,-1)$) circle [radius=0.3] node {2};
+    \draw[black, fill=white] ($(-4,0) + (0,1)$) circle [radius=0.3] node {4};
+    \draw[black, fill=white] ($(-5.5,0) + (0,0)$) circle [radius=0.3] node {6};
+    \draw[black, fill=white] ($(-3.5,0) + (0,-1)$) circle [radius=0.3] node {3};
+    \draw[black, fill=white] ($(-5.5,0) + (0,-2.5)$) circle [radius=0.3] node {7};
+    
+    \node at (4,3) {$N = 8$};
+    \node at (4,2.5) {$L = 12$};
+    \node at (2.5,-1) {$A = $};
+    \draw [decorate,
+    decoration = {brace}] (3,-3.2) --  (3,1.2);
+    \draw [decorate,
+    decoration = {brace, mirror}] (7,-3.2) --  (7,1.2);
+    \matrix at (5,-1)
+  {
+
+    \node {0}; & \node{1}; & \node {1}; & \node {1}; & \node {0}; & \node {1}; & \node {0}; & \node {0};  \\
+    
+    \node {1}; & \node{0}; & \node {0}; & \node {0}; & \node {0}; & \node {0}; & \node {0}; & \node {0};  \\
+
+    \node {1}; & \node{0}; & \node {0}; & \node {1}; & \node {1}; & \node {0}; & \node {0}; & \node {0};  \\
+
+    \node {1}; & \node{0}; & \node {1}; & \node {0}; & \node {1}; & \node {0}; & \node {1}; & \node {1};  \\
+
+    \node {0}; & \node{0}; & \node {1}; & \node {1}; & \node {0}; & \node {1}; & \node {1}; & \node {1};  \\
+
+    \node {1}; & \node{0}; & \node {0}; & \node {0}; & \node {1}; & \node {0}; & \node {0}; & \node {0};  \\
+
+    \node {0}; & \node{0}; & \node {0}; & \node {1}; & \node {1}; & \node {0}; & \node {0}; & \node {0};  \\
+    
+    \node {0}; & \node{0}; & \node {0}; & \node {1}; & \node {1}; & \node {0}; & \node {0}; & \node {0};  \\
+  };
+  \end{tikzpicture}
+  \captionsetup{font=small}
+  \caption*{Ilustração de uma rede, das suas quantidades de ligações, de nós e da Matriz de Adjacência.\\ Fonte: Elaborado pelo autor}
+\end{figure}
 
 \section{Métricas de Redes}
 
@@ -124,6 +182,44 @@ Em que $\#$ significa número de alguma coisa, no caso estamos contanto o númer
   \label{clusteringmedio}
 \end{equation}
 
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+  \caption{Ilustração de Redes e suas Métricas Globais}
+  \begin{tikzpicture}[make origin horizontal center of bounding box]
+    \draw[black, thick] (0,0) -- ($(2,0)+(0,1.5)$);
+    \draw[black, thick] (0,0) -- ($(-2,0)+(0,2)$);
+    \draw[black, thick] (0,0) -- ($(-2,0)+(0,-1)$);
+    \draw[black, thick] (0,0) -- ($(-3.5,0)+(0,-1)$);
+    \draw[black, thick] (-3.5,-1) -- ($(-4,0)+(0,1)$);
+    \draw[black, thick] (-2,-1) -- ($(-4,0)+(0,1)$);
+    \draw[black, thick] (-4,1) -- ($(-2,0)+(0,2)$);
+    \draw[black, thick] (-2,-1) -- (-3.5,-1);
+    \draw[black, thick] (-4,1) -- (-5.5,0);
+    \draw[black, thick] (-3.5,-1) -- (-5.5,0);
+    \draw[black, thick] (-4,1) -- (-5.5,-2.5);
+    \draw[black, thick] (-3.5,-1) -- (-5.5,-2.5);
+
+    \draw[black, fill=white] ($(0,0) + (0,0)$) circle [radius=0.3] node {0};
+    \draw[black, fill=white] ($(2,0) + (0,1.5)$) circle [radius=0.3] node {1};
+    \draw[black, fill=white] ($(-2,0) + (0,2)$) circle [radius=0.3] node {5};
+    \draw[black, fill=white] ($(-2,0) + (0,-1)$) circle [radius=0.3] node {2};
+    \draw[black, fill=white] ($(-4,0) + (0,1)$) circle [radius=0.3] node {4};
+    \draw[black, fill=white] ($(-5.5,0) + (0,0)$) circle [radius=0.3] node {6};
+    \draw[black, fill=white] ($(-3.5,0) + (0,-1)$) circle [radius=0.3] node {3};
+    \draw[black, fill=white] ($(-5.5,0) + (0,-2.5)$) circle [radius=0.3] node {7};
+    
+    \node at (4,1.25) {$\langle l \rangle = 1.67$};
+    \node at (4,0.75) {$d = 3$};
+    \node at (4,0.25) {$\langle k \rangle = 2.035$};
+    \node at (4,-0.25) {$\rho = 12/56$};
+    \node at (4,-0.75) {$C = 0.375$};
+    \node at (4,-1.25) {$ \langle C \rangle = 0.4416$};
+  \end{tikzpicture}
+  \captionsetup{font=small}
+  \caption*{Ilustração de uma rede e sua respectivas Métricas Globais: menor caminho médio, diâmetro, grau médio, densidade, Agrupamento, Agrupamento Médio.\\ Fonte: Elaborado pelo autor}
+\end{figure}
+
 \subsection{Métricas de Centralidade}
 
 Ao estudar redes estamos interessados em entender suas estruturas e propriedades, isso já é possível dadas as métricas que apresentamos anteriormente. Contudo, essas métricas globais nos trazem informações sobre a rede como um todo e as propriedades que ela apresenta podem estar diluídas na rede como um todo ou concentrada em sítios específicos. Portanto estudar os sítios em si e a sua importância perante a rede é necessário, para isso usaremos as chamadas Métricas de Centralidade.
@@ -171,9 +267,7 @@ Para ser possível detectar e mensurar esse tipo de importância, considere $\ma
 
 % Centralidade de Autovetor
 
-Ao lidarmos com uma rede de uma empresa sabemos que o CEO é muito importante para ela, contudo ele tem contato apenas com os chefes de cada região da empresa e esses chefes não precisariam ter contato com o chefe para ter contato entre si. Então onde estaria a informação de que o CEO é o mais importante? A resposta para essa pergunta está no fato de que o CEO têm ligações com pessoas de importância para rede, algo que não é detectado pelas métricas anteriores.
-
-Definimos a Centralidade de Autovetor ($CA$) como:
+Ao lidarmos com uma rede de uma empresa sabemos que o CEO é muito importante para ela, contudo ele tem contato apenas com os chefes de cada região da empresa e esses chefes não precisariam ter contato com o chefe para ter contato entre si. Então onde estaria a informação de que o CEO é o mais importante? A resposta para essa pergunta está no fato de que o CEO têm ligações com pessoas de importância para rede, algo que não é detectado pelas métricas anteriores Definimos a Centralidade de Autovetor ($CA$) como:
 
 \begin{equation}
   CA(i) = \frac{1}{\lambda}\sum_{j}^nA_{i,j}CA(j)
@@ -239,25 +333,25 @@ Diferente do Modelo de Erdös-Rényi podemos encontrar o caso na qual nós sabem
   \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
   \caption{Ilustração do Modelo}
   \begin{tikzpicture}
-    \draw[gray, thick, dotted] (0,0) -- (-1,-1);
-    \draw[gray, thick] (0,0) -- (1,1);
-    \draw[gray, thick, dotted] (0,0) -- (1,-1);
-    \draw[gray, thick, dotted] (0,0) -- (-1,1);
+    \draw[black, thick, dotted] (0,0) -- (-1,-1);
+    \draw[black, thick] (0,0) -- (1,1);
+    \draw[black, thick, dotted] (0,0) -- (1,-1);
+    \draw[black, thick, dotted] (0,0) -- (-1,1);
     \draw[black, fill=white] (0,0) circle [radius=0.25] node {$i$};
-    \draw[gray, thick, dotted] (1,1) -- (2,2);
-    \draw[gray, thick] (3,3) -- (2,2);
-    \draw[gray, thick, dotted] (3,3) -- (4,2);
-    \draw[gray, thick, dotted] (3,3) -- (2,4);
+    \draw[black, thick, dotted] (1,1) -- (2,2);
+    \draw[black, thick] (3,3) -- (2,2);
+    \draw[black, thick, dotted] (3,3) -- (4,2);
+    \draw[black, thick, dotted] (3,3) -- (2,4);
     \draw[black, fill=white] (3,3) circle [radius=0.25] node {$j$};
   
-    \draw[gray, thick, dotted] (0,3) -- (0,2);
-    \draw[gray, thick, dotted] (0,3) -- (0,4);
-    \draw[gray, thick, dotted] (0,3) -- (-1,3);
-    \draw[gray, thick, dotted] (0,3) -- (1,3);
+    \draw[black, thick, dotted] (0,3) -- (0,2);
+    \draw[black, thick, dotted] (0,3) -- (0,4);
+    \draw[black, thick, dotted] (0,3) -- (-1,3);
+    \draw[black, thick, dotted] (0,3) -- (1,3);
     \draw[black, fill=white] (0,3) circle [radius=0.25] node {9};
   
-    \draw[gray, thick, dotted] (3,0) -- (4,-1);
-    \draw[gray, thick, dotted] (3,0) -- (2,-1);
+    \draw[black, thick, dotted] (3,0) -- (4,-1);
+    \draw[black, thick, dotted] (3,0) -- (2,-1);
     \draw[black, fill=white] (3,0) circle [radius=0.25] node {3};
     
     %\filldraw (0,0) circle (7pt) node[anchor=west, inner sep=0pt]{i};

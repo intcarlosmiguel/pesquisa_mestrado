@@ -5,9 +5,9 @@
 \contentsline {section}{\numberline {2.1}Conceitos Fundamentais}{16}{}%
 \contentsline {section}{\numberline {2.2}Métricas de Redes}{17}{}%
 \contentsline {subsection}{\numberline {2.2.1}Métricas Globais de Redes}{17}{}%
-\contentsline {subsection}{\numberline {2.2.2}Métricas de Centralidade}{18}{}%
-\contentsline {section}{\numberline {2.3}Modelos de Formação de Redes}{20}{}%
-\contentsline {subsection}{\numberline {2.3.1}Rede de Erdös-Rényi}{20}{}%
+\contentsline {subsection}{\numberline {2.2.2}Métricas de Centralidade}{19}{}%
+\contentsline {section}{\numberline {2.3}Modelos de Formação de Redes}{21}{}%
+\contentsline {subsection}{\numberline {2.3.1}Rede de Erdös-Rényi}{21}{}%
 \contentsline {subsection}{\numberline {2.3.2}Modelo de Configuração}{21}{}%
 \contentsline {section}{\numberline {2.4}Modelos de Infecção}{22}{}%
 \contentsline {chapter}{\numberline {3}\uppercase {Metodologia}}{23}{}%
