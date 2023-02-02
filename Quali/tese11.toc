@@ -8,20 +8,20 @@
 \contentsline {subsection}{\numberline {2.2.2}Métricas de Centralidade}{19}{}%
 \contentsline {section}{\numberline {2.3}Modelos de Formação de Redes}{21}{}%
 \contentsline {subsection}{\numberline {2.3.1}Rede de Erdös-Rényi}{21}{}%
-\contentsline {subsection}{\numberline {2.3.2}Modelo de Configuração}{21}{}%
-\contentsline {section}{\numberline {2.4}Modelos de Infecção}{22}{}%
-\contentsline {chapter}{\numberline {3}\uppercase {Metodologia}}{23}{}%
-\contentsline {chapter}{\numberline {4}\uppercase {conclus\~ao}}{26}{}%
-\contentsline {chapter}{\numberline {}\uppercase {Refer\^encias}}{27}{}%
+\contentsline {subsection}{\numberline {2.3.2}Modelo de Configuração}{22}{}%
+\contentsline {section}{\numberline {2.4}Modelos de Infecção}{23}{}%
+\contentsline {chapter}{\numberline {3}\uppercase {Metodologia}}{24}{}%
+\contentsline {chapter}{\numberline {4}\uppercase {conclus\~ao}}{27}{}%
+\contentsline {chapter}{\numberline {}\uppercase {Refer\^encias}}{28}{}%
 \setcounter {tocdepth}{1}
-\contentsline {chapter}{\numberline {}AP\^ENDICE{} A{} -$\!$-{} \uppercase {Testando o apêndice}}{29}{}%
+\contentsline {chapter}{\numberline {}AP\^ENDICE{} A{} -$\!$-{} \uppercase {Testando o apêndice}}{31}{}%
 \setcounter {tocdepth}{0}
-\contentsline {section}{\numberline {A.1}Teste}{29}{}%
-\contentsline {subsection}{\numberline {A.1.1}teste}{29}{}%
+\contentsline {section}{\numberline {A.1}Teste}{31}{}%
+\contentsline {subsection}{\numberline {A.1.1}teste}{31}{}%
 \setcounter {tocdepth}{1}
-\contentsline {chapter}{\numberline {}AP\^ENDICE{} B{} -$\!$-{} \uppercase {teste2}}{30}{}%
+\contentsline {chapter}{\numberline {}AP\^ENDICE{} B{} -$\!$-{} \uppercase {teste2}}{32}{}%
 \setcounter {tocdepth}{0}
-\contentsline {section}{\numberline {B.1}teste}{30}{}%
+\contentsline {section}{\numberline {B.1}teste}{32}{}%
 \setcounter {tocdepth}{1}
-\contentsline {chapter}{\numberline {}ANEXO{} A{} -$\!$-{} \uppercase {Testando o anexo}}{31}{}%
+\contentsline {chapter}{\numberline {}ANEXO{} A{} -$\!$-{} \uppercase {Testando o anexo}}{33}{}%
 \setcounter {tocdepth}{0}

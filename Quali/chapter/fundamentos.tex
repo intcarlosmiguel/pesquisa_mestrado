@@ -291,7 +291,39 @@ Na sessão anterior discutimos sobre as métricas que tentam quantificar a estru
 
 \subsection{Rede de Erdös-Rényi}
 
-A Rede de Erdös-Rényi, ou rede aleatória, parte do princípio que nossas conexões com outras pessoas são aleatórias. Ao trabalharmos nesse modelo nós temos o conhecimento de quantos sítios e ligações existem
+Um dos primeiros modelos que conseguiu ter sucesso nesse tocante foi o de Erdös-Rényi que iniciou os estudos de grafos (ou redes) aleatórias\cite{Erdos:1959:pmd}. O modelo é considerado estocástico com tempo discreto partindo do pressuposto que as conexões entre os sítios é algo aleatório e conseguimos retirar propriedades importantes da rede. Apesar de simples e poucas dessas propriedades aparecem em redes reais, é interessante estudar esse modelo por motivos históricos e também podemos aprender muito com ele apesar de simples.
+
+Seja $G(\mathpzc{N} ,\mathpzc{L})$ um grafo aleatório que segue o modelo de Erdös-Rényi, que denotaremos pro $G(\mathpzc{N},p)$, nesse modelo temos fixados o conjunto de vértices e temos uma probabilidade $p$ para que cada ligação esteja ligada. Podemos construir a rede da seguinte forma:
+
+\begin{enumerate}
+  \item Crie $N$ vértices;
+  \item Selecione um vértice $i$ e outro vértice $j$ e tente os conectar com probabilidade $p$, caso consiga a ligação é criada, caso contrário salvamos que ela não existe;
+  \item Fazemos 2. até testarmos todas as ligações.
+\end{enumerate}
+
+Dada a descrição que acabamos de dar do modelo podemos estudar como suas métricas se comportam. O primeiro parâmetro a ser estudado é o grau. Dado um sítio qualquer da rede que no final terá grau $k$, portanto existiram $k$ ligações com probabilidade $p$ e $N - 1 - k$ (não conta a si mesmo) ligações com $1 - p$. Portanto, a distribuição de grau será:
+
+\begin{equation}
+  P(k) = {N - 1 \choose k}p^k(1-p)^{N - 1 - k}
+\end{equation}
+
+A partir dela conseguimos calcular facilmente o grau médio da rede, pois é uma distribuição binomial:
+
+\begin{equation}
+  \langle k \rangle = \sum_{k = 1}^{N - 1}P(k)k = \sum_{k = 1}^{N - 1}kp^k(1-p)^{N - 1 - k} = (N - 1)p
+\end{equation}
+
+No caso $N$ muito grande ($N >> k$) é obtido o resultado que a distribuição tende a uma dde Poisson. Isso deve ser analisado pois em redes reais $N$ tem essa característica, por isso esse modelo também é chamado de Rede Binomial ou Rede de Poisson. Considere o resultado anterior de que $\langle k \rangle = (N -1)p \approx Np$ e que ${N - 1 \choose k} = \frac{\prod\limits_{i = 1}^{k} N - i}{k!} \approx \frac{N^k}{k!}$, Portanto no limite $N \rightarrow \infty$:
+
+\begin{equation}
+  P(k) = \lim\limits_{N \rightarrow \infty} \frac{N^k}{k!}p^k(1 - p)^{N - 1 - k} = \frac{\langle k \rangle^k}{k!}\lim\limits_{N \rightarrow \infty}\Bigg(1 - \frac{\langle k \rangle}{N}\Bigg)^{N - k} = \frac{\langle k \rangle^k}{k!}e^{-\langle k \rangle}.
+\end{equation}
+
+Outra métrica a ser avaliada é o agrupamento $C$ da rede. Podemos ver pela definição que demos na Sessão anterior que o agrupamento é a probabilidade de dois nós estarem ligados dado que estão ligados ao mesmo nó, isso é basicamente a probabilidade $p$:
+
+\begin{equation}
+  C = p = \frac{\langle k \rangle}{N - 1}
+\end{equation}
 
 \subsection{Modelo de Configuração}
 

@@ -1,13 +1,13 @@
 # Fdb version 3
-["bibtex tese11"] 1675192347 "tese11.aux" "tese11.bbl" "tese11" 1675192412
+["bibtex tese11"] 1675288441 "tese11.aux" "tese11.bbl" "tese11" 1675289130
   "./abntex2-num.bst" 1510005360 60065 f20df0feb716ec75287258079c326f00 ""
-  "./bib/exemplo.bib" 1675174600 13722 7c0a9f98c73c259812c96b0aacc42314 ""
+  "./bib/exemplo.bib" 1675284420 14231 7a753bf689ed0709cea717798a42f256 ""
   "abntex2-options.bib" 1671815468 102 d247d6b5ad09675966a68ebc17901937 ""
-  "tese11.aux" 1675192412 9178 e1f7478f654be709b7ab1ae9983c3b36 "pdflatex"
+  "tese11.aux" 1675289130 9369 f780687cb05f88390d790229c8b1b1fb "pdflatex"
   (generated)
   "tese11.bbl"
   "tese11.blg"
-["pdflatex"] 1675192411 "/home/carlos/Downloads/Codes/Github/pesquisa_mestrado/Quali/tese11.tex" "tese11.pdf" "tese11" 1675192412
+["pdflatex"] 1675289129 "/home/carlos/Downloads/Codes/Github/pesquisa_mestrado/Quali/tese11.tex" "tese11.pdf" "tese11" 1675289130
   "/etc/texmf/web2c/texmf.cnf" 1674665072 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/carlos/Downloads/Codes/Github/pesquisa_mestrado/Quali/tese11.tex" 1675172212 6950 eba7c1ff1adb396413f29e859f3a8473 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -257,20 +257,20 @@
   "abnt-fisica11.cls" 1670538652 66424 2c0625f1329332cd4c0c77f7dae00bfa ""
   "abntex2abrev.sty" 1510005360 4703 37b514a90bd0b69ee9f8e340d7ac09d5 ""
   "abntex2cite11.sty" 1664224629 41402 e70955b1cd355c366bc6f23393d33e89 ""
-  "chapter/fundamentos.tex" 1675192410 24210 af29a42cdebf24b1874465b62e75fc1a ""
+  "chapter/fundamentos.tex" 1675289128 26926 a763cd04a51930673145e3464909a97f ""
   "chapter/introducao.tex" 1675164668 1603 30ea7606d211f8fc0250812fed2dc599 ""
   "chapter/metodologia.tex" 1675164774 16474 89545e9a8ea16ac2a22432b30ea11a4b ""
   "fisica-ufc11.sty" 1672064132 19358 826244da628693cdfa4295201c8af569 ""
   "img/Koenigsberg.png" 1671982903 29605 253bed2b52524b3679dafc4c45ef55a9 ""
-  "tese11.aux" 1675192412 9178 e1f7478f654be709b7ab1ae9983c3b36 "pdflatex"
-  "tese11.bbl" 1675192347 6527 f1259872a24afce6bf53c3b25201551d "bibtex tese11"
-  "tese11.graf" 1675192411 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "tese11.lof" 1675192412 1081 54d72f65e53230dc913d4da2d8261267 "pdflatex"
-  "tese11.lot" 1675192412 219 4d3b636de5caa0a56b38fef940586e02 "pdflatex"
-  "tese11.lsb" 1675192411 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "tese11.lsg" 1675192411 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "tese11.aux" 1675289130 9369 f780687cb05f88390d790229c8b1b1fb "pdflatex"
+  "tese11.bbl" 1675288441 6725 e42772a64fd9af87c7dae9e24b0e51de "bibtex tese11"
+  "tese11.graf" 1675289129 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "tese11.lof" 1675289130 1081 1cdd288e60f0b120aba4551ad1236eaa "pdflatex"
+  "tese11.lot" 1675289130 219 8db4458a8512269affdb2264e2ae4775 "pdflatex"
+  "tese11.lsb" 1675289129 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "tese11.lsg" 1675289129 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "tese11.tex" 1675172212 6950 eba7c1ff1adb396413f29e859f3a8473 ""
-  "tese11.toc" 1675192412 1724 1c955522a51b247b261f76ee044ef47d "pdflatex"
+  "tese11.toc" 1675289130 1724 0e92e8ce1d61e53eb1b4de977a9c67a5 "pdflatex"
   "ufc.pdf" 1510005360 62428 0837ed0862674ef8cec171e31bd568c0 ""
   (generated)
   "tese11.aux"

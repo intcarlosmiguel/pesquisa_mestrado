@@ -80,6 +80,11 @@ Dispon{\'\i}vel em: $<$https://doi.org/10.1080/00018730601170527$>$.}
 \emph{ACM Transactions on Internet Technology 2005-feb 01 vol. 5 iss. 1}, v.~5,
   feb 2005.}
 
+\bibitem{Erdos:1959:pmd}
+\abntrefinfo{Erd\"os e R\'enyi}{ERD\"OS; R\'ENYI}{1959}
+{ERD\"OS, P.; R\'ENYI, A. On random graphs i.
+\emph{Publicationes Mathematicae Debrecen}, v.~6, p. 290--297, 1959.}
+
 \bibitem{POLYMOD}
 \abntrefinfo{Mossong et al.}{MOSSONG et al.}{2017}
 {MOSSONG, J. et al. \emph{POLYMOD social contact data}. Zenodo, 2017.
