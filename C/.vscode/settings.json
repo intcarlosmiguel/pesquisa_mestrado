@@ -11,6 +11,12 @@
         "new": "c",
         "*.tcc": "c",
         "cstdint": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "rede.h": "c",
+        "calc.h": "c",
+        "model.h": "c",
+        "time.h": "c"
     }
 }
