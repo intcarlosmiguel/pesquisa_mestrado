@@ -9,7 +9,7 @@ double correlation(double* x,double* y,int N);
 int combination(int n, int p);
 void swap (int *a, int *b);
 int* randomize (int* array, int n,int seed);
-int* ending(int* array, int n, int site);
+int* ending(int* array, int n, int site,int inicio);
 int* bubble_sort_by(int *array,int *valor,int N);
 void print_vetor(int* array,int N);
 int* bubble_sort(int*vetor,int N);

@@ -81,7 +81,7 @@ struct CM conf_model_p(struct CM MC,int* degree,int ego,double p){
 
             for (int j = 0; j < N; j++) shuff[j] = vizinhos[j];
             shuff = randomize(shuff,N,i+site);
-            shuff = ending(shuff,N,site);
+            shuff = ending(shuff,N,site,0);
             for (int j = 0; j < N-1; j++){
                 if(degree[site] == 0) break;
                 int vizinho = shuff[j];
@@ -183,7 +183,7 @@ struct Graph configuration_model(int N, double p,int seed){
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++) shuff[j] = j;
         shuff = randomize(shuff,N,seed);
-        shuff = ending(shuff,N, i);
+        shuff = ending(shuff,N, i,0);
         MC = add_edge(MC,degree,shuff,N-1,i,p);
     }
 

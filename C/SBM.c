@@ -102,6 +102,99 @@ int menor_entre(int u, int v){
     else return u;
 }
 
+int* find_faixa(int** array,int* faixa,int N,int faixa1,int faixa2,int* first){
+    int* resultados = (int*) malloc(2*sizeof(int));
+    for (int i = *first; i < N; i++){
+        if((faixa[array[i][0]] == faixa1) && (faixa[array[i][1]] == faixa2)){
+            resultados[0] = array[i][0];
+            resultados[1] = array[i][1];
+            *first = i;
+            return resultados;
+        }
+        if((faixa[array[i][0]] == faixa2) && (faixa[array[i][1]] == faixa1)){
+            resultados[1] = array[i][0];
+            resultados[0] = array[i][1];
+            *first = i;
+            return resultados;
+        }
+    }
+    resultados[0] = -1;
+    resultados[1] = -1;
+    *first = -1;
+    return resultados;
+}
+
+int check_clustering(int u, int v,int** viz){
+    for (int i = 1; i <= viz[u][0]; i++){
+        int first = viz[u][i];
+        for (int j = 1; j <= viz[first][0]; j++) if(viz[first][j] == v) return 1;
+    }
+    for (int i = 1; i <= viz[v][0]; i++){
+        int first = viz[v][i];
+        //if(v == 419)printf("Erro: %d,%d\n",first,v);
+        for (int j = 1; j <= viz[first][0]; j++) if(viz[first][j] == u) return 1;
+    }
+    //printf("Deu erro no segundo\n");
+    return 0;
+}
+
+struct SBM increase_clustering(struct SBM SBM2,int* faixas){
+    for (int i = 0; i < SBM2.G.Nodes; i++){
+        for (int j = 1; j <= SBM2.G.viz[i][0]; j++){
+
+            int first = SBM2.G.viz[i][j];
+
+            for (int k = j+1; k <= SBM2.G.viz[i][0]; k++){
+                int second = SBM2.G.viz[i][k];
+                //printf("%d - %d,%d\n",SBM2.G.viz[419][0],first,second);
+                int rep = check_existence(SBM2.mat,SBM2.G.edges,first,second);
+
+                if(rep == 0){
+                    int faixa1 = faixas[first];
+                    int faixa2 = faixas[second];
+                    int primeiro = 0;
+                    //if((first == 251) && (second == 18)) printf("A: %d - %d,%d\n",i,first,second);
+                    int* resultados = find_faixa(SBM2.mat,faixas,SBM2.G.edges,faixa1,faixa2,&primeiro);
+                    while(check_clustering(resultados[0],resultados[1],SBM2.G.viz) == 1){
+                        free(resultados);
+                        primeiro++;
+                        resultados = find_faixa(SBM2.mat,faixas,SBM2.G.edges,faixa1,faixa2,&primeiro);
+                        if(primeiro == -1) break;
+                    }
+                    if(primeiro!=-1){
+                        //if((first == 251) && (second == 18))printf("%d,%d\n",SBM2.mat[primeiro][0],SBM2.mat[primeiro][1]);
+                        SBM2.mat[primeiro][0] = first;
+                        SBM2.mat[primeiro][1] = second;
+                        //if((first == 251) && (second == 18))printf("%d,%d\n",SBM2.mat[primeiro][0],SBM2.mat[primeiro][1]);
+                        //if((j == 10) && (k == 18)) printf("%d,%d\n",SBM2.mat[primeiro][0],SBM2.mat[primeiro][1]);
+                        SBM2.G.viz[first][0] += 1;
+                        SBM2.G.viz[second][0] += 1;
+                        SBM2.G.viz[first] = (int*) realloc(SBM2.G.viz[first],(SBM2.G.viz[first][0]+1)*sizeof(int));
+                        SBM2.G.viz[second] = (int*) realloc(SBM2.G.viz[second],(SBM2.G.viz[second][0]+1)*sizeof(int));
+                        SBM2.G.viz[first][SBM2.G.viz[first][0]] = second;
+                        SBM2.G.viz[second][SBM2.G.viz[second][0]] = first;
+
+                        //if((first == 251) && (second == 18)) print_vetor(SBM2.G.viz[resultados[0]],SBM2.G.viz[resultados[0]][0]+1);
+                        SBM2.G.viz[resultados[0]] = ending(SBM2.G.viz[resultados[0]],SBM2.G.viz[resultados[0]][0]+1, resultados[1],1);
+                        SBM2.G.viz[resultados[1]] = ending(SBM2.G.viz[resultados[1]],SBM2.G.viz[resultados[1]][0]+1, resultados[0],1);
+                        
+                        SBM2.G.viz[resultados[0]] = (int*) realloc(SBM2.G.viz[resultados[0]],(SBM2.G.viz[resultados[0]][0])*sizeof(int));
+                        SBM2.G.viz[resultados[1]] = (int*) realloc(SBM2.G.viz[resultados[1]],(SBM2.G.viz[resultados[1]][0])*sizeof(int));
+                        SBM2.G.viz[resultados[0]][0] -= 1;
+                        SBM2.G.viz[resultados[1]][0] -= 1;
+                        //if((resultados[0] == 419) || (resultados[1] == 419)) printf("Remove: %d,%d - %d,%d\n",resultados[0],resultados[1],SBM2.G.viz[resultados[0]][0],SBM2.G.viz[resultados[1]][0]);
+                    }
+                    free(resultados);
+                }
+            }
+            
+        }
+        
+    }
+    return SBM2;   
+}
+
+
 
 struct Graph SBM_edges(int N,int seed){
 
@@ -120,7 +213,7 @@ struct Graph SBM_edges(int N,int seed){
    
     int edges = 0;
     for(int i = 0;i < 5; i++) for(int j = 0; j < 5; j++)  edges += ligacoes[i][j];
-    init_genrand64(67);
+    init_genrand64(seed);
     int repeat = 0;
     while(SBM2.G.edges != edges){
 
@@ -155,27 +248,14 @@ struct Graph SBM_edges(int N,int seed){
         }
         if(repeat == 500) break;
     }
-    for(int i = 0;i < 5; i++) for(int j = 0; j < 5; j++) ligacoes[i][j] = 0;
-    for (int i = 0; i < SBM2.G.edges; i++){
-        int u = SBM2.mat[i][0];
-        int v = SBM2.mat[i][1];
-        u = faixas[u];
-        v = faixas[v];
-        if(u<v) ligacoes[u][v] += 1;
-        else ligacoes[v][u] += 1;
-    }
-    FILE *file;
-    file = fopen("./output/test.txt","w");
-    for (int i = 0; i < 5; i++) fprintf(file,"%d %d %d %d %d\n",ligacoes[i][0],ligacoes[i][1],ligacoes[i][2],ligacoes[i][3],ligacoes[i][4]);
-    fclose(file);
-
+    
+    SBM2 = increase_clustering(SBM2,faixas);
     
     free(faixas);
     for (int i = 0; i < 5; i++) free(ligacoes[i]);
     for (int i = 0; i < SBM2.G.edges; i++) free(SBM2.mat[i]);
     free(ligacoes);
     free(SBM2.mat);
-    
     return SBM2.G;
 }
 
@@ -184,11 +264,11 @@ void generate_SBM_p_model(int T,int model){
     int N = size_txt();
     
     double** resultados = (double **)malloc(T*sizeof(double*));
+    int sum = 1;
     #pragma omp parallel for
     for (int i = 0; i < T; i++){
 
-        if(T!=1) printf("\e[1;1H\e[2J");
-
+        //if(T!=1) printf("\e[1;1H\e[2J");
         struct Graph G;
         if(model == 1) G = SBM_p(N);
         if(model == 2) G = SBM_edges(N,i);
@@ -198,10 +278,11 @@ void generate_SBM_p_model(int T,int model){
         printf("%d\n",i+1);
         
         for(int j = 0; j < N; j++)free(G.viz[j]);
-        
+        printf("%d\n",sum);
+        sum++;
         free(G.viz);
     }
-    if(model == 1)generate_resultados(resultados,T,"SBM_p");
-    if(model == 2)generate_resultados(resultados,T,"SBM_edges");
+    //if(model == 1)generate_resultados(resultados,T,"SBM_p");
+    if(model == 2)generate_resultados(resultados,T,"SBM_edges_clustering");
 
 }

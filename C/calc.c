@@ -49,8 +49,9 @@ void swap (int *a, int *b){
     *a = *b;
     *b = temp;
 }
-int* ending(int* array, int n, int site){
-    for (int i = 0; i < n; i++){
+
+int* ending(int* array, int n, int site,int inicio){
+    for (int i = inicio; i < n; i++){
         if(array[i] == site){
             swap(&array[i], &array[n-1]);
             break;
@@ -58,6 +59,7 @@ int* ending(int* array, int n, int site){
     }
     return array;
 }
+
 int* randomize (int* array, int n,int seed){
     init_genrand64(seed);
     for (int i = n-1; i > 0; i--){

@@ -80,24 +80,28 @@ double shortest_length(int** viz,int N,int site,double* diametro){
     for (int i = 0; i < N; i++) distance[i] = infinity;
     lista[0] = site;
     distance[site] = 0;
-    //if(s == 76)printf("%d\n",site);
+    //printf("%d,%d\n",site,viz[site][0]);
     while ((current<tam) && (tam != N)){
 
         int sitio = lista[current];
+        //printf("%d\n",sitio);
         int vizinhos = viz[sitio][0];
+        //if(site == 0) if(sitio == 64) printf("%d\n",vizinhos);
         for(int j = 1; j<=vizinhos;j++){
             int vizinho = viz[sitio][j];
-            //if(s == 76)printf("%d,%d - %d/%d\n",sitio,vizinho,current,tam);
+            //if(site == 0) if(sitio == 64) printf("Vizinho: %d,%d\n",vizinho,j);
             if((distance[vizinho]>distance[sitio]+1)){
                 distance[vizinho] = distance[sitio]+1;
                 tam++;
+                //if(tam == 996) printf("%d: %d - %d\n",tam,vizinho,sitio);
                 lista = (int*) realloc(lista,tam*sizeof(int));
                 lista[tam-1] = vizinho;
                 if(distance[sitio]+1 > *diametro) *diametro = (double) distance[sitio]+1;
             }
-
+            //printf("Terminou\n");
         }
         current++;
+        //printf("%d,%d\n",current,tam);
     }
     for (int i = 0; i < N; i++) if(distance[i] != infinity) l += distance[i];
     free(distance);
@@ -136,7 +140,7 @@ void degree_distribution(struct Graph G,double* media1,double* median1,double* s
 void result(struct Graph G,double* resultados){
 
     resultados[5] = av_path_length(G.viz, G.Nodes,&resultados[6]);
-
+    //printf("Deu erro no path le\n");
     double *deg = degree_list(G.viz,G.Nodes);
     double *clustering = list_clustering(G.viz,G.Nodes);
 

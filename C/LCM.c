@@ -66,7 +66,7 @@ struct LCM local_conf_model_p(struct LCM Z,int ego,double p){
 
             for (int j = 0; j < N; j++) shuff[j] = vizinhos[j];
             shuff = randomize(shuff,N,i+site);
-            shuff = ending(shuff,N,site);
+            shuff = ending(shuff,N,site,0);
             for (int j = 0; j < N-1; j++){
                 if(somatorio(Z.degree,site,N) == 0) break;
 
@@ -173,7 +173,7 @@ struct Graph local_configuration_model(int N, double p,int seed){
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++) shuff[j] = j;
         shuff = randomize(shuff,N,seed);
-        shuff = ending(shuff,N, i);
+        shuff = ending(shuff,N, i,0);
         Z = local_add_edge(Z,shuff,N-1,i,p);
     }
     for (int i = 0; i < Z.G.Nodes; i++) free(Z.degree[i]);
