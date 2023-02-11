@@ -28,7 +28,7 @@ struct LCM{
 };
 int** get_array(int N){
     FILE* file;
-    file = fopen("./dados/degrees.txt","r");
+    file = fopen("./output/SBM/faixas_SBM.txt","r");
     int** degree = (int**) malloc(sizeof(int*)*N);
 
     for(int i = 0; i < N; i++) {
@@ -162,7 +162,7 @@ struct Graph local_configuration_model(int N, double p,int seed){
     Z.mat = (int **)malloc(0*sizeof(int*));
     Z.G.edges = 0;
     Z.existir = 0;
-    Z.n_existir = (int **)malloc(0* sizeof(int*));
+    if(p > 0)Z.n_existir = (int **)malloc(0* sizeof(int*));
     Z.degree = get_array(N);
     Z.faixa = get_faixas(N);
 
@@ -177,14 +177,13 @@ struct Graph local_configuration_model(int N, double p,int seed){
         Z = local_add_edge(Z,shuff,N-1,i,p);
     }
     for (int i = 0; i < Z.G.Nodes; i++) free(Z.degree[i]);
-    for (int i = 0; i < Z.G.edges; i++){
-        free(Z.mat[i]);
-        free(Z.n_existir[i]);
-    }
+    for (int i = 0; i < Z.G.edges; i++) free(Z.mat[i]);
+    if(p > 0) for (int i = 0; i < Z.existir; i++) free(Z.n_existir[i]);
     
-    free(Z.n_existir);
+    if(p > 0)free(Z.n_existir);
     free(Z.degree);
     free(Z.mat);
+    free(Z.faixa);
     free(shuff);
     return Z.G;
 }

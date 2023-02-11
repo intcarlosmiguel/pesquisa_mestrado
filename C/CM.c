@@ -186,7 +186,7 @@ struct Graph configuration_model(int N, double p,int seed){
         shuff = ending(shuff,N, i,0);
         MC = add_edge(MC,degree,shuff,N-1,i,p);
     }
-
+    if(seed == 0) create_network(MC.G,p);
     for(int i = 0; i < MC.G.edges; i++){
         free(MC.mat[i]);
         free(MC.n_existir[i]);
@@ -213,7 +213,6 @@ void generate_configuration_model(double p, int T){
         resultados[i] = (double*) malloc(7*sizeof(double));
         result(G,resultados[i]);
         printf("%d\n",i+1);
-        //if(T == 1) create_network(G,p);
         
         for(int j = 0; j < N; j++)free(G.viz[j]);
         

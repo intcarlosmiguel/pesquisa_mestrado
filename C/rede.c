@@ -68,6 +68,57 @@ double* list_clustering(int** viz,int N){
     return clustering;
 }
 
+int find_cluster(int** viz,int N,int site){
+    double l = 0;
+    int tam = 1;
+    int infinity = N+2;
+    int* lista = (int*) malloc(1*sizeof(int));
+    int* distance = (int*) malloc(N*sizeof(int));
+    int current = 0;
+
+    for (int i = 0; i < N; i++) distance[i] = infinity;
+    lista[0] = site;
+    distance[site] = 0;
+    while ((current<tam) && (tam != N)){
+
+        int sitio = lista[current];
+        int vizinhos = viz[sitio][0];
+        for(int j = 1; j<=vizinhos;j++){
+            int vizinho = viz[sitio][j];
+            if((distance[vizinho]>distance[sitio]+1)){
+                distance[vizinho] = distance[sitio]+1;
+                tam++;
+                lista = (int*) realloc(lista,tam*sizeof(int));
+                lista[tam-1] = vizinho;
+            }
+        }
+        current++;
+    }
+    free(distance);
+    free(lista);
+    return tam;
+}
+
+int* find_largest_cluster(struct Graph G,int* big){
+    int maior = 0;
+    int* resultado = (int*) malloc(sizeof(int)*G.Nodes);
+    for(int i = 0; i < G.Nodes; i++){
+        resultado[i] = find_cluster(G.viz,G.Nodes,i);
+        if(resultado[i] > maior) maior = resultado[i];
+    }
+    int* resultado2 = malloc(sizeof(int)*maior);
+    int s = 0;
+    for(int i = 0; i < G.Nodes; i++){
+        if(resultado[i] == maior) {
+            resultado2[s] = i;
+            s++;
+        }
+    }
+    free(resultado);
+    *big = maior;
+    return resultado2;
+}
+
 double shortest_length(int** viz,int N,int site,double* diametro){
 
     double l = 0;
@@ -80,39 +131,35 @@ double shortest_length(int** viz,int N,int site,double* diametro){
     for (int i = 0; i < N; i++) distance[i] = infinity;
     lista[0] = site;
     distance[site] = 0;
-    //printf("%d,%d\n",site,viz[site][0]);
     while ((current<tam) && (tam != N)){
 
         int sitio = lista[current];
-        //printf("%d\n",sitio);
         int vizinhos = viz[sitio][0];
-        //if(site == 0) if(sitio == 64) printf("%d\n",vizinhos);
         for(int j = 1; j<=vizinhos;j++){
             int vizinho = viz[sitio][j];
-            //if(site == 0) if(sitio == 64) printf("Vizinho: %d,%d\n",vizinho,j);
             if((distance[vizinho]>distance[sitio]+1)){
                 distance[vizinho] = distance[sitio]+1;
                 tam++;
-                //if(tam == 996) printf("%d: %d - %d\n",tam,vizinho,sitio);
                 lista = (int*) realloc(lista,tam*sizeof(int));
                 lista[tam-1] = vizinho;
                 if(distance[sitio]+1 > *diametro) *diametro = (double) distance[sitio]+1;
             }
-            //printf("Terminou\n");
         }
         current++;
-        //printf("%d,%d\n",current,tam);
     }
     for (int i = 0; i < N; i++) if(distance[i] != infinity) l += distance[i];
     free(distance);
     free(lista);
-    return (double) l/(N-1);
+    return (double) l/(tam-1);
 }
 
-double av_path_length(int** viz,int N,double* diametro){
+double av_path_length(struct Graph G,double* diametro){
     double l = 0;
-    for(int i = 0; i < N; i++) l += shortest_length(viz,N,i,diametro);
-    return l/N;
+    int big = 0;
+    int* sites = find_largest_cluster(G,&big);
+    for(int i = 0; i < big; i++) l += shortest_length(G.viz,G.Nodes,sites[i],diametro);
+    free(sites);
+    return l/big;
 }
 
 void degree_distribution(struct Graph G,double* media1,double* median1,double* std1){
@@ -138,9 +185,7 @@ void degree_distribution(struct Graph G,double* media1,double* median1,double* s
 }
 
 void result(struct Graph G,double* resultados){
-
-    resultados[5] = av_path_length(G.viz, G.Nodes,&resultados[6]);
-    //printf("Deu erro no path le\n");
+    resultados[5] = av_path_length(G,&resultados[6]);
     double *deg = degree_list(G.viz,G.Nodes);
     double *clustering = list_clustering(G.viz,G.Nodes);
 
@@ -154,12 +199,12 @@ void result(struct Graph G,double* resultados){
     free(deg);
     free(clustering);
 }
-/* void create_network(struct Graph G,double p){
-    char arquivo[20];
-    sprintf(arquivo, "dados_%.2f.txt", p);
+ void create_network(struct Graph G,double p){
+    char arquivo[100];
+    sprintf(arquivo, "./output/degree_%.2f_CM.txt", p);
     FILE* file;
     file = fopen(arquivo,"w");
-    for (int i = 0; i < G.edges; i++) fprintf(file,"%d\t%d\n",G.mat[i][0],G.mat[i][1]);
+    for (int i = 0; i < G.Nodes; i++) fprintf(file,"%d\n",G.viz[i][0]);
     
     fclose(file);
-} */
+} 

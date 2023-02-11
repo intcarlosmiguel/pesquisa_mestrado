@@ -9,6 +9,7 @@ double media(double* x,int N){
     for (int i = 0; i < N; i++) media_ += x[i];
     return media_/N;
 }
+
 double variance(double* x,int N){
     double var = 0;
     double x_ = media(x,N);
@@ -39,6 +40,7 @@ int fatorial(int n,int p){
     if(n!=p) return n*fatorial(n-1,p);
     else return 1;
 }
+
 int combination(int n, int p){
     if(n<=1) return 0;
     return fatorial(n,n-p)/fatorial(p,0);
@@ -135,7 +137,7 @@ int** get_degree2(int N){
 
 int* get_faixas(int N){
     FILE* file;
-    file = fopen("./faixas.txt","r");
+    file = fopen("./dados/faixas.txt","r");
     int* faixas = (int*) malloc(sizeof(int)*N);
 
     for(int i = 0; i < N; i++) if(fscanf(file,"%d\n",&faixas[i]));
@@ -159,6 +161,7 @@ void print_matrix(int** mat,int N,int n){
     }
     printf("========================================================\n");
 }
+
 int check_existence(int** outro, int N,int site, int vizinho){
     for (int i = 0; i < N; i++){
         if((outro[i][0] == site) && (outro[i][1] == vizinho)) return 1;
