@@ -30,9 +30,9 @@ int main(int argc,char *argv[ ]){
         generate_SBM_p_model(T,model,0);
         break;
     case 3:
-        //generate_local_configuration_model(0,T);
-        //generate_local_configuration_model(0.5,T);
-        generate_local_configuration_model(1,T);
+        generate_local_configuration_model(1,T,0);
+        //generate_local_configuration_model(0.5,T,1);
+        //generate_local_configuration_model(1,T,1);
         break;
     default:
         break;

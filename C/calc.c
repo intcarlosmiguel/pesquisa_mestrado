@@ -137,7 +137,7 @@ int** get_degree2(int N){
 
 int* get_faixas(int N){
     FILE* file;
-    file = fopen("./dados/faixas.txt","r");
+    file = fopen("./output/SBM/site_faixas_SBM.txt","r");
     int* faixas = (int*) malloc(sizeof(int)*N);
 
     for(int i = 0; i < N; i++) if(fscanf(file,"%d\n",&faixas[i]));

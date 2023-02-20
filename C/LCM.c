@@ -28,7 +28,7 @@ struct LCM{
 };
 int** get_array(int N){
     FILE* file;
-    file = fopen("./output/SBM/faixas_SBM.txt","r");
+    file = fopen("./output/SBM/ordered_faixas_SBM.txt","r");
     int** degree = (int**) malloc(sizeof(int*)*N);
 
     for(int i = 0; i < N; i++) {
@@ -51,7 +51,7 @@ struct LCM local_conf_model_p(struct LCM Z,int ego,double p){
 
     for (int i = 0; i < Z.G.viz[ego][0]; i++){
         int vizinho = Z.G.viz[ego][i+1];
-        if(somatorio(Z.degree,vizinho,N) !=0){
+        if(somatorio(Z.degree,vizinho,5) !=0){
             vizinhos = (int*) realloc(vizinhos,(N+1)*sizeof(int));
             vizinhos[N] = vizinho;
             N++;
@@ -117,7 +117,6 @@ struct LCM local_conf_model_p(struct LCM Z,int ego,double p){
 }
 
 struct LCM local_add_edge(struct LCM Z,int* shuff, int n,int site,double p){
-
     for (int i = 0; i < n; i++){
         int vizinho = shuff[i];
         if(somatorio(Z.degree,site,5) == 0){
@@ -130,7 +129,6 @@ struct LCM local_add_edge(struct LCM Z,int* shuff, int n,int site,double p){
         if((rep == 1) || (Z.degree[vizinho][Z.faixa[site]] == 0) || (Z.degree[site][Z.faixa[vizinho]] == 0) ) continue;
         int faixa1 = Z.faixa[site];
         int faixa2 = Z.faixa[vizinho];
-        
         Z.mat = (int**) realloc(Z.mat,(Z.G.edges+1)*sizeof(int*));
         Z.mat[Z.G.edges] = (int*) malloc(2* sizeof(int));
         Z.mat[Z.G.edges][0] = site;
@@ -176,6 +174,12 @@ struct Graph local_configuration_model(int N, double p,int seed){
         shuff = ending(shuff,N, i,0);
         Z = local_add_edge(Z,shuff,N-1,i,p);
     }
+    if(seed == 0){
+        FILE *file;
+        file = fopen("./output/LCM/distribution_LCM.txt","w");
+        for (int i = 0; i < Z.G.Nodes; i++) fprintf(file,"%d\n",Z.G.viz[i][0]);
+        fclose(file);
+    }
     for (int i = 0; i < Z.G.Nodes; i++) free(Z.degree[i]);
     for (int i = 0; i < Z.G.edges; i++) free(Z.mat[i]);
     if(p > 0) for (int i = 0; i < Z.existir; i++) free(Z.n_existir[i]);
@@ -188,7 +192,7 @@ struct Graph local_configuration_model(int N, double p,int seed){
     return Z.G;
 }
 
-void generate_local_configuration_model(double p, int T){
+void generate_local_configuration_model(double p, int T,int teste){
 
     int N = size_txt();
     
@@ -208,6 +212,6 @@ void generate_local_configuration_model(double p, int T){
         
         free(G.viz);
     }
-    generate_resultados(resultados,T,"LCM");
+    if(teste == 1)generate_resultados(resultados,T,"LCM");
 
 }

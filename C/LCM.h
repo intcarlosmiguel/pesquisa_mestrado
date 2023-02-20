@@ -2,6 +2,6 @@
 #define LCM_H
 
 struct Graph;
-void generate_local_configuration_model(double p, int T);
+void generate_local_configuration_model(double p, int T,int teste);
 
 #endif

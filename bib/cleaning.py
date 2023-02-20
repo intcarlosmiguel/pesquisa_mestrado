@@ -315,39 +315,32 @@ def check_faixa(idade,faixas):
         if((idade<i[1]) and(idade>=i[0])):
             return int(faixa)
 
-def generate_mortalidade():
-    if('mortalidade.json' not in os.listdir('./dados/')):
+def generate_mortalidade(df,vacina = 'nenhuma'):
 
-        df = pd.read_csv(
-            './input/INFLUD20-14-11-2022.csv',
-            delimiter = ';',
-            usecols = ['NU_IDADE_N','EVOLUCAO','CLASSI_FIN']
-        )
-        df = df[df['CLASSI_FIN'] == 5]
+    hist = [
+        [0,20],
+        [20,30],
+        [30,50],
+        [50,70],
+        [70,100000]
+    ]
+    label = [f'{i[0]} <= Idade < {i[1]} ' for i in hist]
 
-        hist = [
-            [0,20],
-            [20,30],
-            [30,50],
-            [50,70],
-            [70,100000]
-        ]
-        label = [f'{i[0]} <= Idade < {i[1]} ' for i in hist]
-
-        # Número de mortos dividido por Número de Infectados
-        Nmortos = {}
-        for i,j in zip(label,hist):
-            if(j[0]!=0):
-                Nmortos[i] = df[(df['NU_IDADE_N']>=j[0]) & (df['NU_IDADE_N']<j[1]) & (df['EVOLUCAO']==2)].shape[0]/df[(df['NU_IDADE_N']>=j[0]) & (df['NU_IDADE_N']<=j[1])].shape[0]
-            else:
-                Nmortos[i] = df[(df['NU_IDADE_N'] == j[0]) & (df['EVOLUCAO']==2)].shape[0]/df[df['NU_IDADE_N'] == j[0]].shape[0]
-        
-        with open('./dados/mortalidade.json', 'w') as f:
-            json.dump(Nmortos, f)
-        return Nmortos
-
-    else:
-        return json.load(open('./dados/mortalidade.json'))
+    # Número de mortos dividido por Número de Infectados
+    Nmortos = {}
+    for i,j in zip(label,hist):
+        infectados = df[(df['NU_IDADE_N']>=j[0]) & (df['NU_IDADE_N']<=j[1])]
+        mortos = 0
+        if(vacina == 'nenhuma'):
+            mortos = infectados[infectados['EVOLUCAO']==2]
+        else:
+            m = infectados[infectados['FAB_COV_1'].str.contains(vacina.upper())]
+            mortos = m[m['EVOLUCAO']==2]
+        Nmortos[i] = mortos.shape[0]/infectados.shape[0]
+    
+    with open('./dados/mortalidade.json', 'w') as f:
+        json.dump(Nmortos, f)
+    return Nmortos
 
 def where(vetor,condition):
     a = np.arange(len(vetor))
