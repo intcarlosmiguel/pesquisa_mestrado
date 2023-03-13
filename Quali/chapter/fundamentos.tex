@@ -393,6 +393,60 @@ Diferente do Modelo de Erdös-Rényi podemos encontrar o caso na qual nós sabem
   \label{img:MC}
 \end{figure}
 
-\section{Modelos de Infecção}
+\section{Modelos de Infecção ou Difusão}
+
+Propagação de doenças, \textit{fake-news}, vírus de internet, rumores são alguns dos temas muito pesquisados no estudo de redes. Entender qual o principal motivo de algo se espalhar em nossa sociedade seja por quais as pessoas que difundem ou pela forma que a rede é construída é essencial para entender a difusão. Além disso, usar de modelagem matemática em é essencial para boa parte desses problemas, pois apesar de termos dados sobre propagação de rumores \cite{rumor} muitas vezes não é possível coletar dados a partir da experimentação, ou seja não podemos fazer um experimento devido a problemas logísticos ou até morais principalmente quando falamos de saúde pública.
+
+Em vista disso, nessa sessão iremos discutir sobre os modelos de infecção clássicos da literatura. Eles podem aparecer tanto como um modelo em forma de Equação Diferencial ou em Redes. Naquele estamos estudando o nosso modelo de forma macroscópica e considerando que qualquer indivíduo consegue passar a infecção para qualquer outra pessoa enquanto que neste estamos estudando de forma microscópica entendendo como a dinâmica das conexões governam sobre a dinâmica.
+
+\subsection{Modelo SI}
+
+Considere uma população $N$ e que seja $S(0)$ pessoas sejam suscetíveis a uma certa doença e introduzimos $I(0)$ indivíduos infectados e uma probabilidade $\beta$ de que a doença se espalhe, o que irá acontecer com essa população em um dado tempo $t$? Podemos modelar que a variação no tempo da população suscetível $\frac{dS}{dt}$ seja proporcional à probabilidade de encontramos uma pessoa nesse estágio $\frac{S(t)}{N}$ multiplicado pela probabilidade $\beta$ de ser infectado e considerando que todas pessoas suscetíveis estejam conectadas com todos os infectados temos que multiplicar pelo número de infectados $I(t)$, além disso essa variação tem que ser negativa. Da mesma forma podemos concluir que a variação de infectados em relação ao tempo $\frac{dI}{dt}$ é proporcional a probabilidade de encontrarmos uma pessoa infectada $\frac{I(t)}{N}$ multiplicado pela probabilidade de infecção $\beta$ e pelo número de pessoas suscetíveis $S(t)$. Gerando assim as seguintes equações diferencias acopladas:
+
+\begin{align}
+  \frac{dS}{dt} &= -\beta\frac{S(t)I(t)}{N}\\
+  \frac{dI}{dt} &= \beta\frac{S(t)I(t)}{N}
+\end{align}
+
+Esse é o modelo mais simples no estudo de infecções na qual um indivíduo só pode estar em dois estágios: suscetível ou infectado. Ao somarmos as duas equações temos:
+
+\begin{equation}
+  \frac{dS}{dt} + \frac{dI}{dt} = 0 \rightarrow S + I = N =cte
+\end{equation}
+
+Essa equação é presente em qualquer outro modelo infecção, é a equação de conservação, isto é todos os indivíduos têm que estar me algum estágio. Além disso substituindo (2.23) em (2.22) temos:
+
+\begin{align}
+  \frac{dI}{dt} &=\beta\frac{(N - I(t))I(t)}{N}\\
+  \frac{1}{I(t)(N - I(t))}\frac{dI}{dt} &= \beta\frac{1}{N}
+\end{align}
+
+Essa equação é facilmente resolvida obtendo:
+
+\begin{equation}
+  \ln{(\frac{\frac{N}{I} -1 }{\frac{N}{I(0)} -1 })} = -t\beta \rightarrow I(t) = \frac{NI(0)e^{\beta t}}{N - I(0) + I(0)e^{\beta t}}
+\end{equation}
+
+Essa é a chamada equação logística que descreve o crescimento do número de infectados em função do tempo nesse modelo. Quando $t \rightarrow 0$ encontramos o valor inicial de infectados e quando $t \rightarrow \infty$ $I(t)$ converge para $N$ pois com o passar do tempo todos os sítios se tornarão infectados o que podemos perceber na Figura \ref{SI}.
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+  \caption{Modelo SI}
+  \includegraphics[scale=0.8]{./img/SI.png}
+  \captionsetup{font=small,position=below,skip=-1pt}
+   \caption*{Aqui o gráfico de um modelo SI com $N = 1000$ $I(0) = 50$ e $\beta = 0.3$\\Fonte: Autor.}
+   \label{SI}
+\end{figure}
+
+Esse simples modelo nos dá uma pequena noção do comportamento exponencial do crescimento da infecção, contudo isso não é real, pois as pessoas conseguem se recuperar da doença, o que nos leva ao próximo modelo.
+
+\subsection{Modelo SIS}
+
+
+
+\subsection{Modelo SIR}
+
+\subsection{Modelos em Redes}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECOMENDACAO%%%%%%%%%%%%%%%%%%%%%%%%%%

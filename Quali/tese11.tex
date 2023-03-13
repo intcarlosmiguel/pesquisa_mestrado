@@ -12,13 +12,20 @@
 \usepackage{multicol}
 \usepackage{euscript}
 \usepackage{float}
+
 \usepackage{amsmath}
 \usepackage{tikz,tkz-euclide}
 \usetikzlibrary{arrows,calc,patterns}
 \usepackage{epsfig,fisica-ufc11,graphicx,cite}
 \usepackage{array}
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
-	
+
+\definecolor{ninfect}{HTML}{457b9d}
+\definecolor{infect}{HTML}{d62828}
+\definecolor{border}{HTML}{1d2a34}
+\definecolor{ninteract}{HTML}{2a9d8f}
+\usetikzlibrary[shadows]
+\usetikzlibrary{arrows,calc,patterns}
 \definecolor{Gray}{gray}{0.9}
 
 \usepackage[num]{abntex2cite11}
@@ -54,7 +61,7 @@ in ({-max(-1*\x1,\x2)},\y1) ({max(-1*\x1,\x2)},\y1);
 
 \autorr{Gonçalves, Carlos Miguel Moreira }%%Ex: Poincaré, Henri
 
-\titulo{CESSANDO A PROPAGAÇÃO DE COVID-19 ELEMINANDO INDIVÍDUOS \textit{SUPER-SPREADERS} em Redes Complexas}
+\titulo{Otimização de Vacinas em Redes Complexas}
 %\logodegrupo{ufc.jpg}% se houver logo de grupo
 %\nomedogrupo{grupo de física teórica}% se necessário
 %coloque ai as palavras chaves sobre a sua tese ou dissertaçao

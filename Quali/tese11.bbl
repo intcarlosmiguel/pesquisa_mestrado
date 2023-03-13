@@ -85,6 +85,12 @@ Dispon{\'\i}vel em: $<$https://doi.org/10.1080/00018730601170527$>$.}
 {ERD\"OS, P.; R\'ENYI, A. On random graphs i.
 \emph{Publicationes Mathematicae Debrecen}, v.~6, p. 290--297, 1959.}
 
+\bibitem{rumor}
+\abntrefinfo{Rumors\ldots}{RUMORS\ldots}{2014}
+{RUMORS, False Flags, and Digital Vigilantes: Misinformation on Twitter after
+  the 2013 Boston Marathon Bombing. In:  {iConference} 2014 Proceedings.
+  {iSchools}, 2014. Dispon{\'\i}vel em: $<$https://doi.org/10.9776/14308$>$.}
+
 \bibitem{POLYMOD}
 \abntrefinfo{Mossong et al.}{MOSSONG et al.}{2017}
 {MOSSONG, J. et al. \emph{POLYMOD social contact data}. Zenodo, 2017.
@@ -170,5 +176,51 @@ Dispon{\'\i}vel em: $<$https://doi.org/10.18564/jasss.4435$>$.}
 \emph{Nature Human Behaviour}, Springer Science and Business Media {LLC}, v.~4,
   n.~6, p. 588--596, jun. 2020.
 Dispon{\'\i}vel em: $<$https://doi.org/10.1038/s41562-020-0898-6$>$.}
+
+\bibitem{Xiang2021}
+\abntrefinfo{Xiang et al.}{XIANG et al.}{2021}
+{XIANG, Y. et al. {COVID}-19 epidemic prediction and the impact of public
+  health interventions: A review of {COVID}-19 epidemic models.
+\emph{Infectious Disease Modelling}, Elsevier {BV}, v.~6, p. 324--342, 2021.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1016/j.idm.2021.01.001$>$.}
+
+\bibitem{French2021}
+\abntrefinfo{French et al.}{FRENCH et al.}{2021}
+{FRENCH, G. et al. Impact of hospital strain on excess deaths during the
+  {COVID}-19 pandemic {\textemdash} united states, july 2020{\textendash}july
+  2021.
+\emph{{MMWR}. Morbidity and Mortality Weekly Report}, Centers for Disease
+  Control {MMWR} Office, v.~70, n.~46, p. 1613--1616, nov. 2021.
+Dispon{\'\i}vel em: $<$https://doi.org/10.15585/mmwr.mm7046a5$>$.}
+
+\bibitem{Eikenberry2020}
+\abntrefinfo{Eikenberry et al.}{EIKENBERRY et al.}{2020}
+{EIKENBERRY, S.~E. et al. To mask or not to mask: Modeling the potential for
+  face mask use by the general public to curtail the {COVID}-19 pandemic.
+\emph{Infectious Disease Modelling}, Elsevier {BV}, v.~5, p. 293--308, 2020.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1016/j.idm.2020.04.001$>$.}
+
+\bibitem{SEIHR}
+\abntrefinfo{Malagutti e Eisencraft}{MALAGUTTI; EISENCRAFT}{2021}
+{MALAGUTTI, R.; EISENCRAFT, M. Seihr epidemic model applied to the covid-19
+  outbreak in são paulo.
+11 2021.}
+
+\bibitem{reinfect}
+\abntrefinfo{JM.}{JM.}{2020}
+{JM., S. S. O. S. K. S. A. A. M. M. B. A. M. P. B. F. N. T. M. E. D. O. V.
+  F.~S. Reinfection risk of novel coronavirus ({CoVID}-19): A systematic review
+  of current evidence.
+\emph{World Journal of Virology}, Baishideng Publishing Group Inc., v.~9, n.~5,
+  p. 79--90, dez. 2020.
+Dispon{\'\i}vel em: $<$https://doi.org/10.5501/wjv.v9.i5.79$>$.}
+
+\bibitem{Jung2020}
+\abntrefinfo{Jung et al.}{JUNG et al.}{2020}
+{JUNG, C.-Y. et al. Clinical characteristics of asymptomatic patients with
+  {COVID}-19: A nationwide cohort study in south korea.
+\emph{International Journal of Infectious Diseases}, Elsevier {BV}, v.~99, p.
+  266--268, out. 2020.
+Dispon{\'\i}vel em: $<$https://doi.org/10.1016/j.ijid.2020.08.001$>$.}
 
 \end{thebibliography}

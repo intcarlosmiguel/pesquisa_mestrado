@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.1.25)  1 FEB 2023 19:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.3.9)  12 MAR 2023 15:02
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -393,7 +393,7 @@ Package: babel 2022/01/26 3.70 The Babel package
  (/usr/share/texlive/texmf-dist/tex/generic/babel-portuges/brazil.ldf
 Language: portuges 2021/07/09 v1.2t Portuguese support from the babel system
 Package babel Info: Hyphen rules for 'brazil' set to \l@portuguese
-(babel)             (\language27). Reported on input line 111.
+(babel)             (\language12). Reported on input line 111.
 Package babel Info: Making " an active character on input line 143.
 )) (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
@@ -806,7 +806,13 @@ Package newfloat Info: \c@grafdepth is already defined on input line 52.
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
-) (./abntex2cite11.sty
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryshadows.code.tex
+File: tikzlibraryshadows.code.tex 2021/05/15 v3.1.9a (3.1.9a)
+ (/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryfadings.code.tex
+File: tikzlibraryfadings.code.tex 2021/05/15 v3.1.9a (3.1.9a)
+ (/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code.tex
+File: pgflibraryfadings.code.tex 2021/05/15 v3.1.9a (3.1.9a)
+))) (./abntex2cite11.sty
 
 LaTeX Warning: You have requested package `abntex2cite11',
                but the package provides `abntex2cite'.
@@ -836,26 +842,26 @@ LaTeX Info: Redefining \citeonline on input line 866.
 Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
 \symrsfs=\mathgroup8
 )
-LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 43.
+LaTeX Font Info:    Trying to load font information for OT1+ptm on input line 50.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd
 File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 ) (./tese11.aux)
 \openout1 = `tese11.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
-LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 50.
+LaTeX Font Info:    ... okay on input line 50.
  (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count339
@@ -914,297 +920,69 @@ Package caption Info: End \AtBeginDocument code.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-<ufc.pdf, id=4, 312.16624pt x 399.4925pt>
+<ufc.pdf, id=29, 312.16624pt x 399.4925pt>
 File: ufc.pdf Graphic file (type pdf)
 <use ufc.pdf>
-Package pdftex.def Info: ufc.pdf  used on input line 80.
+Package pdftex.def Info: ufc.pdf  used on input line 87.
 (pdftex.def)             Requested size: 44.46509pt x 56.9055pt.
-LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 80.
+LaTeX Font Info:    Trying to load font information for OT1+ztmcm on input line 87.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ztmcm.fd
 File: ot1ztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OT1/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 80.
+LaTeX Font Info:    Trying to load font information for OML+ztmcm on input line 87.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlztmcm.fd
 File: omlztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OML/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 80.
+LaTeX Font Info:    Trying to load font information for OMS+ztmcm on input line 87.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsztmcm.fd
 File: omsztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMS/ztmcm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 80.
+LaTeX Font Info:    Trying to load font information for OMX+ztmcm on input line 87.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omxztmcm.fd
 File: omxztmcm.fd 2000/01/03 Fontinst v1.801 font definitions for OMX/ztmcm.
 )
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <12> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
-LaTeX Font Info:    Trying to load font information for U+rsfs on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
+LaTeX Font Info:    Trying to load font information for U+rsfs on input line 87.
  (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 ) [0
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./ufc.pdf>]
-Underfull \hbox (badness 1210) in paragraph at lines 80--80
+Underfull \hbox (badness 1210) in paragraph at lines 87--87
 \OT1/ptm/m/n/12 grama de P[]os-Gradua[][]ao em Mo-de-la-gem e
  []
 
 
-Overfull \hbox (2.28003pt too wide) in paragraph at lines 80--80
+Overfull \hbox (2.28003pt too wide) in paragraph at lines 87--87
   $[]$ 
  []
 
 [1]
-Overfull \hbox (12.51755pt too wide) in paragraph at lines 80--80
+Overfull \hbox (12.51755pt too wide) in paragraph at lines 87--87
  []| [] 
  []
 
 
-Underfull \hbox (badness 2393) in paragraph at lines 80--80
-[] \OT1/ptm/m/n/10 CES-SANDO A PROPAGA[][]AO DE COVID-19 ELE-MI-NANDO IN-DIV[]IDUOS
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 80--80
+Underfull \hbox (badness 10000) in paragraph at lines 87--87
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--80
+Underfull \hbox (badness 10000) in paragraph at lines 87--87
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--80
+Underfull \hbox (badness 10000) in paragraph at lines 87--87
 
  []
 
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 80.
-
-Overfull \hbox (12.51755pt too wide) in paragraph at lines 80--80
- []| [] 
- []
-
-[2]
-Underfull \hbox (badness 1210) in paragraph at lines 80--80
-\OT1/ptm/m/n/12 grama de P[]os-Gradua[][]ao em Mo-de-la-gem e
- []
-
-
-Overfull \hbox (2.28003pt too wide) in paragraph at lines 80--80
-   $[]$ 
- []
-
-[3
-
-] [4
-
-] [5
-
-
-] [6
-
-
-] [7
-
-
-] (./tese11.lof)
-\tf@lof=\write4
-\openout4 = `tese11.lof'.
-
- [8
-
-] (./tese11.graf)
-\tf@graf=\write5
-\openout5 = `tese11.graf'.
-
- [9
-
-] (./tese11.lot)
-\tf@lot=\write6
-\openout6 = `tese11.lot'.
-
- [10
-
-] (./tese11.lsg)
-\tf@lsg=\write7
-\openout7 = `tese11.lsg'.
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 113--113
-[][] 
- []
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 114--114
-[][] 
- []
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 116--116
-[][] 
- []
-
-[11
-
-] (./tese11.lsb)
-\tf@lsb=\write8
-\openout8 = `tese11.lsb'.
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 120--120
-[][] 
- []
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 121--121
-[][] 
- []
-
-
-Overfull \hbox (1.23639pt too wide) in paragraph at lines 122--122
-[][] 
- []
-
-[12
-
-] (./tese11.toc)
-\tf@toc=\write9
-\openout9 = `tese11.toc'.
-
- [13
-
-] (./chapter/introducao.tex
-Cap\'{\i }tulo 1.
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 7.
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)) (./chapter/fundamentos.tex [14
-
-
-]
-Cap\'{\i }tulo 2.
-<./img/Koenigsberg.png, id=68, 853.1875pt x 311.1625pt>
-File: ./img/Koenigsberg.png Graphic file (type png)
-<use ./img/Koenigsberg.png>
-Package pdftex.def Info: ./img/Koenigsberg.png  used on input line 11.
-(pdftex.def)             Requested size: 426.59271pt x 155.58087pt.
-LaTeX Font Info:    Trying to load font information for OT1+pzc on input line 23.
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pzc.fd
-File: ot1pzc.fd 2020/03/25 font definitions for OT1/pzc.
-) [15
-
- <./img/Koenigsberg.png>] [16] [17]
-Underfull \hbox (badness 10000) in paragraph at lines 133--135
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 133--135
-
- []
-
-[18] [19] [20] [21]
-
-Package amsmath Warning: Foreign command \atopwithdelims;
-(amsmath)                \frac or \genfrac should be used instead
-(amsmath)                 on input line 307.
-
-[22]
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 392.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 392.
-) (./chapter/metodologia.tex [23]
-Cap\'{\i }tulo 3.
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-Missing character: There is no ; in font nullfont!
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-Overfull \hbox (26.58789pt too wide) in paragraph at lines 214--236
- []| [] 
- []
-
-[24
-
-]
-Overfull \vbox (20.6145pt too high) has occurred while \output is active []
-
- [25]
-Overfull \hbox (12.84424pt too wide) in paragraph at lines 250--270
- []| [] 
- []
-
-[26])
-Cap\'{\i }tulo 4.
-(./tese11.bbl [27
-
-] [28
-
-] [29]) [30]
-Apendice A.
-[31
-
-]
-Apendice B.
-[32
-
-]
-Anexo A.
-+-------------------------------------------------------------------+
-| Comentario, sugestao ou critica sobre o abnTeX? Entre em contato: |
-|                  http://abntex.codigolivre.org.br                 |
-+-------------------------------------------------------------------+
-AED: lastpage setting LastPage [33
-
-] (./tese11.aux) ) 
-Here is how much of TeX's memory you used:
- 24086 strings out of 478287
- 509410 string characters out of 5849289
- 819063 words of memory out of 5000000
- 41645 multiletter control sequences out of 15000+600000
- 531848 words of font info for 168 fonts, out of 8000000 for 9000
- 1141 hyphenation exceptions out of 8191
- 100i,16n,104p,1047b,1060s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on tese11.pdf (34 pages, 266211 bytes).
-PDF statistics:
- 189 PDF objects out of 1000 (max. 8388607)
- 118 compressed objects within 2 object streams
- 0 named destinations out of 1000 (max. 500000)
- 23 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+(Font)       

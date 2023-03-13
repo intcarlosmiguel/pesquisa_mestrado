@@ -1,10 +1,14 @@
 \chapter{Metodologia}
 
+\section{Análise dos Dados}
+
 Por conseguinte é natural a utilização de Redes Complexas como modelagem para estudos da Covid-19. Para tanto precisamos agora de dados sobre redes de contágio que contenham informações relevantes para esse estudo, como idade, tempo de contato, se faz parte de grupo de risco ou não, dentre outros.
 
 Entretanto, não é fácil encontrar um banco de dados tão completo assim e não enviesado pela recente pandemia. Em 2008, visando o estudo da pandemia de influenza a Comissão Europeia criou o projeto chamado POLYMOD \cite{POLYMOD} que tinha o intuito da coleta de dados para entender como quais seriam os padrões de contatos da Europa \cite{Mossong2008}.
 
 Apoiado nesse estudo, pesquisas posteriores se inspiraram no molde do POLYMOD \cite{Belga2009,Belga2010,China,France,HongKong,Peru,Russia,Thailand,Vietnam,Zambia,Zimbabwe}. Apesar da grande quantidade de pessoas e contatos há um problema essencial: não há garantia de que as pessoas da entrevista se conectem em si. Por exemplo, no caso da França \cite{France} foram feitas ligações aleatórias extraída da população francesa excluindo territórios ultramarinos, assim nossa análise em rede estaria bastante limitada.
+
+\section{Modelo de Redes}
 
 Para evitar esse problema \cite{Manzo2020} propõe um modelo para formamos uma rede baseado nos dados franceses. A partir dos dois dias de entrevista é calculado a média de contatos por dia de cada pessoa (arredondado para cima) e utiliza o Modelo de Configuração para a formação de uma Rede Sintética. No entanto, o modelo de formação de redes gera um agrupamento médio limitado e ele é muito importante na suavização de epidemias \cite{Block2020}. Nesse sentido Manzo propõe que antes de excluirmos um dado sítio do Modelo de Configuração, passamos por cada vizinho dele e os conectamos entre si com uma probabilidade $p$. Ou seja:
 
@@ -236,7 +240,7 @@ p = 0         & 9.72 (0.00) & 8 (0.00)     & 6.56 (0.00)        & 0.01 (0.00)   
 
   \captionsetup{margin={10pt,10pt},font=small,skip=0pt,position=below}
 
-  \caption*{Aqui aparece os resultados advindos do autor para a rede francesa feitas em 100 simulações de redes. Apresentando as características da rede e em parêntese o erro associado a cada valor. \\Fonte: Elaborada pelo autor.}
+  \caption{Nessa tabela são apresentados resultados advindos do autor para a rede francesa feitas em 100 simulações de redes. Apresentando as características da rede e em parêntese o erro associado a cada valor. \\Fonte: Elaborada pelo autor.}
 \label{table:Manzo}
 \end{table}
 
@@ -260,7 +264,7 @@ Os valores com probabilidade $p = 0$ batem perfeitamente com os resultados do au
     \multicolumn{1}{c|}{\textbf{\shortstack{Menor \\ Caminho \\ Médio}}} & 
     \multicolumn{1}{c}{{\shortstack{\textbf{Diâmetro}}}}     \\
 
-    \hline\\\rowcolor{Gray}
+    \hline\\ \rowcolor{Gray}
     p = 0 & 9.72(0.00) & 8.00(0.00) & 6.56(0.00) & 0.01(0.00) & -0.06(0.01) & 3.47(0.00) & 6.00(0.03)  \\
 p = 0.5                             & 9.72(0.00)                      & 8.00(0.00)   & 6.56(0.00)         & 0.43(0.01)        & -0.62(0.01)                   & 4.37(0.05)          & 7.46(0.50)  \\
 p = 1.0                             & 9.72(0.00)                      & 8.00(0.00)   & 6.56(0.00)         & 0.56(0.01)        & -0.57(0.01)                   & 5.62(0.11)          & 10.39(0.66)
@@ -270,7 +274,7 @@ p = 1.0                             & 9.72(0.00)                      & 8.00(0.0
 
   \captionsetup{margin={10pt,10pt},font=small,skip=0pt,position=below}
 
-  \caption*{Aqui aparece os resultados advindos do meu código na qual foram feitas 1000 simulações de redes para a rede francesa que se aproximam bastante do apresentado no artigo junto com os desvios padrões entre parênteses. Os que não bateram certo estão na faixa de erro mostrada anteriormente. \\Fonte: Elaborada pelo autor.}
+  \caption{Nessa tabela são apresentados resultados advindos do meu código na qual foram feitas 1000 simulações de redes para a rede francesa que se aproximam bastante do apresentado no artigo junto com os desvios padrões entre parênteses. Os que não bateram certo estão na faixa de erro mostrada anteriormente. \\Fonte: Elaborada pelo autor.}
 \label{table:Miguel}
 \end{table}
 
@@ -339,3 +343,117 @@ p = 1.0                             & 9.72(0.00)                      & 8.00(0.0
 \end{grafico}
 
 }
+
+\section{Modelo de Infecção}
+
+Como discutido anteriormente a pandemia do COVID-19 teve bastante impacto na sociedade e um deles foi no aumento nos estudos de modelos epidemiológicos, criando modelos mais robustos \cite{Xiang2021} considerando mais do que apenas infectados e suscetíveis. Além disso esses modelos estão em formato de equações diferencias e isso tem implicações no modelagem na qual é considerado que todos os indivíduos conseguem propagar a doença para qualquer outro indivíduo. Além disso, nesse formato de modelagem estamos estudando o nosso sistema de forma macroscópica e quando se tenta modelar utilizando redes estamos tentando estudar de forma microscópica, portanto a escolha de qual modelo é essencial e como ele se comporta de forma microscópica é essencial. Então qual modelo iremos escolher?
+
+Para responder essa pergunta temos que entender qual o propósito de Vacinas. As vacinas têm como principal função reduzir a propagação da enfermidade e impedir que os indivíduos que por ventura se contaminem não apresentem os efeitos mais graves da doença. Por fim não só é considerado o fator humano mas também econômico como é o caso da superlotação de hospitais \cite{French2021}. Nesse sentido não é apenas o espaço físico da UTI ou Hospital que está sendo utilizado, mas também de remédios, equipes de saúde e suprimentos, que poderiam estar sendo alocados em outras localidades e também prejudica pessoas que precisariam do espaço para outros problemas. À vista disso, usaremos como métricas para serem minimizadas são o número básico de reprodução $R_0$, número de mortos $M$ e número de Hospitalizações $M_H$.
+
+Assim sendo, o modelo de contágio a ser utilizado é o chamado SEIHARD como base para nossa primeira aproximação. Nele temos os sítios que podem se apresentar como Suscetíveis, Expostos, Infectados Sintomáticos, Hospitalizados, Infectados Assintomáticos, Recuperados e Mortos. Esse modelo é uma adaptação de \cite{Eikenberry2020} e \cite{SEIHR}, podemos definir cada estágio da seguinte forma:
+
+\begin{itemize}
+  \item \textbf{Suscetível (S)}: é o sítio que tem conexões na rede e não foi infectado pelo vírus ainda;
+  \item \textbf{Exposto (E)}: um sítio é considerado exposto quando ele estava no estágio S e foi contaminado por alguém no estágio E ou A. Esse estágio é para representar os indivíduos que estão na fase de encubação do vírus, isso faz com que eles possam contaminar as outros indivíduos por não saberem que tem a doença;
+  \item \textbf{Infectado Sintomático (I)}: um sítio nesse estágio está infectado, porém ele não pode infectar outras pessoas. Fazendo isso estamos tentando emular uma pessoa que está sentindo os sintomas e por isso não teria mais contato com outras pessoas;
+  \item \textbf{Hospitalizado (H)}: nele o nó continua sem a capacidade de contaminar outros nós. Nessa primeira aproximação estamos considerando que podemos ter qualquer quantidade de sítios hospitalizados, o que não é verdade por isso a posteriori iremos atualizar essa parte para melhorar o modelo;
+  \item \textbf{Infectado Assintomático (A)}: a diferença desse estágio para o I é o fato de que ele pode infectar outras pessoas. Isso se deve ao fato de que se ele é assintomático então não tem conhecimento da doença por não sentir nenhum sintoma, portanto ele continua tendo as suas ligações e também não tem risco de morte ou necessidade de ser hospitalizado;
+  \item \textbf{Recuperado (R)}: caso o nó não morra ele será considerado Recuperado. Aqui poderíamos considerar o Recuperado como sendo um novo Suscetível, porém de acordo com \cite{reinfect} não há dados suficientes para saber se é provável uma reinfecção, portanto em primeira aproximação podemos considerar que em $R$ ele não transmite nem se torna infectado;
+  \item \textbf{Morto (D)}: Por fim, nesse o sítio perde todas as conexões e é nele que será contabilizado quantas pessoas morreram para utilizarmos como métrica de minimização.
+\end{itemize}
+
+\begin{align}
+  \frac{dS}{dt} &= -(\epsilon_s E + \epsilon_aI)\frac{S}{N}\\
+  \frac{dE}{dt} &= (\epsilon_s E + \epsilon_aI)\frac{S}{N} - \sigma E\\
+  \frac{dI}{dt} &= \alpha\sigma E - \phi I -\gamma_I I \\
+  \frac{dA}{dt} &= (1 - \alpha)\sigma E -\gamma_A A\\
+  \frac{dH}{dt} &= \phi I - \delta H -\gamma_H H \\
+  \frac{dR}{dt} &= \gamma_I I +\gamma_H H +\gamma_A A \\
+  \frac{dD}{dt} &= \delta H 
+\end{align}
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+  \caption{Ilustração do Modelo SEIHARD}
+  \begin{tikzpicture}
+
+    \draw[->] (2,2.5) -- node[above] {\small $\epsilon_s \frac{E}{N} + \epsilon_a\frac{I}{N}$} (3.9,2.5) ;
+    \draw[->] (6,2.8) -- node[above,rotate=32]{$(1 - \alpha^i)\sigma$} (7.9,4);
+    \draw[->] (6,2) -- node[below,rotate=-32]{$\alpha^i\sigma$} (7.9,1);
+    \draw[->] (10,1) -- node[above] {$\phi$} (11.9,1);
+    \draw[->] (13.5,0.5) -- node[above] {$\delta^i$} (15,-0.9);
+    \draw[->] (12.5,0.5) -- node[below,rotate=32] {$\gamma_H$} (11,-0.9);
+    \draw[->] (9,1) -- node[below,rotate=-38] {$\gamma_I$} (10.8,-0.9);
+    \draw[->, dashed] (10,4) parabola (10.9,-0.8);
+    \node[draw,fill = white,draw = white] at (10.5,2.8) {$\gamma_A$};
+    
+    \draw[rounded corners,drop shadow, fill=ninfect,draw=border, ultra thick] (0,2) rectangle (2,3)node[pos=.5,text= white,font=\fontsize{20}{20}\selectfont]  {S};
+    
+    \draw[rounded corners,drop shadow, fill=infect,draw=border, ultra thick](4, 2) rectangle (6,3) node[pos=.5,text= white,font=\fontsize{20}
+    {20}\selectfont]  {E};
+    
+    \draw[rounded corners,drop shadow, fill=infect,draw=border, ultra thick](8, 3.5) rectangle (10,4.5) node[pos=.5,text= white,font=\fontsize{20}
+    {20}\selectfont]  {A};
+    
+    \draw[rounded corners,drop shadow, fill=ninteract,draw=border, ultra thick](8, 0.5) rectangle (10,1.5) node[pos=.5,text= white,font=\fontsize{20}
+    {20}\selectfont]  {I};
+    
+    \draw[rounded corners,drop shadow, fill=ninteract,draw=border, ultra thick](12, 0.5) rectangle (14,1.5) node[pos=.5,text= white,font=\fontsize{20}
+    {20}\selectfont]  {H};
+    
+    \draw[rounded corners,drop shadow, fill=ninteract,draw=border, ultra thick](14, -1) rectangle (16,-2) node[pos=.5,text= white,font=\fontsize{20}
+    {20}\selectfont]  {D};
+    
+    \draw[rounded corners,drop shadow, fill=ninteract,draw=border, ultra thick](10, -1) rectangle (12,-2) node[pos=.5,text= white,font=\fontsize{20}
+    {20}\selectfont]  {R};
+    
+    
+    
+  \end{tikzpicture}
+  \captionsetup{font=small}
+  \caption{Esquematização do Modelo SEIHARD de contágio. Os blocos em vermelho significam quem pode contaminar outros, os blocos em azul escuro quem não é infectado e em azul claro quem está isolado da rede.}
+  \label{img:Contagio}
+\end{figure}
+
+
+
+\begin{table}[H]
+  \caption{Tabela de parâmetros do modelo.}
+  \begin{tabular}{cll}
+  Parâmetro & Definição & Valor [Referência] \\
+  \hline
+  \rowcolor{Gray}
+  $\epsilon_s$ & Proporção de Infecção de Sintomáticos & 0.5 $day^{-1}$\\
+  $\epsilon_a$ & Proporção de Infecção de Assintomáticos& 0.025 $day^{-1}$\\ 
+  \rowcolor{Gray}
+  $\alpha^i$   & Fração de Infectados que tornarão-se Sintomáticos & Tabela \ref{alpha} \cite{Jung2020}\\
+  $\sigma$     & Transição exposta a infecções& 1/5.1 day$^{-1}$\\
+  \rowcolor{Gray}
+  $\gamma_A$   & Taxa de Recuperação de Assintomáticos& $1/7 day^{-1}$\\
+  $\gamma_H$   & Taxa de Recuperação de Hospitalizados& $1/14 day^{-1}$\\
+  \rowcolor{Gray}
+  $\gamma_I$   & Taxa de Recuperação de Sintomáticos & $1/7 day^{-1}$\\
+  $\phi^i$     & Taxa de Hospitalização & $day^{-1}$\\
+  \rowcolor{Gray}
+  $\delta^i$   & Taxa de Mortalidade & $day^{-1}$          
+  \end{tabular}
+
+  \caption*{Fonte: Elaborada pelo autor.}
+
+\end{table}
+
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{llllll}
+  Faixa & 0 - 20 & 20 - 30 & 30 - 50 & 50 - 70 & \textgreater{}= 70 \\
+  \hline
+  Idade & 29,1\% & 37,4\%  & 41.68\% & 39.4\%  & 31.3\%            
+  \end{tabular}
+
+  \caption{Nessa tabela são apresentados os valores de cada parâmetro do modelo. Alguns desses parâmetros dependem da idade e estão em outra tabela. \\Fonte: Elaborada pelo autor.}
+
+  \label{alpha}
+
+\end{table}
