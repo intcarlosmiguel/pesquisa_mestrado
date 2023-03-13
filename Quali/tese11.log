@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.3.9)  12 MAR 2023 15:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.3.9)  13 MAR 2023 12:29
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -985,4 +985,252 @@ Underfull \hbox (badness 10000) in paragraph at lines 87--87
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7.4> not available
-(Font)       
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 87.
+
+Overfull \hbox (12.51755pt too wide) in paragraph at lines 87--87
+ []| [] 
+ []
+
+[2]
+Underfull \hbox (badness 1210) in paragraph at lines 87--87
+\OT1/ptm/m/n/12 grama de P[]os-Gradua[][]ao em Mo-de-la-gem e
+ []
+
+
+Overfull \hbox (2.28003pt too wide) in paragraph at lines 87--87
+   $[]$ 
+ []
+
+[3
+
+] [4
+
+] [5
+
+
+] [6
+
+
+] [7
+
+
+] (./tese11.lof
+Overfull \hbox (2.12227pt too wide) detected at line 11
+\OT1/ptm/m/n/12 Figura 10 --  
+ []
+
+)
+\tf@lof=\write4
+\openout4 = `tese11.lof'.
+
+ [8
+
+] (./tese11.graf)
+\tf@graf=\write5
+\openout5 = `tese11.graf'.
+
+ [9
+
+] (./tese11.lot)
+\tf@lot=\write6
+\openout6 = `tese11.lot'.
+
+ [10
+
+] (./tese11.lsg)
+\tf@lsg=\write7
+\openout7 = `tese11.lsg'.
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 120--120
+[][] 
+ []
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 121--121
+[][] 
+ []
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 123--123
+[][] 
+ []
+
+[11
+
+] (./tese11.lsb)
+\tf@lsb=\write8
+\openout8 = `tese11.lsb'.
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 127--127
+[][] 
+ []
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 128--128
+[][] 
+ []
+
+
+Overfull \hbox (1.23639pt too wide) in paragraph at lines 129--129
+[][] 
+ []
+
+[12
+
+] (./tese11.toc)
+\tf@toc=\write9
+\openout9 = `tese11.toc'.
+
+ [13
+
+] (./chapter/introducao.tex
+Cap\'{\i }tulo 1.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 7.
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+)) (./chapter/fundamentos.tex [14
+
+
+]
+Cap\'{\i }tulo 2.
+<./img/Koenigsberg.png, id=92, 853.1875pt x 311.1625pt>
+File: ./img/Koenigsberg.png Graphic file (type png)
+<use ./img/Koenigsberg.png>
+Package pdftex.def Info: ./img/Koenigsberg.png  used on input line 11.
+(pdftex.def)             Requested size: 426.59271pt x 155.58087pt.
+LaTeX Font Info:    Trying to load font information for OT1+pzc on input line 23.
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pzc.fd
+File: ot1pzc.fd 2020/03/25 font definitions for OT1/pzc.
+) [15
+
+ <./img/Koenigsberg.png>] [16] [17]
+Underfull \hbox (badness 10000) in paragraph at lines 133--135
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 133--135
+
+ []
+
+[18] [19] [20] [21]
+
+Package amsmath Warning: Foreign command \atopwithdelims;
+(amsmath)                \frac or \genfrac should be used instead
+(amsmath)                 on input line 307.
+
+[22]
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10.95> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 392.
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <8> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 392.
+ [23]
+Overfull \hbox (22.99005pt too wide) in paragraph at lines 417--418
+[]\OT1/ptm/m/n/12 Essa equa[][]ao []e pre-sente em qual-quer ou-tro mo-delo infec[][]ao, []e a equa[][]ao de conserva[][]ao,
+ []
+
+[24]
+<./img/SI.png, id=132, 425.6703pt x 328.8285pt>
+File: ./img/SI.png Graphic file (type png)
+<use ./img/SI.png>
+Package pdftex.def Info: ./img/SI.png  used on input line 436.
+(pdftex.def)             Requested size: 340.5367pt x 263.06316pt.
+) (./chapter/metodologia.tex [25 <./img/SI.png>]
+Cap\'{\i }tulo 3.
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+Missing character: There is no ; in font nullfont!
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[26
+
+]
+Overfull \hbox (26.58789pt too wide) in paragraph at lines 218--240
+ []| [] 
+ []
+
+[27]
+Overfull \hbox (12.84424pt too wide) in paragraph at lines 254--274
+ []| [] 
+ []
+
+[28] [29]
+Overfull \hbox (1.5998pt too wide) in paragraph at lines 413--415
+ [][] 
+ []
+
+[30]
+LaTeX Font Info:    Trying to load font information for OML+ptm on input line 450.
+ (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlptm.fd
+File: omlptm.fd 
+)
+LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <12> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 450.
+) [31]
+Cap\'{\i }tulo 4.
+(./tese11.bbl [32
+
+] [33
+
+] [34]) [35]
+Apendice A.
+[36
+
+]
+Apendice B.
+[37
+
+]
+Anexo A.
++-------------------------------------------------------------------+
+| Comentario, sugestao ou critica sobre o abnTeX? Entre em contato: |
+|                  http://abntex.codigolivre.org.br                 |
++-------------------------------------------------------------------+
+AED: lastpage setting LastPage [38
+
+] (./tese11.aux) ) 
+Here is how much of TeX's memory you used:
+ 24288 strings out of 478287
+ 514635 string characters out of 5849290
+ 823313 words of memory out of 5000000
+ 41832 multiletter control sequences out of 15000+600000
+ 532955 words of font info for 171 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 100i,16n,104p,1169b,1060s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
+Output written on tese11.pdf (39 pages, 315381 bytes).
+PDF statistics:
+ 239 PDF objects out of 1000 (max. 8388607)
+ 143 compressed objects within 2 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 124 words of extra memory for PDF output out of 10000 (max. 10000000)
+
