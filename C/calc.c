@@ -3,6 +3,7 @@
 #include "mtwister.h"
 #include <string.h>
 #include <math.h>
+#define M_PI 3.14159265358979323846
 
 double media(double* x,int N){
     double media_ = 0;
@@ -233,4 +234,15 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
     file = fopen(destination,"a");
     fprintf(file,"%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\n",media/T,media2,median/T,median2,std/T,std2,as/T,as2,r2/T,r22,l/T,l2,diametro/T,diametro2);
     fclose(file);
+}
+
+double exponentialRand(double lambda) {
+    return -log(1 - genrand64_real1()) / lambda;
+}
+
+double normalRand(double mean, double stdDev) {
+    double u1 = (double) rand() / RAND_MAX;
+    double u2 = (double) rand() / RAND_MAX;
+    double z = sqrt(-2 * log(genrand64_real1())) * cos(2 * M_PI * genrand64_real1());
+    return mean + stdDev * z;
 }

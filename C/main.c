@@ -17,23 +17,28 @@ int main(int argc,char *argv[ ]){
     int T = atoi(argv[1]);
     int model = atoi(argv[2]);
     switch (model){
-    case 0:
+    case 0: // Modelo de Configuração
+        
         //generate_configuration_model((double) 0,T);
         generate_configuration_model((double) 1,T);
         //generate_configuration_model((double) 1.0,T);
         break;
-    case 1:
+    case 1: // Modelo SBM
         generate_SBM_p_model(T,model,0);
         break;
-    case 2:
+    case 2: // Modelo SBM probabilidade
+
         //for(int i = 0;i<= 100;i++) generate_SBM_p_model(T,model,(double) i/100);
         generate_SBM_p_model(T,model,0);
         break;
+
     case 3:
+
         generate_local_configuration_model(1,T,0);
         //generate_local_configuration_model(0.5,T,1);
         //generate_local_configuration_model(1,T,1);
         break;
+        
     default:
         break;
     }

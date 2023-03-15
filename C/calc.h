@@ -17,5 +17,7 @@ int* remove_(int *vetor,int elemento,int N);
 int size_txt();
 void print_matrix(int** mat,int N,int n);
 void generate_resultados(double** resultados, int T,char arquivo[]);
+double normalRand(double mean, double stdDev);
+double exponentialRand(double lambda);
 
 #endif
