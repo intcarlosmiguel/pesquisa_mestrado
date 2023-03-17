@@ -9,92 +9,122 @@
 #include "mtwister.h"
 #include "calc.h"
 #include "rede.h"
-#include "CM.h"
+#include "LCM.h"
 #include "SBM.h"
 
-struct Graph{
-    int **viz;
-    int Nodes;
-    int edges;
-};
+void infect(int S0,int E0,int N,int seed){
 
-struct iGraph{
-    int* mortalidade;
-    int* sintomatico;
-    int* estagio;
-    int** W;
-    int* idade;
-    double* random;
+    int Suscetiveis = S0;
+    int Expostos = E0;
+    int Assintomaticos = 0;
+    int Sintomaticos = 0;
+    int Hospitalizados = 0;
+    int Recuperados = 0;
+    int Mortos = 0;
+
     struct Graph G;
-};
-
-int infect(struct Graph Grafo, int S0,int E0){
-
-    struct iGraph rede;
-    rede.G.Nodes = Grafo.Nodes;
-    rede.G.edges = Grafo.edges;
-    rede.G.viz = Grafo.viz;
-
-    rede.random = (double*) malloc(rede.G.Nodes*sizeof(double));
-
-
+    G = local_configuration_model(N,0,42);
+    int* faixas = get_faixas(N);
+    double* random = (double*) malloc(G.Nodes*sizeof(double));
+    int* estagio = (int*) malloc(G.Nodes*sizeof(int));
+    init_genrand64(seed);
     int i = 0;
-    for (i = 0; i < rede.G.Nodes; i++){
-        rede.estagio[i] = 0;
-        rede.random[i] = genrand64_real1();
+    for (i = 0; i < G.Nodes; i++){
+        estagio[i] = 0;
+        random[i] = genrand64_real1();
     }
     while(E0!=0){
-        double rand = genrand64_real1();
-        int N = rand*rede.G.Nodes;
-        if(rede.estagio[N] == 0){
-            rede.estagio[N] = 1;
+        double r = genrand64_real1();
+        int N0 = r*G.Nodes;
+        if(estagio[N0] == 0){
+            estagio[N0] = 1;
             E0--;
         }
     }
-    int s = 0;
-    double sigma = 0;
-    double gamma_A = 0;
-    double hospitalizacao = 0;
-    double phi = 0;
-    double gamma_I = 0;
-    double gamma_H = 0;
-    double morte = 0;
-    double delta = 0;
-    double sintomatico = 0;
-    while (s == 0){
+    int s = 1;
+
+    double beta1 = (double)0.5;
+    double beta2 = (double)0.41;
+    double sigma = (double)1/5.1;
+    double gamma_A = (double)1/7;
+    double phi = (double)0.025;
+    double gamma_I = (double)1/7;
+    double gamma_H = (double)1/14;
+    double delta = (double)0.015;
+
+    double* sintomatico = (double*) malloc(5*sizeof(double));
+    double* hospitalizacao = (double*) malloc(5*sizeof(double));
+    double* morte = (double*) malloc(5*sizeof(double));
+
+    sintomatico[0] = 29.1/100;
+    sintomatico[1] = 37.4/100;
+    sintomatico[2] = 41.68/100;
+    sintomatico[3] = 39.4/100;
+    sintomatico[4] = 31.3/100;
+
+    hospitalizacao[0] = 1.04/100;
+    hospitalizacao[1] = 1.33/100;
+    hospitalizacao[2] = 1.38/100;
+    hospitalizacao[3] = 7.6/100;
+    hospitalizacao[4] = 24/100;
+
+    morte[0] = 0.408/100;
+    morte[1] = 1.04/100;
+    morte[2] = 3.89/100;
+    morte[3] = 9.98/100;
+    morte[4] = 17.5/100;
+
+    FILE *file;
+    file = fopen("./output/infect.txt","w");
+
+    while (s != 0){
         double rate = 0;
-        for (i = 0; i < rede.G.Nodes; i++){
-            switch (rede.estagio[i]){
-            case 0:// Sucetível
-                /* code */
-                break;
-            case 1: // Exposto
-                rate += sigma;
-                break;
-            case 2: //Assintomático
-                rate += gamma_A;
-                break;
-            case 3: // Sintomático
-                double rand = genrand64_real1();
-                if(rede.random[i]<hospitalizacao) rate += phi;
-                else rate += gamma_I;
-                break;
-            case 4: // Hospitalziado
-                double rand = genrand64_real1();
-                if(rede.random[i]<morte) rate += delta;
-                else rate += gamma_H;
-                break;
-            default:
-                break;
+        for (i = 0; i < G.Nodes-1; i++){
+            switch (estagio[i]){
+                case 0:// Suscetível
+                    /* code */
+                    double beta = 0;
+                    for (int j = 0; j < G.viz[i][0]; j++){
+                        int vizinho = G.viz[i][j+1];
+                        if(estagio[vizinho] == 1) beta += beta1;
+                        if(estagio[vizinho] == 2) beta += beta2;
+                    }
+                    rate += beta/G.viz[i][0];
+                    break;
+                case 1: // Exposto
+                    rate += sigma;
+                    break;
+                case 2: //Assintomático
+                    rate += gamma_A;
+                    break;
+                case 3: // Sintomático
+                    if(random[i]<hospitalizacao[faixas[i]]) rate += phi;
+                    else rate += gamma_I;
+                    break;
+                case 4: // Hospitalziado
+                    if(random[i]<morte[faixas[i]]) rate += delta;
+                    else rate += gamma_H;
+                    break;
+                default:
+                    break;
             }
         }
+        //printf("%f\n",rate);
         double tempo = exponentialRand(1/rate);
+        if(tempo == 0) break;
         double Delta = rate*genrand64_real1();
         rate = 0;
-        for (i = 0; i < rede.G.Nodes; i++){
-            switch (rede.estagio[i]){
+        for (i = 0; i < G.Nodes-1; i++){
+            switch (estagio[i]){
             case 0:// Sucetível
                 /* code */
+                double beta = 0;
+                for (int j = 0; j < G.viz[i][0]; j++){
+                    int vizinho = G.viz[i][j+1];
+                    if(estagio[vizinho] == 1) beta += beta1;
+                    if(estagio[vizinho] == 2) beta += beta2;
+                }
+                rate += beta/G.viz[i][0];
                 break;
             case 1: // Exposto
                 rate += sigma;
@@ -103,13 +133,11 @@ int infect(struct Graph Grafo, int S0,int E0){
                 rate += gamma_A;
                 break;
             case 3: // Sintomático
-                double rand = genrand64_real1();
-                if(rand<hospitalizacao) rate += phi;
+                if(random[i]<hospitalizacao[faixas[i]]) rate += phi;
                 else rate += gamma_I;
                 break;
             case 4: // Hospitalziado
-                double rand = genrand64_real1();
-                if(rand<morte) rate += delta;
+                if(random[i]<morte[faixas[i]]) rate += delta;
                 else rate += gamma_H;
                 break;
             default:
@@ -118,31 +146,65 @@ int infect(struct Graph Grafo, int S0,int E0){
             if(rate>=Delta) break;
         }
 
-        switch (rede.estagio[i]){
+        switch (estagio[i]){
             case 0:// Sucetível
-                rede.estagio[i] = 1;
+                estagio[i] = 1;
+                Expostos++;
+                Suscetiveis--;
                 break;
             case 1: // Exposto
-                if(rede.random[i]<sintomatico)rede.estagio[i] = 2;
-                else rede.estagio[i] = 1;
+                if(random[i]<sintomatico[faixas[i]]){
+                    estagio[i] = 3;
+                    Sintomaticos++;
+                }
+                else{
+                    estagio[i] = 2;
+                    Assintomaticos++;
+                }
+                Expostos--;
                 break;
             case 2: //Assintomático
-                rede.estagio[i] = 5;
+                estagio[i] = 5;
+                Assintomaticos--;
+                Recuperados++;
                 break;
             case 3: // Sintomático
-                if(rede.random[i]<hospitalizacao) rede.estagio[i] = 4;
-                else rede.estagio[i] = 5;
+                if(random[i]<hospitalizacao[faixas[i]]){
+                    estagio[i] = 4;
+                    Hospitalizados++;
+                }
+                else{
+                    estagio[i] = 5;
+                    Recuperados++;
+                }
+                Sintomaticos--;
                 break;
             case 4: // Hospitalziado
-                if(rede.random[i]<morte) rede.estagio[i] = 6;
-                else rede.estagio[i] = 5;
+                if(random[i]<morte[faixas[i]]){
+                    estagio[i] = 6;
+                    Mortos++;
+                }
+                else{
+                    estagio[i] = 5;
+                    Recuperados++;
+                }
+                Hospitalizados--;
                 break;
             default:
                 break;
         }
-        rede.random[i] = genrand64_real1();
-
+        random[i] = genrand64_real1();
+        fprintf(file,"%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
+        s++;
+        //printf("%d\n",s);
     }
+    fclose(file);
     
+}
+
+void generate_infect(){
+    int N = size_txt();
+    int infectados = 800;
+    infect(N-infectados,infectados,N,42);
     
 }

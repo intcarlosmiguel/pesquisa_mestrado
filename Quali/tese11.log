@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.3.9)  13 MAR 2023 12:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.3.14)  16 MAR 2023 12:35
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/carlos/Downloads/Codes/Github/pesquisa_mestrado/Quali/tese11.tex
-(/home/carlos/Downloads/Codes/Github/pesquisa_mestrado/Quali/tese11.tex
+**/home/carlosmiguel/Downloads/Code/Github/pesquisa_mestrado/Quali/tese11.tex
+(/home/carlosmiguel/Downloads/Code/Github/pesquisa_mestrado/Quali/tese11.tex
 LaTeX2e <2021-11-15> patch level 1
 L3 programming layer <2022-01-21> (./abnt-fisica11.cls (/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2020/11/24 v1.1c Standard LaTeX ifthen package (DPC)
@@ -393,7 +393,7 @@ Package: babel 2022/01/26 3.70 The Babel package
  (/usr/share/texlive/texmf-dist/tex/generic/babel-portuges/brazil.ldf
 Language: portuges 2021/07/09 v1.2t Portuguese support from the babel system
 Package babel Info: Hyphen rules for 'brazil' set to \l@portuguese
-(babel)             (\language12). Reported on input line 111.
+(babel)             (\language72). Reported on input line 111.
 Package babel Info: Making " an active character on input line 143.
 )) (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
@@ -1184,18 +1184,17 @@ Overfull \hbox (12.84424pt too wide) in paragraph at lines 254--274
  []
 
 [28] [29]
-Overfull \hbox (1.5998pt too wide) in paragraph at lines 413--415
+Overfull \hbox (1.5998pt too wide) in paragraph at lines 403--405
  [][] 
  []
 
-[30]
-LaTeX Font Info:    Trying to load font information for OML+ptm on input line 450.
- (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlptm.fd
+LaTeX Font Info:    Trying to load font information for OML+ptm on input line 443.
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlptm.fd
 File: omlptm.fd 
 )
 LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <12> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 450.
-) [31]
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 443.
+ [30]) [31]
 Cap\'{\i }tulo 4.
 (./tese11.bbl [32
 
@@ -1220,14 +1219,14 @@ AED: lastpage setting LastPage [38
 ] (./tese11.aux) ) 
 Here is how much of TeX's memory you used:
  24288 strings out of 478287
- 514635 string characters out of 5849290
- 823313 words of memory out of 5000000
+ 514643 string characters out of 5849289
+ 823311 words of memory out of 5000000
  41832 multiletter control sequences out of 15000+600000
  532955 words of font info for 171 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 100i,16n,104p,1169b,1060s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 100i,16n,104p,1174b,1060s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on tese11.pdf (39 pages, 315381 bytes).
+Output written on tese11.pdf (39 pages, 315146 bytes).
 PDF statistics:
  239 PDF objects out of 1000 (max. 8388607)
  143 compressed objects within 2 object streams

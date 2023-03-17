@@ -12,9 +12,10 @@
 #include "CM.h"
 #include "SBM.h"
 #include "LCM.h"
+#include "infect.h"
 
 int main(int argc,char *argv[ ]){
-    int T = atoi(argv[1]);
+    /* int T = atoi(argv[1]);
     int model = atoi(argv[2]);
     switch (model){
     case 0: // Modelo de Configuração
@@ -41,6 +42,6 @@ int main(int argc,char *argv[ ]){
         
     default:
         break;
-    }
-    
+    } */
+    generate_infect();
 }

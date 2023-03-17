@@ -358,19 +358,9 @@ Assim sendo, o modelo de contágio a ser utilizado é o chamado SEIHARD como bas
   \item \textbf{Infectado Sintomático (I)}: um sítio nesse estágio está infectado, porém ele não pode infectar outras pessoas. Fazendo isso estamos tentando emular uma pessoa que está sentindo os sintomas e por isso não teria mais contato com outras pessoas;
   \item \textbf{Hospitalizado (H)}: nele o nó continua sem a capacidade de contaminar outros nós. Nessa primeira aproximação estamos considerando que podemos ter qualquer quantidade de sítios hospitalizados, o que não é verdade por isso a posteriori iremos atualizar essa parte para melhorar o modelo;
   \item \textbf{Infectado Assintomático (A)}: a diferença desse estágio para o I é o fato de que ele pode infectar outras pessoas. Isso se deve ao fato de que se ele é assintomático então não tem conhecimento da doença por não sentir nenhum sintoma, portanto ele continua tendo as suas ligações e também não tem risco de morte ou necessidade de ser hospitalizado;
-  \item \textbf{Recuperado (R)}: caso o nó não morra ele será considerado Recuperado. Aqui poderíamos considerar o Recuperado como sendo um novo Suscetível, porém de acordo com \cite{reinfect} não há dados suficientes para saber se é provável uma reinfecção, portanto em primeira aproximação podemos considerar que em $R$ ele não transmite nem se torna infectado;
+  \item \textbf{Recuperado (R)}: caso o nó não morra ele será considerado Recuperado.
   \item \textbf{Morto (D)}: Por fim, nesse o sítio perde todas as conexões e é nele que será contabilizado quantas pessoas morreram para utilizarmos como métrica de minimização.
 \end{itemize}
-
-\begin{align}
-  \frac{dS}{dt} &= -(\epsilon_s E + \epsilon_aI)\frac{S}{N}\\
-  \frac{dE}{dt} &= (\epsilon_s E + \epsilon_aI)\frac{S}{N} - \sigma E\\
-  \frac{dI}{dt} &= \alpha\sigma E - \phi I -\gamma_I I \\
-  \frac{dA}{dt} &= (1 - \alpha)\sigma E -\gamma_A A\\
-  \frac{dH}{dt} &= \phi I - \delta H -\gamma_H H \\
-  \frac{dR}{dt} &= \gamma_I I +\gamma_H H +\gamma_A A \\
-  \frac{dD}{dt} &= \delta H 
-\end{align}
 
 \begin{figure}[H]
   \centering
@@ -381,10 +371,10 @@ Assim sendo, o modelo de contágio a ser utilizado é o chamado SEIHARD como bas
     \draw[->] (2,2.5) -- node[above] {\small $\epsilon_s \frac{E}{N} + \epsilon_a\frac{I}{N}$} (3.9,2.5) ;
     \draw[->] (6,2.8) -- node[above,rotate=32]{$(1 - \alpha^i)\sigma$} (7.9,4);
     \draw[->] (6,2) -- node[below,rotate=-32]{$\alpha^i\sigma$} (7.9,1);
-    \draw[->] (10,1) -- node[above] {$\phi$} (11.9,1);
-    \draw[->] (13.5,0.5) -- node[above] {$\delta^i$} (15,-0.9);
-    \draw[->] (12.5,0.5) -- node[below,rotate=32] {$\gamma_H$} (11,-0.9);
-    \draw[->] (9,1) -- node[below,rotate=-38] {$\gamma_I$} (10.8,-0.9);
+    \draw[->] (10,1) -- node[above] {$\psi^i\phi$} (11.98,1);
+    \draw[->] (13.5,0.5) -- node[above,rotate=-38] {$\tau^i\delta$} (15,-0.9);
+    \draw[->] (12.5,0.9) -- node[below,rotate=45] {$(1 - \tau^i)\gamma_H$} (11,-0.9);
+    \draw[->] (9,1) -- node[below,rotate=-38] {$(1 - \psi^i)\gamma_I$} (10.8,-0.9);
     \draw[->, dashed] (10,4) parabola (10.9,-0.8);
     \node[draw,fill = white,draw = white] at (10.5,2.8) {$\gamma_A$};
     
@@ -425,7 +415,7 @@ Assim sendo, o modelo de contágio a ser utilizado é o chamado SEIHARD como bas
   \hline
   \rowcolor{Gray}
   $\epsilon_s$ & Proporção de Infecção de Sintomáticos & 0.5 $day^{-1}$\\
-  $\epsilon_a$ & Proporção de Infecção de Assintomáticos& 0.025 $day^{-1}$\\ 
+  $\epsilon_a$ & Proporção de Infecção de Assintomáticos& 0.41 $day^{-1}$\\ 
   \rowcolor{Gray}
   $\alpha^i$   & Fração de Infectados que tornarão-se Sintomáticos & Tabela \ref{alpha} \cite{Jung2020}\\
   $\sigma$     & Transição exposta a infecções& 1/5.1 day$^{-1}$\\
@@ -434,9 +424,12 @@ Assim sendo, o modelo de contágio a ser utilizado é o chamado SEIHARD como bas
   $\gamma_H$   & Taxa de Recuperação de Hospitalizados& $1/14 day^{-1}$\\
   \rowcolor{Gray}
   $\gamma_I$   & Taxa de Recuperação de Sintomáticos & $1/7 day^{-1}$\\
-  $\phi^i$     & Taxa de Hospitalização & $day^{-1}$\\
+  $\phi$     & Taxa de Hospitalização & 0.025 $day^{-1}$\\
   \rowcolor{Gray}
-  $\delta^i$   & Taxa de Mortalidade & $day^{-1}$          
+  $\psi^i$   & Probabilidade de Hospitalização & Tabela \ref{psi}\\
+  $\delta$   & Taxa de Mortalidade & 0.015 $day^{-1}$\\
+  \rowcolor{Gray}
+  $\tau^i$   & Probabilidade de Morte & Tabela \ref{tau}
   \end{tabular}
 
   \caption*{Fonte: Elaborada pelo autor.}
@@ -449,11 +442,41 @@ Assim sendo, o modelo de contágio a ser utilizado é o chamado SEIHARD como bas
   \begin{tabular}{llllll}
   Faixa & 0 - 20 & 20 - 30 & 30 - 50 & 50 - 70 & \textgreater{}= 70 \\
   \hline
-  Idade & 29,1\% & 37,4\%  & 41.68\% & 39.4\%  & 31.3\%            
+  Valor & 29,1\% & 37,4\%  & 41.68\% & 39.4\%  & 31.3\%            
   \end{tabular}
 
-  \caption{Nessa tabela são apresentados os valores de cada parâmetro do modelo. Alguns desses parâmetros dependem da idade e estão em outra tabela. \\Fonte: Elaborada pelo autor.}
+  \caption{Nessa tabela são apresentados os valores de $\alpha^i$, que é a probabilidade de se tornar sintomático pela idade. \\Fonte: Elaborada pelo autor.}
 
   \label{alpha}
+
+\end{table}
+
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{llllll}
+  Faixa & 0 - 20 & 20 - 30 & 30 - 50 & 50 - 70 & \textgreater{}= 70 \\
+  \hline
+  Valor & 1.04\% & 1.33\%  & 1.38\% & 7.6\%  & 24\%            
+  \end{tabular}
+
+  \caption{Nessa tabela são apresentados os valores de $\tau^i$, que é a probabilidade de um hospitalizado morrer. Esses dados foram coletados a partir do Open Data SUS do anoa de 2020. \\Fonte: Elaborada pelo autor.}
+
+  \label{tau}
+
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{llllll}
+  Faixa & 0 - 20 & 20 - 30 & 30 - 50 & 50 - 70 & \textgreater{}= 70 \\
+  \hline
+  Valor & 0.408\% & 1.04\%  & 3.89\% & 9.98
+  \%& 17.5\%
+  \end{tabular}
+
+  \caption{Nessa tabela são apresentados os valores de $\psi^i$, que é a probabilidade de um infectado ser hospitalizado. \\Fonte: Elaborada pelo autor.}
+
+  \label{psi}
 
 \end{table}
