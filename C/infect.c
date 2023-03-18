@@ -21,13 +21,16 @@ void infect(int S0,int E0,int N,int seed){
     int Hospitalizados = 0;
     int Recuperados = 0;
     int Mortos = 0;
+    char filename[40];
+    sprintf(filename, "./output/infect/%.3f.txt", (double)E0/N);
 
     struct Graph G;
-    G = local_configuration_model(N,0,42);
-    int* faixas = get_faixas(N);
+    G = local_configuration_model(N,0,seed);
+    int* faixas = get_faixas(G.Nodes);
     double* random = (double*) malloc(G.Nodes*sizeof(double));
     int* estagio = (int*) malloc(G.Nodes*sizeof(int));
     init_genrand64(seed);
+
     int i = 0;
     for (i = 0; i < G.Nodes; i++){
         estagio[i] = 0;
@@ -60,30 +63,39 @@ void infect(int S0,int E0,int N,int seed){
     sintomatico[1] = 37.4/100;
     sintomatico[2] = 41.68/100;
     sintomatico[3] = 39.4/100;
-    sintomatico[4] = 31.3/100;
+    sintomatico[4] = 31.3/100; 
+    /* sintomatico[0] = (double)47.3/100; // 0 - 20
+    sintomatico[1] = (double)45.8/100; // 20 -  30
+    sintomatico[2] = (double)0.4673015873; // 30 - 50
+    sintomatico[3] = (double)0.4948096886; // 50 -70
+    sintomatico[4] = (double)0.4; // 70+ */
 
-    hospitalizacao[0] = 1.04/100;
-    hospitalizacao[1] = 1.33/100;
-    hospitalizacao[2] = 1.38/100;
-    hospitalizacao[3] = 7.6/100;
-    hospitalizacao[4] = 24/100;
+    hospitalizacao[0] = (double)1.04/100;
+    hospitalizacao[1] = (double)1.33/100;
+    hospitalizacao[2] = (double)1.38/100;
+    hospitalizacao[3] = (double)7.6/100;
+    hospitalizacao[4] = (double)24/100;
 
-    morte[0] = 0.408/100;
-    morte[1] = 1.04/100;
-    morte[2] = 3.89/100;
-    morte[3] = 9.98/100;
-    morte[4] = 17.5/100;
+    morte[0] = (double)0.408/100;
+    morte[1] = (double)1.04/100;
+    morte[2] = (double)3.89/100;
+    morte[3] = (double)9.98/100;
+    morte[4] = (double)17.5/100;
 
     FILE *file;
-    file = fopen("./output/infect.txt","w");
+    file = fopen(filename,"w");
+    
+    int RSintomatico = 0;
+    int RAssintomatico = 0;
 
     while (s != 0){
         double rate = 0;
-        for (i = 0; i < G.Nodes-1; i++){
+        for (i = 0; i < G.Nodes; i++){
             switch (estagio[i]){
                 case 0:// Suscetível
                     /* code */
                     double beta = 0;
+                    if(G.viz[i][0] == 0) break;
                     for (int j = 0; j < G.viz[i][0]; j++){
                         int vizinho = G.viz[i][j+1];
                         if(estagio[vizinho] == 1) beta += beta1;
@@ -109,7 +121,6 @@ void infect(int S0,int E0,int N,int seed){
                     break;
             }
         }
-        //printf("%f\n",rate);
         double tempo = exponentialRand(1/rate);
         if(tempo == 0) break;
         double Delta = rate*genrand64_real1();
@@ -119,6 +130,7 @@ void infect(int S0,int E0,int N,int seed){
             case 0:// Sucetível
                 /* code */
                 double beta = 0;
+                if(G.viz[i][0] == 0) break;
                 for (int j = 0; j < G.viz[i][0]; j++){
                     int vizinho = G.viz[i][j+1];
                     if(estagio[vizinho] == 1) beta += beta1;
@@ -166,6 +178,7 @@ void infect(int S0,int E0,int N,int seed){
             case 2: //Assintomático
                 estagio[i] = 5;
                 Assintomaticos--;
+                RAssintomatico++;
                 Recuperados++;
                 break;
             case 3: // Sintomático
@@ -176,6 +189,7 @@ void infect(int S0,int E0,int N,int seed){
                 else{
                     estagio[i] = 5;
                     Recuperados++;
+                    RSintomatico++;
                 }
                 Sintomaticos--;
                 break;
@@ -199,12 +213,18 @@ void infect(int S0,int E0,int N,int seed){
         //printf("%d\n",s);
     }
     fclose(file);
-    
+    free(morte);
+    free(random);
+    free(faixas);
+    free(hospitalizacao);
+    free(sintomatico);
+    free(estagio);
+    for(int j = 0; j < N; j++)free(G.viz[j]);
+    free(G.viz);
 }
 
 void generate_infect(){
     int N = size_txt();
-    int infectados = 800;
-    infect(N-infectados,infectados,N,42);
-    
+    #pragma omp parallel for
+    for (int i = 1; i < N; i++) infect(N-i,i,N,i);
 }
