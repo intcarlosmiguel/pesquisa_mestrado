@@ -12,7 +12,8 @@
 #include "LCM.h"
 #include "SBM.h"
 
-void infect(int S0,int E0,int N,int seed){
+void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
+
 
     int Suscetiveis = S0;
     int Expostos = E0;
@@ -21,8 +22,7 @@ void infect(int S0,int E0,int N,int seed){
     int Hospitalizados = 0;
     int Recuperados = 0;
     int Mortos = 0;
-    char filename[40];
-    sprintf(filename, "./output/infect/%.3f.txt", (double)E0/N);
+    
 
     struct Graph G;
     G = local_configuration_model(N,0,seed);
@@ -82,11 +82,8 @@ void infect(int S0,int E0,int N,int seed){
     morte[3] = (double)9.98/100;
     morte[4] = (double)17.5/100;
 
-    FILE *file;
-    file = fopen(filename,"w");
-    
-    int RSintomatico = 0;
-    int RAssintomatico = 0;
+
+    int Nhospitalizados = 0;
 
     while (s != 0){
         double rate = 0;
@@ -178,18 +175,17 @@ void infect(int S0,int E0,int N,int seed){
             case 2: //Assintomático
                 estagio[i] = 5;
                 Assintomaticos--;
-                RAssintomatico++;
                 Recuperados++;
                 break;
             case 3: // Sintomático
                 if(random[i]<hospitalizacao[faixas[i]]){
                     estagio[i] = 4;
                     Hospitalizados++;
+                    Nhospitalizados++;
                 }
                 else{
                     estagio[i] = 5;
                     Recuperados++;
-                    RSintomatico++;
                 }
                 Sintomaticos--;
                 break;
@@ -208,11 +204,13 @@ void infect(int S0,int E0,int N,int seed){
                 break;
         }
         random[i] = genrand64_real1();
-        fprintf(file,"%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
+        //fprintf(file,"%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
         s++;
         //printf("%d\n",s);
     }
-    fclose(file);
+    //fclose(file);
+    *s1 += Nhospitalizados;
+    *s2 += Mortos;
     free(morte);
     free(random);
     free(faixas);
@@ -225,6 +223,20 @@ void infect(int S0,int E0,int N,int seed){
 
 void generate_infect(){
     int N = size_txt();
-    #pragma omp parallel for
-    for (int i = 1; i < N; i++) infect(N-i,i,N,i);
+    //char filename[40];
+    //sprintf(filename, "./output/infect/%.3f.txt", (double)E0/N);
+    FILE *file;
+    file = fopen("./output/infect.txt","a");
+    double* resultados = (double*) malloc(2*sizeof(double));
+    for (int i = 1; i < N; i++){
+        resultados[0] = 0;
+        resultados[1] = 0;
+        #pragma omp parallel for
+        for (int j = 0; j < 100; j++) infect(N-i,i,N,i*j,&resultados[0],&resultados[1]);
+        resultados[0] /= 100;
+        resultados[1] /= 100;
+        fprintf(file,"%f %f\n",resultados[0],resultados[1]);
+        printf("%d\n",i);
+    }
+    fclose(file);
 }
