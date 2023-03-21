@@ -14,7 +14,6 @@
 
 void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
 
-
     int Suscetiveis = S0;
     int Expostos = E0;
     int Assintomaticos = 0;
@@ -23,6 +22,11 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
     int Recuperados = 0;
     int Mortos = 0;
     
+    FILE *file;
+    char filename[40];
+
+    sprintf(filename,"./output/infect/%.3f.txt",(double)E0/N);
+    file = fopen(filename,"w");
 
     struct Graph G;
     G = local_configuration_model(N,0,seed);
@@ -92,13 +96,14 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
                 case 0:// Suscetível
                     /* code */
                     double beta = 0;
-                    if(G.viz[i][0] == 0) break;
+                    int n = 0;
                     for (int j = 0; j < G.viz[i][0]; j++){
                         int vizinho = G.viz[i][j+1];
-                        if(estagio[vizinho] == 1) beta += beta1;
-                        if(estagio[vizinho] == 2) beta += beta2;
+                        if(estagio[vizinho] == 1) {beta += beta1;n++;}
+                        if(estagio[vizinho] == 2) {beta += beta2;n++;}
                     }
-                    rate += beta/G.viz[i][0];
+                    if(n == 0) break;
+                    rate += beta/n;
                     break;
                 case 1: // Exposto
                     rate += sigma;
@@ -118,22 +123,25 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
                     break;
             }
         }
+
         double tempo = exponentialRand(1/rate);
         if(tempo == 0) break;
         double Delta = rate*genrand64_real1();
         rate = 0;
-        for (i = 0; i < G.Nodes-1; i++){
+        
+        for (i = 0; i < G.Nodes; i++){
             switch (estagio[i]){
             case 0:// Sucetível
                 /* code */
                 double beta = 0;
-                if(G.viz[i][0] == 0) break;
+                int n = 0;
                 for (int j = 0; j < G.viz[i][0]; j++){
                     int vizinho = G.viz[i][j+1];
-                    if(estagio[vizinho] == 1) beta += beta1;
-                    if(estagio[vizinho] == 2) beta += beta2;
+                    if(estagio[vizinho] == 1) {beta += beta1;n++;}
+                    if(estagio[vizinho] == 2) {beta += beta2;n++;}
                 }
-                rate += beta/G.viz[i][0];
+                if(n == 0) break;
+                rate += beta/n;
                 break;
             case 1: // Exposto
                 rate += sigma;
@@ -204,11 +212,11 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
                 break;
         }
         random[i] = genrand64_real1();
-        //fprintf(file,"%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
+        fprintf(file,"%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
         s++;
         //printf("%d\n",s);
     }
-    //fclose(file);
+    fclose(file);
     *s1 += Nhospitalizados;
     *s2 += Mortos;
     free(morte);
@@ -221,20 +229,20 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
     free(G.viz);
 }
 
-void generate_infect(){
+void generate_infect(int seed, int redes){
     int N = size_txt();
     //char filename[40];
     //sprintf(filename, "./output/infect/%.3f.txt", (double)E0/N);
     FILE *file;
-    file = fopen("./output/infect.txt","a");
+    file = fopen("./output/infect.txt","w");
     double* resultados = (double*) malloc(2*sizeof(double));
     for (int i = 1; i < N; i++){
         resultados[0] = 0;
         resultados[1] = 0;
-        #pragma omp parallel for
-        for (int j = 0; j < 100; j++) infect(N-i,i,N,i*j,&resultados[0],&resultados[1]);
-        resultados[0] /= 100;
-        resultados[1] /= 100;
+        //#pragma omp parallel for
+        for (int j = 0; j < redes; j++) infect(N-i,i,N,i*j+ seed,&resultados[0],&resultados[1]);
+        resultados[0] /= redes;
+        resultados[1] /= redes;
         fprintf(file,"%f %f\n",resultados[0],resultados[1]);
         printf("%d\n",i);
     }

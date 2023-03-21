@@ -43,5 +43,7 @@ int main(int argc,char *argv[ ]){
     default:
         break;
     } */
-    generate_infect();
+    int seed = atoi(argv[1]);
+    int redes = atoi(argv[2]);
+    generate_infect(seed, redes);
 }
