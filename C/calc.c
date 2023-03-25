@@ -66,7 +66,7 @@ int* ending(int* array, int n, int site,int inicio){
 int* randomize (int* array, int n,int seed){
     init_genrand64(seed);
     for (int i = n-1; i > 0; i--){
-        int j = rand() % (i+1);
+        int j = genrand64_int64() % (i+1);
         swap(&array[i], &array[j]);
     }
     return array;
@@ -237,6 +237,7 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
 }
 
 double exponentialRand(double lambda) {
+    if(lambda == 0) return 0;
     return -log(1 - genrand64_real1()) / lambda;
 }
 
