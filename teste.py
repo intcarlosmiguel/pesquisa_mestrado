@@ -1,16 +1,20 @@
-import networkx as nx
-import pandas as pd
 import numpy as np
-import json
-from bib.cleaning import *
-from bib.rede import *
+import matplotlib.pyplot as plt
+import os
 
-contatos01 = pd.read_excel('./dados/last.xlsx',sheet_name='Contatos_01')
-contatos02 = pd.read_excel('./dados/last.xlsx',sheet_name='Contatos_02')
-data = pd.read_excel('./dados/last.xlsx',sheet_name='Pessoas')
+a = np.loadtxt('./C/output/infect/800.txt',delimiter= ' ').T
 
-degree = (data['#Contatos01'].values + data['#Contatos02'].values)/2
-degree = np.array([i for i in degree if(i > 0)])
-degree = np.ceil(degree).astype(int)
+#X = 300
+x = np.cumsum(a[0])
+#x = x[x<=X]
+#plt.plot(x,a[1][:len(x)]/2029,label = 'Suscetível')
+#plt.plot(x,a[2][:len(x)]/2029,label = 'Expostos')
+#plt.plot(x,a[-2][:len(x)]/2029,label = 'Recuperados')
+#plt.plot(x,a[-3]/2029,label = 'Hospitalizados')
+#plt.plot(x,a[-1]/2029,label = 'Mortos')
+plt.scatter(a[-2]/2029,a[-1]/2029,label = 'Mortos')
 
-visualize(degree,1)
+plt.legend()
+plt.grid()
+#plt.xlim(0,100)
+plt.show()

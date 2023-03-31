@@ -25,8 +25,8 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
     FILE *file;
     char filename[40];
 
-    sprintf(filename,"./output/infect/%.3f.txt",(double)E0/N);
-    file = fopen(filename,"a");
+    sprintf(filename,"./output/infect/%d.txt",E0);
+    file = fopen(filename,"w");
 
     struct Graph G;
     G = local_configuration_model(N,0,seed);
@@ -62,6 +62,7 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
     double gamma_I = (double)1/7;
     double gamma_H = (double)1/14;
     double delta = (double)1/14;
+    double recupera = (double)1/40;
 
     double* sintomatico = (double*) malloc(5*sizeof(double));
     double* hospitalizacao = (double*) malloc(5*sizeof(double));
@@ -122,6 +123,9 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
                     if(random[i]<morte[faixas[i]]) rate += delta;
                     else rate += gamma_H;
                     break;
+                case 5:
+                    rate += recupera;
+                    break;
                 default:
                     break;
             }
@@ -129,6 +133,7 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
 
         if(rate==0) break;
         tempo = exponentialRand(rate);
+        if(tempo ==0) break;
         double Delta = rate*genrand64_real1();
         rate = 0;
 
@@ -157,6 +162,9 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
             case 4: // Hospitalziado
                 if(random[i]<morte[faixas[i]]) rate += delta;
                 else rate += gamma_H;
+                break;
+            case 5:
+                rate += recupera;
                 break;
             default:
                 break;
@@ -213,6 +221,11 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
                 }
                 Hospitalizados--;
                 break;
+            case 5:
+                estagio[i] = 0;
+                Suscetiveis++;
+                Recuperados--;
+                break;
             default:
                 break;
         }
@@ -229,6 +242,7 @@ void infect(int S0,int E0,int N,int seed,double* s1,double* s2){
             }
         }*/
         random[i] = genrand64_real1();
+        printf("%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
         fprintf(file,"%f %d %d %d %d %d %d %d\n",tempo,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
         //s++;
         //if(Expostos == 0) break;
@@ -252,20 +266,21 @@ void generate_infect(int seed, int redes){
     FILE *file;
     file = fopen("./output/infect.txt","w");
     double* resultados = (double*) malloc(2*sizeof(double));
-
-    /*for (int i = 1; i < N; i++){
+    //#pragma omp parallel for
+    /* for (int i = 1; i < N; i++){
         printf("\e[1;1H\e[2J");
-        resultados[0] = 0;
-        resultados[1] = 0;
+        //resultados[0] = 0;
+        //resultados[1] = 0;
         //#pragma omp parallel for
         for (int j = 0; j < redes; j++) infect(N-i,i,N,i*j+ seed,&resultados[0],&resultados[1]);
-        resultados[0] /= redes;
-        resultados[1] /= redes;
-        fprintf(file,"%f %f\n",resultados[0],resultados[1]);
+        //resultados[0] /= redes;
+        //resultados[1] /= redes;
+        //fprintf(file,"%f %f\n",resultados[0],resultados[1]);
         printf("%d\n",i);
-    }*/
+    } */
     //#pragma omp parallel for
-    for (int j = 0; j < redes; j++) infect(N-1,1,N,j+ seed,&resultados[0],&resultados[1]);
-    free(resultados);
+    //for (int j = 0; j < redes; j++) infect(N-1,1,N,j+ seed,&resultados[0],&resultados[1]);
+    //free(resultados);
+    infect(N-800,800,N,seed,&resultados[0],&resultados[1]);
     fclose(file);
 }
