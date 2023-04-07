@@ -315,7 +315,7 @@ def check_faixa(idade,faixas):
         if((idade<i[1]) and(idade>=i[0])):
             return int(faixa)
 
-def generate_mortalidade(df,vacina = 'nenhuma'):
+def generate_mortalidade(df,name = 'mortalidade',vacina = 'nenhuma'):
 
     hist = [
         [0,20],
@@ -338,7 +338,7 @@ def generate_mortalidade(df,vacina = 'nenhuma'):
             mortos = m[m['EVOLUCAO']==2]
         Nmortos[i] = mortos.shape[0]/infectados.shape[0]
     
-    with open('./dados/mortalidade.json', 'w') as f:
+    with open(f'./dados/{name}.json', 'w') as f:
         json.dump(Nmortos, f)
     return Nmortos
 
