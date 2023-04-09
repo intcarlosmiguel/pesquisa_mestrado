@@ -14,7 +14,7 @@
 
 int rodou = 0;
 
-void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,double f){
+void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,double* final,double f){
 
     int Suscetiveis = S0;
     int Expostos = E0;
@@ -103,9 +103,10 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     double ano = 0;
     //printf("%f %d %d %d %d %d %d %d\n",0.0,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos);
     while (s != 0){
+
         double rate = 0;
         if((ano>= 61) && (Vac !=0)){
-            if(Vac > Suscetiveis + Recuperados){
+            if(Vac < Suscetiveis + Recuperados){
                 while(Vac!=0){
                     double r = genrand64_real1();
                     int N0 = r*G.Nodes;
@@ -116,6 +117,7 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
                 }
             }
             else for(int k = 0;k < G.Nodes;k++)  if((estagio[k] == 0) || (estagio[k] == 5)) vacinado[k] = 1;
+            Vac = 0;
         }
 
 
@@ -123,18 +125,21 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
             switch (estagio[i]){
                 case 0:// Suscetível
                     double beta = 0;
+
                     for (int j = 0; j < G.viz[i][0]; j++){
                         int vizinho = G.viz[i][j+1];
                         if(estagio[vizinho] == 1){
-                            if(vacinado[i] == 0) beta += beta1;
+                            if(vacinado[vizinho] == 0) beta += beta1;
                             else beta += 0.058*beta1;
                         }
                         if(estagio[vizinho] == 2){
-                            if(vacinado[i] == 0) beta += beta2;
+                            if(vacinado[vizinho] == 0) beta += beta2;
                             else beta += 0.058*beta2;
                         }
                     }
-                    rate += beta;
+
+                    if(vacinado[i] == 0) rate += beta;
+                    else rate += 0.058*beta;
                     break;
                 case 1: // Exposto
                     rate += sigma;
@@ -180,15 +185,16 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
                 for (int j = 0; j < G.viz[i][0]; j++){
                     int vizinho = G.viz[i][j+1];
                     if(estagio[vizinho] == 1){
-                        if(vacinado[i] == 0) beta += beta1;
+                        if(vacinado[vizinho] == 0) beta += beta1;
                         else beta += 0.058*beta1;
                     }
                     if(estagio[vizinho] == 2){
-                        if(vacinado[i] == 0) beta += beta2;
+                        if(vacinado[vizinho] == 0) beta += beta2;
                         else beta += 0.058*beta2;
                     }
                 }
-                rate += beta;
+                if(vacinado[i] == 0) rate += beta;
+                else rate += 0.058*beta;
                 break;
             case 1: // Exposto
                 rate += sigma;
@@ -226,7 +232,9 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
                 Suscetiveis--;
                 break;
             case 1: // Exposto
-                if(random[i]<sintomatico[faixas[i]]){
+                double sintoma = sintomatico[faixas[i]];
+                if(vacinado[i] == 1) sintoma *= 0.34693877551;
+                if(random[i]<sintoma){
                     estagio[i] = 3;
                     Sintomaticos++;
                 }
@@ -284,8 +292,11 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
         infect_time[s - 1][5] += Recuperados;
         infect_time[s - 1][6] += Mortos;
         quant[s - 1]++;
+        if((Expostos == Assintomaticos) && (Assintomaticos == Sintomaticos) && (Sintomaticos ==Hospitalizados) && (Hospitalizados == 0)) break;
 
     }
+    *final += Nhospitalizados;
+    *(final+1) += Mortos;
     //fclose(file);
     free(morte);
     free(random);
@@ -300,7 +311,33 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     printf("%d\n",rodou);
 }
 
-void generate_infect(int seed, int redes){
+void generate_file(char* filename,void* array,int linhas,int colunas,int check,int x,double f){
+
+    FILE *file;
+    sprintf(filename,"%s_%d_%.2f.txt",filename,x,f);
+    file = fopen(filename,"w");
+    for (int i = 0; i < linhas; i++){
+        char print[100] = "";
+        for(int j = 0;j<colunas;j++){
+            switch (check){
+                case sizeof(int)/* constant-expression */:
+                    if(j != colunas-1) sprintf(print,"%s%d ",print,((int**)array)[i][j]);
+                    else  sprintf(print,"%s%d\n",print,((int**)array)[i][j]);
+                    break;
+                case sizeof(double):
+                    if(j != colunas-1) sprintf(print,"%s%f ",print,((double**)array)[i][j]);
+                    else  sprintf(print,"%s%f\n",print,((double**)array)[i][j]);
+                    break;
+                default:
+                    break;
+                }
+        }
+        fprintf(file,"%s",print);
+    }
+    fclose(file);
+}
+
+void generate_infect(int seed, int redes,double f){
 
     int N = size_txt();
     int tempo = 365*3*2;
@@ -313,32 +350,23 @@ void generate_infect(int seed, int redes){
         for (int j = 0; j < 7; j++) infect_time[i][j] = 0;
         quant[i] = 0;
     }
-    double f = 0.9;
-    //#pragma omp parallel for
-    /* for (int i = 1; i < N; i++){
-        printf("\e[1;1H\e[2J");
-        //resultados[0] = 0;
-        //resultados[1] = 0;
-        //#pragma omp parallel for
-        for (int j = 0; j < redes; j++) infect(N-i,i,N,i*j+ seed,&resultados[0],&resultados[1]);
-        //resultados[0] /= redes;
-        //resultados[1] /= redes;
-        //fprintf(file,"%f %f\n",resultados[0],resultados[1]);
-        printf("%d\n",i);
-    } */
-    //#pragma omp parallel for
-    //for (int j = 0; j < redes; j++) infect(N-1,1,N,j+ seed,&resultados[0],&resultados[1]);
-    //free(resultados);
+
+    double* final = (double*) malloc(2*sizeof(double));
+    final[0] = 0;
+    final[1] = 0;
     #pragma omp parallel for
-    for (int j = 0; j < redes; j++) infect(N-1,1,N,seed+j,infect_time,quant,f);
+    for (int j = 0; j < redes; j++) infect(N-1,1,N,seed+j,infect_time,quant,final,f);
     
-    FILE *file;
+    for (int i = 0; i < tempo; i++) for (int j = 0; j < 7; j++) infect_time[i][j] /= quant[i];
+    
+    char filename[40] = "./output/infect/infect";
+    generate_file(filename,infect_time,tempo,7,sizeof(infect_time[0][0]),1,f);
+
+    /* FILE *file;
     char filename[40];
-    int x = 1;
-    sprintf(filename,"./output/infect/infect_%d_%.2f.txt",x,f);
-    file = fopen(filename,"w");
 
-    for (int i = 0; i < tempo; i++) fprintf(file,"%f\t%f\t%f\t%f\t%f\t%f\t%f\n",(double)infect_time[i][0]/(quant[i]),(double)infect_time[i][1]/(quant[i]),(double)infect_time[i][2]/(quant[i]),(double)infect_time[i][3]/(quant[i]),(double)infect_time[i][4]/(quant[i]),(double)infect_time[i][5]/(quant[i]),(double)infect_time[i][6]/(quant[i]));
-
-    fclose(file);
+    sprintf(filename,"./output/infect/infect_vacinado.txt");
+    file = fopen(filename,"a");
+    fprintf(file,"%f %f %f\n",f,(double) final[0]/redes,(double) final[1]/redes);
+    fclose(file); */
 }

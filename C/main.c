@@ -45,5 +45,6 @@ int main(int argc,char *argv[ ]){
     } */
     int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);
-    generate_infect(seed, redes);
+    double fracao = (double)atoi(argv[3])/200;
+    generate_infect(seed, redes,fracao);
 }
