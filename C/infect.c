@@ -14,6 +14,41 @@
 
 int rodou = 0;
 
+int* vacinacao_aleatoria(int* vacinado, int Suscetiveis, int Recuperados, double f, int* estagio,int N){
+    int Vac = f*(Suscetiveis + Recuperados);
+    while(Vac!=0){
+        double r = genrand64_real1();
+        int N0 = r*N;
+        if((estagio[N0] == 0) || (estagio[N0] == 5)){
+            if(vacinado[N0] ==0){
+                vacinado[N0] = 1;
+                Vac--;
+            }
+        }
+    }
+    return vacinado;
+}
+
+int* vacinacao_grau(int* vacinado,struct Graph G, int Suscetiveis, int Recuperados, double f, int* estagio){
+    
+    int Vac = f*(Suscetiveis + Recuperados);
+    int* grau = (int*) malloc(G.Nodes*sizeof(int));
+    int* sitio = (int*) malloc(G.Nodes*sizeof(int));
+    int i;
+
+    for (i = 0; i < G.Nodes; i++) {grau[i] = G.viz[i][0];sitio[i] = i;}
+    sitio = bubble_sort_by(sitio,grau,G.Nodes);
+    i = 0;
+    for (i = G.Nodes-1; i >=0 ; i--){
+        if((estagio[sitio[i]] == 0) || (estagio[sitio[i]] == 5)){
+            vacinado[sitio[i]] = 1;
+            Vac--;
+        }
+        if(Vac == 0) break;
+    }
+    return vacinado;
+}
+
 void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,double* final,double f){
 
     int Suscetiveis = S0;
@@ -23,7 +58,7 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     int Hospitalizados = 0;
     int Recuperados = 0;
     int Mortos = 0;
-    int Vac = f*N;
+    int Vac = 0;
     
     //FILE *file;
     //char filename[40];
@@ -105,19 +140,10 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     while (s != 0){
 
         double rate = 0;
-        if((ano>= 61) && (Vac !=0)){
-            if(Vac < Suscetiveis + Recuperados){
-                while(Vac!=0){
-                    double r = genrand64_real1();
-                    int N0 = r*G.Nodes;
-                    if((estagio[N0] == 0) || (estagio[N0] == 5)){
-                        vacinado[N0] = 1;
-                        Vac--;
-                    }
-                }
-            }
-            else for(int k = 0;k < G.Nodes;k++)  if((estagio[k] == 0) || (estagio[k] == 5)) vacinado[k] = 1;
-            Vac = 0;
+        if((ano>= 61) && (Vac == 0)){
+            //vacinado = vacinacao_aleatoria(vacinado,Suscetiveis, Recuperados,f, estagio,G.Nodes);
+            vacinado = vacinacao_grau(vacinado,G,Suscetiveis, Recuperados,f, estagio);
+            Vac = f*(Suscetiveis + Recuperados);
         }
 
 
@@ -359,14 +385,14 @@ void generate_infect(int seed, int redes,double f){
     
     for (int i = 0; i < tempo; i++) for (int j = 0; j < 7; j++) infect_time[i][j] /= quant[i];
     
-    char filename[40] = "./output/infect/infect";
-    generate_file(filename,infect_time,tempo,7,sizeof(infect_time[0][0]),1,f);
+    //char filename[40] = "./output/infect/infect";
+    //generate_file(filename,infect_time,tempo,7,sizeof(infect_time[0][0]),1,f);
 
-    /* FILE *file;
-    char filename[40];
+    FILE *file;
+    char filename[80];
 
-    sprintf(filename,"./output/infect/infect_vacinado.txt");
+    sprintf(filename,"./output/infect/infect_vacinado_grau.txt");
     file = fopen(filename,"a");
     fprintf(file,"%f %f %f\n",f,(double) final[0]/redes,(double) final[1]/redes);
-    fclose(file); */
+    fclose(file);
 }
