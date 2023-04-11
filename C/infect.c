@@ -40,11 +40,11 @@ int* vacinacao_grau(int* vacinado,struct Graph G, int Suscetiveis, int Recuperad
     sitio = bubble_sort_by(sitio,grau,G.Nodes);
     i = 0;
     for (i = G.Nodes-1; i >=0 ; i--){
+        if(Vac == 0) break;
         if((estagio[sitio[i]] == 0) || (estagio[sitio[i]] == 5)){
             vacinado[sitio[i]] = 1;
             Vac--;
         }
-        if(Vac == 0) break;
     }
     return vacinado;
 }
