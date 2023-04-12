@@ -49,6 +49,25 @@ int* vacinacao_grau(int* vacinado,struct Graph G, int Suscetiveis, int Recuperad
     return vacinado;
 }
 
+int* vacinacao_idade(int* vacinado,int* faixas, int Suscetiveis, int Recuperados, double f, int* estagio,int N){
+    
+    int Vac = f*(Suscetiveis + Recuperados);
+    int* sitio = (int*) malloc(N*sizeof(int));
+
+    for (int i = 0; i < N; i++) sitio[i] = i;
+    sitio = bubble_sort_by(sitio,faixas,N);
+
+    for (int i = N-1; i >=0 ; i--){
+        if(Vac == 0) break;
+        if((estagio[sitio[i]] == 0) || (estagio[sitio[i]] == 5)){
+            vacinado[sitio[i]] = 1;
+            Vac--;
+        }
+    }
+    
+    return vacinado;
+}
+
 void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,double* final,double f){
 
     int Suscetiveis = S0;
@@ -142,8 +161,9 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
         double rate = 0;
         if((ano>= 61) && (Vac == 0)){
             //vacinado = vacinacao_aleatoria(vacinado,Suscetiveis, Recuperados,f, estagio,G.Nodes);
-            vacinado = vacinacao_grau(vacinado,G,Suscetiveis, Recuperados,f, estagio);
-            Vac = f*(Suscetiveis + Recuperados);
+            //vacinado = vacinacao_grau(vacinado,G,Suscetiveis, Recuperados,f, estagio);
+            vacinado = vacinacao_idade(vacinado,faixas,Suscetiveis, Recuperados,f, estagio,G.Nodes);
+            Vac = 1;
         }
 
 
@@ -391,7 +411,7 @@ void generate_infect(int seed, int redes,double f){
     FILE *file;
     char filename[80];
 
-    sprintf(filename,"./output/infect/infect_vacinado_grau.txt");
+    sprintf(filename,"./output/infect/infect_vacinado_ano.txt");
     file = fopen(filename,"a");
     fprintf(file,"%f %f %f\n",f,(double) final[0]/redes,(double) final[1]/redes);
     fclose(file);
