@@ -113,9 +113,10 @@ A primeira delas a ser analisada é a medida de distância entre um vértice e o
 
 Agora que definimos qual é a distância em redes que usaremos, outras métricas surgem a partir dessa definição. Por exemplo temos o menor caminho médio de toda a rede:
 
-\begin{equation}
-  \left\langle l \right\rangle  = \sum_{\substack{i,j \\ i\neq j}} \frac{l(i,j)}{N\cdot(N-1)}.
-\end{equation}
+\begin{flalign}
+   \left\langle l \right\rangle  = \sum_{\substack{i,j \\ i\neq j}} \frac{l(i,j)}{N\cdot(N-1)}.
+\end{flalign}
+
 
 Esse valor nos dá a informação sobre o quanto em média é necessário caminhar na rede de um nó para outro. Outro valor importante é o chamado diâmetro $d$ que é a maior distância geodésica da rede
 

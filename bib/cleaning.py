@@ -4,67 +4,71 @@ import pandas as pd
 import json
 import os
 
+def generate_contatos(contatos,texto):
+    colunas = [list(contatos.columns).index(i) for i in contatos.columns if('moyen' in i )]
+    colunas.append(colunas[-1]+12)
+    s = [list(contatos.columns).index(i) for i in contatos.columns if('Nombre de contacts' in i )][0]
+    s = contatos.columns[s]
+    numeros = contatos[s].values
 
-def generate_all():
-    data = pd.read_excel('./input/RawData_ComesF.xlsx',"Planilha2",index_col=False)
-    contatos = pd.read_excel('./input/RawData_ComesF.xlsx',"Contatos01",index_col=False)
-    contatos02 = pd.read_excel('./input/RawData_ComesF.xlsx',"Contatos02",index_col=False)
+    lista = []
+    ids = []
+    contato = {}
+    for n,id in zip(numeros,contatos.index):
+        if(n!=0):
+            data = contatos.iloc[id,list(range(colunas[0],colunas[n]))]
+            lista.append(np.reshape(data.values,(n,-1)))
+            ids.append(id)
+    
+    lista = np.array([np.concatenate(([id],j)).astype(int) for i,id in zip(lista,ids) for j in i])
 
-    data = data.rename(columns={'enfant gardé chez assist. Mat.\nassistante maternelle ?': 'enfant gardé chez assist. Mat. assistante maternelle ?'})
-    data = data.rename(columns={'enfant  gardé maison/en famille ?': 'enfant  gardé maison en famille ?'})
+    contato['id'] = lista.T[0]
+    contato['idade'] = lista.T[1]
+    contato['sexo'] = lista.T[2]
+    contato['pele'] = lista.T[-2]
+    contato['frequência'] = lista.T[-3]
+    contato['duração'] = lista.T[-1]
+    contato = pd.DataFrame.from_dict(contato)
+    contato['local'] = list(lista[:,3:10])
+    pd.DataFrame.to_csv(contato,f'./output/{texto}.csv')
 
-    contatos = contatos.rename(columns={ 'jour1mois1' : 'dia/mês'})
-    contatos = contatos.rename(columns = {'Nombre de contacts saisis JOUR 1' : 'Número de Contatos'})
 
-    contatos02 = contatos02.rename(columns={ 'jour2mois2' : 'dia/mês'})
-    contatos02 = contatos02.rename(columns = {'Nombre de contacts saisis JOUR 2' : 'Número de Contatos'})
+    return contato
 
-    df = change_age(data)
-    df = change_mode(df)
-    df = change_traches(df)
-    df = change_column(df)
-    df.head()
-
-    criancas = df[df["Tipo de questionário"] == 0].reset_index()
-    adultos = df[df["Tipo de questionário"] == 1].reset_index()
-    adultos = remove_adultos(adultos,0)
-    criancas = remove_adultos(criancas,1)
-
-    a = [profissional(i,adultos) for i in adultos.index]
-    c = [school(i,criancas) for i in criancas.index]
-    writer = pd.ExcelWriter('./dados/output.xlsx')
-    create_children(criancas,c,writer)
-    create_adult(adultos,a,writer)
-    writer.save()
-
-    adultos["index"] = [i for i in range(adultos.index[-1]+1)]
-    criancas["index"] = ['c'+str(i) for i in range(criancas.index[-1]+1)]
-
-    writer = pd.ExcelWriter('./dados/questionario.xlsx')
-    adultos.to_excel(writer, sheet_name='adultos',index= False)
-    criancas.to_excel(writer, sheet_name='criancas',index= False)
-    writer.save()
-
-    idades = []
-    c = 0
-    a = 0
-    for i in df['Q1_cQ1'].values:
-        if(i>15):
-            idades.append(str(a))
-            a += 1
-        else:
-            idades.append('c' + str(c))
-            c += 1
-
-    data = {}
-    data['id'] = [i for i in range(len(df['Q1_cQ1'].values))]
-    data['Idade'] = df['Q1_cQ1']
-    data['#Contatos01'] = contatos['Número de Contatos'].values
-    data['#Contatos02'] = contatos02['Número de Contatos'].values
-    data['id_idade'] = idades
-    data = pd.DataFrame.from_dict(data)
-
-    return df,contatos,contatos02,data
+def generate_df():
+    
+    df = pd.read_excel('./input/RawData_ComesF.xlsx',index_col=False,skiprows=[0, 1])
+    participantes = df.iloc[:,:54]
+    contatos = df.iloc[:,54:]
+    for i in contatos.columns:
+        if(('min' in i) or ('max' in i)):
+            del contatos[i]
+    degree = contatos['Nombre de contacts saisis JOUR 1 + JOUR 2'].values
+    np.savetxt('./output/degree.txt',np.ceil(degree/2),fmt='%d')
+    x = list(contatos.columns).index('jour2mois2')
+    contatos01 = contatos[contatos.columns[:x]]
+    contatos02 = contatos[contatos.columns[x:]]
+    contatos01 = generate_contatos(contatos01,'contatos_01')
+    contatos02 = generate_contatos(contatos02,'contatos_02')
+    data = participantes[[
+        "Age du sujet de l'enquête",
+        "Sexe du sujet de l'enquête",
+        'Nombre de personnes au foyer',
+        'situation professionnelle ',
+        "Dans quel secteur d'activité travaillez-vous"
+        ]
+    ]
+    data['id'] = data.index
+    colunas = ['Idade','Sexo','#Familiares','Profissão','Setor']
+    for i,j in zip(data.columns,colunas):
+        data = data.rename(columns={i:j})
+    data['#Contatos01'] = contatos['Nombre de contacts saisis JOUR 1']
+    data['#Contatos02'] = contatos['Nombre de contacts saisis JOUR 2']
+    data['Dia01'] = contatos['jour1mois1']
+    data['Dia02'] = contatos['jour2mois2']
+    pd.DataFrame.to_csv(data,'./output/participantes.csv')
+    return data,contatos01,contatos02
+    
 
 def change_age(data):
     idade = [i for i in data.columns if('AGE' in i)]
@@ -275,32 +279,6 @@ def get_number(vetor,value):
     number = np.arange(0,len(vetor),1)
     return number[vetor==value][0]
 
-def get_contacts(k,i,contatos):
-    contacts = []
-    idade_media = contatos.iloc[k,i+2]
-    genero = contatos.iloc[k,i+3]
-
-    contacts.append(idade_media)
-    contacts.append(genero)
-    forma = list(contatos.iloc[k,i+4:i+11].values)
-    
-    contacts.append(forma)
-
-    for j in range(i+11,i+14):
-        contacts.append(contatos.iloc[k,j])
-    return contacts
-
-def get_json(contatos):
-
-    number = [get_number(contatos.columns,i) for i in contatos.columns if 'age min' in i]
-    contacts = {}
-    for j in range(contatos.shape[0]):
-        contacts[str(j)] = [get_contacts(j,i,contatos) for i in number[:contatos['Número de Contatos'][j]]]
-        #contacts[str(j)] = [get_contacts(j,i,contatos) for i in number if(not math.isnan(contatos.iloc[j,i+2]))]
-    with open('./dados/contatos_dia1.json', 'w') as f:
-        json.dump(contacts, f)
-    return contacts
-
 def locomotion(df,coluna):
     hist = [0]*3
     for i in df[coluna].values:
@@ -348,7 +326,7 @@ def where(vetor,condition):
 
 def contacts_to_df(contacts):
     cont = [[i]*len(contacts[i]) for i in contacts]
-    cont = [j for i in cont for j in i]
+    cont = [int(j) for i in cont for j in i]
 
     idades = [j[0]for i in contacts for j in contacts[i]]
     freq = [j[3]for i in contacts for j in contacts[i]]

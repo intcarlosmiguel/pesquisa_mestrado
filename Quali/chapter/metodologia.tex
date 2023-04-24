@@ -1,12 +1,56 @@
 \chapter{Metodologia}
 
-\section{Análise dos Dados}
-
 Por conseguinte é natural a utilização de Redes Complexas como modelagem para estudos da Covid-19. Para tanto precisamos agora de dados sobre redes de contágio que contenham informações relevantes para esse estudo, como idade, tempo de contato, se faz parte de grupo de risco ou não, dentre outros.
 
-Entretanto, não é fácil encontrar um banco de dados tão completo assim e não enviesado pela recente pandemia. Em 2008, visando o estudo da pandemia de influenza a Comissão Europeia criou o projeto chamado POLYMOD \cite{POLYMOD} que tinha o intuito da coleta de dados para entender como quais seriam os padrões de contatos da Europa \cite{Mossong2008}.
+Entretanto, não é fácil encontrar um banco de dados tão completo assim e não enviesado pela recente pandemia. Em 2008, visando o estudo da pandemia de influenza, a Comissão Europeia criou o projeto chamado POLYMOD \cite{POLYMOD} que tinha o intuito da coleta de dados para entender quais seriam os padrões de contatos da Europa \cite{Mossong2008}. Apoiado nesse estudo, pesquisas posteriores se inspiraram no molde do POLYMOD \cite{Belga2009,Belga2010,China,France,HongKong,Peru,Russia,Thailand,Vietnam,Zambia,Zimbabwe}.
 
-Apoiado nesse estudo, pesquisas posteriores se inspiraram no molde do POLYMOD \cite{Belga2009,Belga2010,China,France,HongKong,Peru,Russia,Thailand,Vietnam,Zambia,Zimbabwe}. Apesar da grande quantidade de pessoas e contatos há um problema essencial: não há garantia de que as pessoas da entrevista se conectem em si. Por exemplo, no caso da França \cite{France} foram feitas ligações aleatórias extraída da população francesa excluindo territórios ultramarinos, assim nossa análise em rede estaria bastante limitada.
+\section{Análise dos Dados}
+
+O foco dessa pesquisa será no banco de dados da França \cite{France} durante o primeiro semestre de 2012, ele foi coletado a partir de ligações aleatórias da população francesa excluindo territórios ultramarinos. Cada indivíduo que atendesse o telefone receberia um diário de contato para ser preenchido em 2 dias. Apenas uma pessoa por ligação poderia participar, com exceção de crianças e adolescentes para ter uma maior precisão e nesse caso um adulto ficaria responsável por fazer ou auxiliar. Ao final do dia a pessoa teria que preencher o diário anotando sobre informações pessoais, ambiente (escola, trabalho, casa,...) e as pessoas na qual teve contato de curto alcance no dia, a idade aproximada (ou exata) dessas pessoas, duração da conversa, frequência na qual têm contato, dentre outras informações, além disso para facilitar a memorização notificação os participantes foram instruídos a anotarem no máximo 40 contatos. Caso o participante fosse empregado, ele teria que informar qual a média de contatos no seu trabalho, caso fosse maior que 20 então os contatos que seriam anotados no diário seriam os não profissionais.
+
+Toda a pesquisa era para acontecer em dois períodos: Fevereiro a Março e Abril a Maio de 2012. Contudo, no primeiro período foram recrutados menos pessoas do que deveriam e para corrigir isso foi criado um novo período em Abril para completar o primeiro. No total 24.250 pessoas receberam as ligações, 3.977 diários foram enviados, 2033 foram devolvidos e 2029 diários apresentaram contatos próximos. A Figura \ref{Idade_mes} mostra o número de contatos por dia em cada mês dos períodos da pesquisa.
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+
+  \caption{Número de Contatos por mês}
+
+  \includegraphics[scale=0.4]{./img/contatos_mes.jpg}
+  \captionsetup{font=small,position=below,skip=-1pt}
+   \caption*{\\Fonte: Autor.}
+   \label{Idade_mes}
+\end{figure}
+
+A partir desses dados vamos coletar alguns resultados deles. Na Figura \ref{M_Idade} percebemos que a idade é um fator importante nos seus contatos. Nos primeiros anos de vida do ser humano seus contatos estão limitados a ficar dentro do seu convívio familiar, com o passar dos anos ele consegue ter maior liberdade para sair de casa e ter mais contatos com indivíduos, mas ao chegar no final da vida, depende-se cada vez mais do contato familiar pela limitação da idade.
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+
+  \caption{Gráfico do Número de Contatos por Idade}
+
+  \includegraphics[scale=0.5]{./img/idade_contatos.jpg}
+  \captionsetup{font=small,position=below,skip=-1pt}
+   \caption*{\\Fonte: Autor.}
+   \label{M_Idade}
+\end{figure}
+
+Na Figura \ref{características} observamos como os contatos são caracterizados. Quanto mais tempo nós passamos conversando com a pessoa menores as chances de acontecer algum contato físico, apesar de ser muito comum. A frequência com a qual você vê a pessoa também tem importante na probabilidade de acontecer ou não contato físico, contudo fora a primeira contato e o contado diário, praticamente a chance de haver contato físico é a mesma. A última imagem vai ao encontro dessa afirmação, percebe-se que as convivências que acontecem pela primeira vez tendem a durar em torno de minutos, enquanto que os convivências diárias podem facilmente durar horas, já em outras frequências de contatos, não parece haver uma diferenciação clara. À vista disso, há uma tendência a uma supervalorização (em questão de tempo) no contato diário pelas pessoas, há uma desvalorização na primeira vez e não há uma diferença em qualquer outra frequência.
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+
+  \caption{Gráfico do Número de Contatos por Idade}
+
+  \includegraphics[scale=0.5]{./img/contatos01.jpg}
+  \captionsetup{font=small,position=below,skip=-1pt}
+   \caption*{\\Fonte: Autor.}
+   \label{características}
+\end{figure}
+
+Apesar da grande quantidade de pessoas e contatos há um problema essencial: não há garantia de que os entrevistados se conectem em si. Por exemplo, no caso da França \cite{France} foram feitas ligações aleatórias extraída da população francesa excluindo territórios ultramarinos, assim nossa análise em rede estaria bastante limitada.
 
 \section{Modelo de Redes}
 

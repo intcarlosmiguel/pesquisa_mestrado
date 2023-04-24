@@ -5,7 +5,10 @@
 \contentsline {figure}{\numberline {4}{\ignorespaces Ilustração do Modelo\relax }}{23}{}%
 \contentsline {figure}{\numberline {5}{\ignorespaces Funcionamento do Modelo de Configuração, escolhemos dois sítios $i$ e $j$ aleatoriamente e os conectamos. Fonte: Elaborado pelo autor\relax }}{23}{}%
 \contentsline {figure}{\numberline {6}{\ignorespaces Modelo SI\relax }}{25}{}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Ilustração do Modelo de Manzo\relax }}{27}{}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Funcionamento do Modelo de Configuração, escolhemos dois sítios $i$ e $j$ aleatoriamente e os conectamos. O Algoritmo pode gerar várias topologias de redes, porém ainda limitadas pelas quantidades $\{k_i\}$ de graus impostas pelo MC. Fonte: Elaborado pelo autor\relax }}{27}{}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Ilustração do Modelo SEIHARD\relax }}{30}{}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Esquematização do Modelo SEIHARD de contágio. Os blocos em vermelho significam quem pode contaminar outros, os blocos em azul escuro quem não é infectado e em azul claro quem está isolado da rede.\relax }}{30}{}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Número de Contatos por mês\relax }}{27}{}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Gráfico do Número de Contatos por Idade\relax }}{28}{}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Gráfico do Número de Contatos por Idade\relax }}{29}{}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Ilustração do Modelo de Manzo\relax }}{30}{}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Funcionamento do Modelo de Configuração, escolhemos dois sítios $i$ e $j$ aleatoriamente e os conectamos. O Algoritmo pode gerar várias topologias de redes, porém ainda limitadas pelas quantidades $\{k_i\}$ de graus impostas pelo MC. Fonte: Elaborado pelo autor\relax }}{30}{}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Ilustração do Modelo SEIHARD\relax }}{34}{}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Esquematização do Modelo SEIHARD de contágio. Os blocos em vermelho significam quem pode contaminar outros, os blocos em azul escuro quem não é infectado e em azul claro quem está isolado da rede.\relax }}{34}{}%

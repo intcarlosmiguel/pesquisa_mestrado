@@ -15,6 +15,7 @@
 #include "infect.h"
 
 int main(int argc,char *argv[ ]){
+    //generate_configuration_model((double) 0,1);
     /* int T = atoi(argv[1]);
     int model = atoi(argv[2]);
     switch (model){
@@ -45,6 +46,7 @@ int main(int argc,char *argv[ ]){
     } */
     int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);
-    double fracao = (double)atoi(argv[3])/200;
-    generate_infect(seed, redes,fracao);
+    int numero = (int)atoi(argv[3]);
+    for(int i =numero;i<numero+10;i++) generate_infect(seed, redes,(double)i/100);
+    
 }

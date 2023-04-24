@@ -43,24 +43,26 @@ def plot_mes(df,save):
     plt.savefig(f'./img/{save}.jpg', dpi=300)
     plt.show()
 
-def plot_contatos_idade(contatos,df,save,titulo):
+def plot_contatos_idade(contatos,data,save,titulo):
 
-    idades = df["Q1_cQ1"].values
-    contatos = contatos["Número de Contatos"].values
-    hist = list(np.arange(np.max(idades)+1))
-    value = np.zeros(len(hist))
-
-    for idade,c in zip(idades,contatos):
-        value[idade] += c
+    id, quantidade = np.unique(contatos['id'],return_counts=True)
+    id = id.astype(int)
+    df = {
+        'id': id,
+        'quantidade': quantidade
+    }
+    df = pd.DataFrame(df)
+    df = pd.merge(data,df,how='outer',on='id')
+    media_por_grupo = pd.DataFrame(df.groupby("Idade")["quantidade"].mean())
     
     plt.figure(figsize=(12,6))
-    plt.bar(hist,value,color = 'darkcyan')
+    plt.bar(media_por_grupo.index,media_por_grupo['quantidade'],color = 'darkcyan')
 
     font = {'family': 'monospace',
             'size': 16,
             }
 
-    plt.ylabel("Número de Contatos",fontdict=font)
+    plt.ylabel("Média de Contatos",fontdict=font)
     plt.xlabel("Idade",fontdict=font)
     plt.title(titulo,fontdict=font)
     plt.grid(True)
@@ -167,42 +169,49 @@ def multiple_stacked_bar(df,titulo,save):
     fig.suptitle(titulo, fontsize=16)
     plt.savefig(f'./img/{save}.jpg', dpi=300)
 
-def conncection_idade(contatos,df):
+def conncection_idade(contatos,data):
 
-    id_ = []
-    a = 0
-    c = 0
-    for i in df['Q1_cQ1'].values:
-        if(i>15):
-            id_.append(str(a))
-            a += 1
-        else:
-            id_.append('c' + str(c))
-            c += 1
-    
-    id_ = np.array(id_)
-    idades = df["Q1_cQ1"].values
-    hist = list(np.arange(np.max(idades)+1))
-    value = []
-    for idade in hist:
-        teste = []
-        for i in id_[idades==idade]:
-            if(i in contatos):
-                teste.append([j[0] for j in contatos[i] if(not math.isnan(j[0]))])
-        value.append([j for i in teste for j in i])
-    
-    media = [np.mean(i) for i in value]
-    mediana = [np.median(i) for i in value]
+    total = pd.merge(data,contatos,how='outer',on='id')
+    media = total.groupby("Idade")["idade"].mean().reset_index()
+    mediana = total.groupby("Idade")["idade"].median().reset_index()
 
-    plt.figure(figsize=(12,6))
-    plt.bar(hist,media,color = 'darkslategray',label = 'Média')
-    plt.bar(hist,mediana,color = 'seagreen', label = 'Mediana')
+    plt.figure(figsize=(12,6),dpi = 500)
+    plt.bar(media['Idade'],media['idade'],color = 'darkslategray',label = 'Média')
+    plt.bar(mediana['Idade'],mediana['idade'],color = 'seagreen', label = 'Mediana')
     plt.grid(True)
     plt.legend()
-    plt.xticks(np.arange(0, np.max(np.array(hist)), 10))
+    plt.xticks(np.arange(0, np.max(np.array(media.index)), 10))
     plt.xlabel('Idade dos Entrevistado',fontdict=font)
     plt.ylabel('Idade dos Contatos',fontdict=font)
+    plt.savefig('./img/idade_idade.jpg')
     plt.show()
+
+def heat_conncetion(data,contatos,contatos02):
+    faixas = [
+        [0,20],
+        [20,30],
+        [30,50],
+        [50,70],
+        [70,100000]
+    ]
+    data['Faixas'] = [check_faixa(i,faixas) for i in data['Idade'] ]
+    contatos['faixas'] = [check_faixa(i,faixas) for i in contatos['idade'] ]
+    contatos02['faixas'] = [check_faixa(i,faixas) for i in contatos02['idade'] ]
+    novo_df = pd.merge(data, contatos, on='id', how='outer')[['Faixas','faixas']]
+    novo_df2 = pd.merge(data, contatos02, on='id', how='outer')[['Faixas','faixas']]
+    A = np.array(pd.crosstab(novo_df['Faixas'], novo_df['faixas']))
+    B = np.array(pd.crosstab(novo_df2['Faixas'], novo_df2['faixas']))
+    A_ = np.copy(A)
+    B_ = np.copy(B)
+    np.fill_diagonal(A,0)
+    np.fill_diagonal(B,0)
+    A = (A+A.T)/2
+    B = (B+B.T)/2
+    np.fill_diagonal(A,np.diag(A_/2))
+    np.fill_diagonal(B,np.diag(B_/2))
+    C = (A+B)/2
+    C = C.astype(int)
+    return C
 
 def adj(df,contacts,contacts02,Nmortos):
 
@@ -255,4 +264,65 @@ def adj(df,contacts,contacts02,Nmortos):
 
     plt.title("Conexão relativa entre as faixas de idade",fontdict= font)
     plt.savefig("./img/map.jpg")
+    plt.show()
+
+
+def generate_vacinado(plot = 0):
+    dir = [i for i in os.listdir('./C/output/infect/')]
+    infect_vacinado = [i for i in dir if(('vacinado' in i) and ('aleatorio' not in i))]
+
+    vac = []
+
+    for i in infect_vacinado:
+        x = np.loadtxt(f'./C/output/infect/{i}')
+        x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
+        vac.append(np.vstack((np.arange(0,x.shape[1]/2,0.5),x)))
+    
+    plt.figure(figsize=(8,5),dpi=500)
+    
+    for infect,file in zip(vac,infect_vacinado):
+        plt.scatter(infect[0]/100,infect[2 if(plot ==0) else 3],label = file,s = 5,marker ='D')
+    
+    plt.legend()
+    plt.grid()
+    plt.ylabel('# de Hospitalizados'if(plot ==0) else '# de Mortos')
+    plt.xlabel('Fração de Vacinados')
+    plt.savefig('./img/infect/hospitalizado_tempo.jpg' if(plot ==0) else './img/infect/hospitalizado_tempo.jpg')
+    plt.show()
+
+def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
+
+    infect_shape = [i for i in dir if('shape' in i)]
+    shape = np.loadtxt(f'./C/output/infect/{infect_shape[0]}').T
+    fig, (ax1, ax2) = plt.subplots(1,2, figsize=(13.5, 5),dpi = 500, gridspec_kw={'width_ratios': [1, 0.7]})
+
+    #fig = plt.figure(figsize=(8,8),dpi = 100)
+    ax1.set_axis_off()
+    ax1 = fig.add_subplot(121, projection='3d')
+    # Criação do scatter plot em 3D
+    ax1.scatter(shape[0], shape[1], shape[2 if(plot == 0) else 3], marker='o',s=10,c = color)
+
+    # Definição dos rótulos dos eixos
+    ax1.set_xlabel('Fração de Vacinados')
+    ax1.set_ylabel('1 - Eficácia da Vacina')
+    ax1.set_zlabel('# de Hospitalizados' if(plot == 0) else '# de Mortos')
+    #ax1.set_box_aspect([1, 1, 1])
+    # Exibição do gráfico
+
+    S = shape[2 if(plot == 0) else 3].reshape(101,-1)
+    #ax2 = fig.add_subplot(122)
+    #fig, ax = plt.subplots(figsize = (10,6))
+    im = ax2.imshow(S, cmap=cmap)
+    ax2.set_xticks(np.arange(101))
+    ax2.set_xticklabels(['']*101)
+    ax2.set_yticks(np.arange(101))
+    ax2.set_yticklabels(['']*101)
+    ax2.set_ylabel('Fração de Vacinados')
+    ax2.set_xlabel('1 - Eficácia da Vacina')
+    cbar = ax2.figure.colorbar(im, ax=ax2)
+
+    pos = ax1.get_position()
+    ax1.set_position([pos.x0, pos.y0 + 0.02, pos.width, pos.height])
+    fig.suptitle('Gráfico 3D de Hospitalizados'if(plot == 0) else 'Gráfico 3D de Mortos')
+    plt.savefig('./img/infect/shape_hospitalizados.png' if(plot == 0) else './img/infect/shape_mortos.png')
     plt.show()

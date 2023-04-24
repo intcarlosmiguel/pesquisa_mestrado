@@ -30,35 +30,27 @@ int* get_degree(int N){
     return degree;
 }
 
-/* void infecao_si(struct Graph G,int* infect,int* infect2,double beta,int* tempo, int time){
-    int i;
-    for (i = 0; i < G.Nodes; i++){
-        if(infect[i] == 0){
-            int num_infect = 0;
-            for (int j = 1; j < G.viz[i][0]+1; j++) num_infect += (infect[G.viz[i][j]] == 1)? 1: 0;
-            double probability = (1 - pow(1 - beta,num_infect));
-            infect2[i] = (genrand64_real2() < probability)? 1: 0;
+int partition(int *arr, int low, int high) {
+    int pivot = arr[high];
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] >= pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
         }
-        else  infect2[i] = 1;
     }
-    for (i = 0; i < G.Nodes; i++) tempo[time] += (G.infect2[i] == 1)? 1: 0;
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
 }
 
-struct Graph init(struct Graph G, double probability,int time,double beta){
-
-    int i;
-    G.infect = (int*) malloc(G.Nodes*sizeof(int));
-    int* tempo = (int*) malloc(time*sizeof(int));
-    for ( i = 0; i < time; i++) tempo[i] = 0;
-
-    for (i = 0; i < G.Nodes; i++){
-        G.infect[i] = (genrand64_real2() < probability)? 1: 0;
-        G.infect2[i] = G.infect[i];
+void quicksort(int *arr, int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quicksort(arr, low, pi - 1);
+        quicksort(arr, pi + 1, high);
     }
-    for (int i = 0; i < time; i++) ((i+1)%2 != 0 )? infecao_si(G,G.infect,G.infect2,beta,tempo,i) : infecao_si(G,G.infect2,G.infect,beta,tempo,i);
-    
-    return G;
-}  */
+}
 
 struct CM conf_model_p(struct CM MC,int* degree,int ego,double p){
     int N = 0;
@@ -176,8 +168,7 @@ struct Graph configuration_model(int N, double p,int seed){
     MC.n_existir = (int **)malloc(0* sizeof(int*));
 
     init_genrand64(seed);
-    degree = bubble_sort(degree,N);
-    
+    quicksort(degree,0,N-1);
     int *shuff = (int*) malloc(N*sizeof(int));
 
     for (int i = 0; i < N; i++){
@@ -186,11 +177,9 @@ struct Graph configuration_model(int N, double p,int seed){
         shuff = ending(shuff,N, i,0);
         MC = add_edge(MC,degree,shuff,N-1,i,p);
     }
-    if(seed == 0) create_network(MC.G,p);
-    for(int i = 0; i < MC.G.edges; i++){
-        free(MC.mat[i]);
-        free(MC.n_existir[i]);
-    }
+    //if(seed == 0) create_network(MC.G,p);
+    for(int i = 0; i < MC.existir; i++)free(MC.n_existir[i]);
+    for(int i = 0; i < MC.G.edges; i++) free(MC.mat[i]);
     free(MC.n_existir);
     free(MC.mat);
     free(shuff);
@@ -204,7 +193,7 @@ void generate_configuration_model(double p, int T){
     int N = size_txt();
     
     double** resultados = (double **)malloc(T*sizeof(double*));
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int i = 0; i < T; i++){
 
         if(T!=1) printf("\e[1;1H\e[2J");

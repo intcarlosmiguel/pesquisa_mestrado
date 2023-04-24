@@ -149,7 +149,7 @@ struct LCM local_add_edge(struct LCM Z,int* shuff, int n,int site,double p){
 }
 
 struct Graph local_configuration_model(int N, double p,int seed){
-
+    
     struct LCM Z;
     Z.G.Nodes = N;
     Z.G.viz = (int **)malloc(N*sizeof(int*));

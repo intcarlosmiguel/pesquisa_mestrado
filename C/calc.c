@@ -25,7 +25,6 @@ double correlation(double* x,double* y,int N){
     double xy = 0;
     double var_x = 0;
     double var_y = 0;
-    double cov = 0;
 
     for (int i = 0; i < N; i++){
         xy += x[i]*y[i];
@@ -163,11 +162,14 @@ void print_matrix(int** mat,int N,int n){
     printf("========================================================\n");
 }
 
-int check_existence(int** outro, int N,int site, int vizinho){
+int check_existence(int** outro, int N, int site, int vizinho){
     for (int i = 0; i < N; i++){
-        if((outro[i][0] == site) && (outro[i][1] == vizinho)) return 1;
-
-        if((outro[i][0] == vizinho) && (outro[i][1] == site)) return 1;
+        if(outro[i][0] == site){
+            if(outro[i][1] == vizinho) return 1;
+        }
+        else if(outro[i][0] == vizinho){
+            if(outro[i][1] == site) return 1;
+        }
     }
     return 0;
 }
@@ -223,7 +225,7 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
     diametro2 = pow(diametro2/T - pow(diametro/T,2),0.5);
 
     //printf("%f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",p,media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
-    FILE* file;
+    /*FILE* file;
 
     char destination[100] = "./output/resultados_";
     strcat(destination,arquivo);
@@ -233,7 +235,7 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
 
     file = fopen(destination,"a");
     fprintf(file,"%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\t%.2f(%.2f)\n",media/T,media2,median/T,median2,std/T,std2,as/T,as2,r2/T,r22,l/T,l2,diametro/T,diametro2);
-    fclose(file);
+    fclose(file); */
 }
 
 double exponentialRand(double lambda) {
@@ -242,8 +244,6 @@ double exponentialRand(double lambda) {
 }
 
 double normalRand(double mean, double stdDev) {
-    double u1 = (double) rand() / RAND_MAX;
-    double u2 = (double) rand() / RAND_MAX;
     double z = sqrt(-2 * log(genrand64_real1())) * cos(2 * M_PI * genrand64_real1());
     return mean + stdDev * z;
 }
