@@ -30,28 +30,6 @@ int* get_degree(int N){
     return degree;
 }
 
-int partition(int *arr, int low, int high) {
-    int pivot = arr[high];
-    int i = (low - 1);
-
-    for (int j = low; j <= high - 1; j++) {
-        if (arr[j] >= pivot) {
-            i++;
-            swap(&arr[i], &arr[j]);
-        }
-    }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
-}
-
-void quicksort(int *arr, int low, int high) {
-    if (low < high) {
-        int pi = partition(arr, low, high);
-        quicksort(arr, low, pi - 1);
-        quicksort(arr, pi + 1, high);
-    }
-}
-
 struct CM conf_model_p(struct CM MC,int* degree,int ego,double p){
     int N = 0;
     int *vizinhos = (int*) malloc(0*sizeof(int));

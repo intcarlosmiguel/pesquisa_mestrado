@@ -126,9 +126,9 @@ struct LCM local_add_edge(struct LCM Z,int* shuff, int n,int site,double p){
         int rep = check_existence(Z.mat,Z.G.edges,site,vizinho);
 
 
-        if((rep == 1) || (Z.degree[vizinho][Z.faixa[site]] == 0) || (Z.degree[site][Z.faixa[vizinho]] == 0) ) continue;
         int faixa1 = Z.faixa[site];
         int faixa2 = Z.faixa[vizinho];
+        if((rep == 1) || (Z.degree[vizinho][faixa1] == 0) || (Z.degree[site][faixa2] == 0) ) continue;
         Z.mat = (int**) realloc(Z.mat,(Z.G.edges+1)*sizeof(int*));
         Z.mat[Z.G.edges] = (int*) malloc(2* sizeof(int));
         Z.mat[Z.G.edges][0] = site;

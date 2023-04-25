@@ -1,31 +1,38 @@
 using Random
 using LinearAlgebra
-function CM()
-    degree = reverse(sort([parse(Int, line) for line in eachline("./degree.txt")]))
-    sitios = 1:length(degree)
-    #print(sitios)
-	
-    lig = falses(length(sitios), length(sitios))
+using Pkg
+using Libdl
+using LightGraphs
+using Statistics
+include("rede.jl")
+include("infect.jl")
 
-    for i in sitios
-        println(i)
-        while degree[i] > 0
-            println(i," ",degree[i])
-            aleatorios = shuffle(sitios[sitios .!= i])
-            for j in aleatorios
-                if degree[j] > 0 && !(@views lig[i, j] || lig[j, i])
-                    lig[i, j] = true
-                    degree[i] -= 1
-                    degree[j] -= 1
-                    break
-                end
-            end
-            degree[i] == 0 && break
-        end
+#= function CM100()
+    for i in 1:100
+        tempo_decorrido = @elapsed CM()
+        println(tempo_decorrido)
     end
-
-    return findall(triu(lig) .== true)
 end
 
-tempo_decorrido = @elapsed CM()
-println("Tempo decorrido: ", tempo_decorrido, " segundos")
+function Configuration_Model(degrees)
+    for i in 100:150
+        println(i)
+        g = LightGraphs.SimpleGraphs.random_configuration_model(length(degrees),degrees,seed = i)
+        graus = degree(g)
+    end
+
+end =#
+
+
+# criar um grafo aleatório usando a distribuição de grau dada
+
+#tempo_decorrido = @elapsed CM()
+#tempo_decorrido = @elapsed roda()
+#println("Tempo decorrido:",tempo_decorrido/100) =#
+#SBM(2029,45655)
+
+G,faixas =  Configuration_Model(455)
+const libm = Libdl.find_library("./main.so")
+faixas = convert(Vector{Cint},faixas)
+faixas = faixas .-1
+ccall((:generate_infect, "./main.so"), Cvoid, (Graph,Ptr{Cint}, Cint,Cint,Cfloat), G,faixas, 42,1,0.0)

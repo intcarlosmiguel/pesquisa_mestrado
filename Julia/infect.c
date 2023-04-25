@@ -9,10 +9,11 @@
 
 #include "mtwister.h"
 #include "calc.h"
-#include "rede.h"
-#include "LCM.h"
-#include "SBM.h"
-
+struct Graph{
+    int **viz;
+    int Nodes;
+    int edges;
+};
 int rodou;
 const double beta1 = (double)0.5;
 const double beta2 = (double)0.41;
@@ -82,13 +83,14 @@ uint8_t* vacinacao_idade(uint8_t* vacinado,int* faixas, int Suscetiveis, int Rec
 }
 
 double calc_estagio(int site,uint8_t* estagio,double* prob_estagio,int* faixas, struct Graph G,uint8_t* vacinado,double* hospitalizacao,double* morte){
-
+    printf("%d,%d,%d\n",site,G.viz[site][0],faixas[site]);
     switch (estagio[site]){
         case 0:// Suscetível
             double beta = 0;
 
             for (int j = 0; j < G.viz[site][0]; j++){
                 int vizinho = G.viz[site][j+1];
+                printf("%d,%d\n",estagio[vizinho],j);
                 if(estagio[vizinho] == 1){
                     if(vacinado[vizinho] == 0) beta += beta1;
                     else beta += 0.058*beta1; // 0.058
@@ -98,7 +100,6 @@ double calc_estagio(int site,uint8_t* estagio,double* prob_estagio,int* faixas, 
                     else beta += 0.058*beta2;// 0.058
                 }
             }
-
             if(vacinado[site] == 0) return beta;
             else return 0.058*beta;// 0.058
             break;
@@ -131,7 +132,7 @@ double calc_estagio(int site,uint8_t* estagio,double* prob_estagio,int* faixas, 
     }
 }
 
-void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,double* final,double f){
+void infect(struct Graph G,int* faixas,int S0,int E0,int N,int seed,double** infect_time,double* quant,double* final,double f){
     uint16_t Suscetiveis = S0;
     uint16_t Expostos = E0;
     uint16_t Assintomaticos = 0;
@@ -147,9 +148,7 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     //sprintf(filename,"./output/infect/%d.txt",E0);
     //file = fopen(filename,"a");
 
-    struct Graph G;
-    G = local_configuration_model(N,0,seed);
-    int* faixas = get_faixas(G.Nodes);
+    //G = local_configuration_model(N,0,seed);
     double* prob_estagio = (double*) malloc(G.Nodes*sizeof(double));
     
     uint8_t* estagio = calloc(G.Nodes,sizeof(uint8_t));
@@ -210,14 +209,15 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     double grau;
     while (s != 0){
         rate = 0;
-        if(((int)ano == 60) || (ano == 0)){
+        /* if(((int)ano == 60) || (ano == 0)){
             FILE *file;
             char filename[200];
-            sprintf(filename,"./output/infect/grau_distribution_%d.txt",(int)ano);
+            sprintf(filename,"./grau_distribution_%d.txt",(int)ano);
             file = fopen(filename,"w");
             for (int k = 0; k < G.Nodes; k++) if((estagio[k] == 0) || (estagio[k] == 5)) fprintf(file,"%d %d\n",G.viz[k][0],faixas[k]);
             fclose(file);
-        }
+        } */
+        printf("Chegou aqui\n");
         if((ano>= 61) && (Vac == 0)){
             //vacinado = vacinacao_aleatoria(vacinado,Suscetiveis, Recuperados,f, estagio,G.Nodes);
             vacinado = vacinacao_grau(vacinado,G,Suscetiveis, Recuperados,f, estagio);
@@ -226,10 +226,14 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
         }
 
 
-        for (i = 0; i < G.Nodes; i++) rate += calc_estagio(i, estagio,prob_estagio,faixas,G,vacinado,hospitalizacao,morte);
+        for (i = 0; i < G.Nodes; i++){
+            rate += calc_estagio(i, estagio,prob_estagio,faixas,G,vacinado,hospitalizacao,morte);
+            printf("Proximo %f\n",rate);
+        }
 
         if(rate==0) break;
         tempo = exponentialRand(rate);
+        printf("%f\n",tempo);
         if(tempo ==0) break;
         Delta = rate*genrand64_real1();
         rate = 0;
@@ -361,12 +365,11 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check,d
     fclose(file);
 }
 
-void generate_infect(int seed, int redes,double f){
+void generate_infect(struct Graph G,int* faixas,int seed, int redes,double f){
     rodou = 0;
-    uint16_t N = size_txt();
+    uint16_t N = G.Nodes;
     uint16_t tempo = 365*3*2;
     uint16_t i,j;
-
     //double* resultados = (double*) malloc(2*sizeof(double));
     double** infect_time = (double**) malloc(tempo*sizeof(double*));
     double* quant = (double*) malloc(tempo*sizeof(double));
@@ -376,7 +379,6 @@ void generate_infect(int seed, int redes,double f){
         for (int j = 0; j < 9; j++) infect_time[i][j] = 0;
         quant[i] = 0;
     }
-
     double* final = (double*) malloc(4*sizeof(double));
     final[0] = 0;
     final[1] = 0;
@@ -384,7 +386,7 @@ void generate_infect(int seed, int redes,double f){
     final[3] = 0;
 
     //#pragma omp parallel for
-    for (j = 0; j < redes; j++)infect(N-1,1,N,seed+j ,infect_time,quant,final,f);
+    for (j = 0; j < redes; j++)infect(G,faixas,N-1,1,N,seed+j ,infect_time,quant,final,f);
     
     for (i = 0; i < tempo; i++) for (int j = 0; j < 9; j++) infect_time[i][j] /= quant[i];
     for (i = 0; i < tempo; i++) infect_time[i][8] = pow(infect_time[i][8] - pow(infect_time[i][7],2),0.5);

@@ -44,7 +44,7 @@ def generate_df():
         if(('min' in i) or ('max' in i)):
             del contatos[i]
     degree = contatos['Nombre de contacts saisis JOUR 1 + JOUR 2'].values
-    np.savetxt('./output/degree.txt',np.ceil(degree/2),fmt='%d')
+    np.savetxt('./output/degree.txt',np.ceil(degree[degree>0]/2),fmt='%d')
     x = list(contatos.columns).index('jour2mois2')
     contatos01 = contatos[contatos.columns[:x]]
     contatos02 = contatos[contatos.columns[x:]]

@@ -7,13 +7,8 @@
 #include <omp.h>
 
 #include "mtwister.h"
-#include "calc.h"
-#include "rede.h"
-#include "CM.h"
-#include "SBM.h"
-#include "LCM.h"
 #include "infect.h"
-#include "estagio.h"
+#include "calc.h"
 
 int main(int argc,char *argv[ ]){
     //generate_configuration_model((double) 0,1);

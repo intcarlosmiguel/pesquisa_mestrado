@@ -267,22 +267,25 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.show()
 
 
-def generate_vacinado(plot = 0):
+def generate_vacinado(plot = 0,erro = 0):
     dir = [i for i in os.listdir('./C/output/infect/')]
-    infect_vacinado = [i for i in dir if(('vacinado' in i) and ('aleatorio' not in i))]
+    infect_vacinado = [i for i in dir if(('vacinado' in i) and ('0.50' not in i))]
 
     vac = []
 
     for i in infect_vacinado:
         x = np.loadtxt(f'./C/output/infect/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
-        vac.append(np.vstack((np.arange(0,x.shape[1]/2,0.5),x)))
-    
+        vac.append(x)
     plt.figure(figsize=(8,5),dpi=500)
     
     for infect,file in zip(vac,infect_vacinado):
-        plt.scatter(infect[0]/100,infect[2 if(plot ==0) else 3],label = file,s = 5,marker ='D')
-    
+        if(erro == 0):
+            plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,s = 5,marker ='D')
+        elif(erro == 1):
+             if(infect.shape[0] == 5):
+                plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4] , markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=5,marker = 'D',label = file)
+    plt.plot()
     plt.legend()
     plt.grid()
     plt.ylabel('# de Hospitalizados'if(plot ==0) else '# de Mortos')
