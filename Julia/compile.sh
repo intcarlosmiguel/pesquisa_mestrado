@@ -1,4 +1,4 @@
-export OMP_NUM_THREADS=10
+#export OMP_NUM_THREADS=10
 gcc -fpic -shared calc.c mtwister.c infect.c -o main.so -lm -O3 #-fopenmp
 julia main.jl
 #time for counter in {0..100}; do ./main 42 500 $counter; done

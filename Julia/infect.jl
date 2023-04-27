@@ -13,11 +13,11 @@ delta::Float64 = 1/14;
 recupera::Float64 = 1/40;
 
 function calc_estagio(site,g,estagio,vacinado,faixas,prob_estagio,morte,hospitalizacao)
-    vacinado_site::Float64 = vacinado[site] == 1 ? 0.058 : 1
+    vacinado_site::Float64 = vacinado[site] ? 0.058 : 1
 
 
     if estagio[site] == 0
-        beta  = mapreduce(i -> (estagio[i] == 1 ? beta1*(vacinado[i] == 1 ?  0.058 : 1) : estagio[i] == 2 ? beta2*(vacinado[i] == 1 ?  0.058 : 1)  : 0),+, neighbors(g, site))
+        beta  = mapreduce(i -> (estagio[i] == 1 ? beta1*(vacinado[i] ?  0.058 : 1) : estagio[i] == 2 ? beta2*(vacinado[i] ?  0.058 : 1)  : 0),+, neighbors(g, site))
         return beta*vacinado_site
     elseif estagio[site] == 1
 
@@ -75,12 +75,12 @@ function infect(seed,S0,E0,infect_time,quant)
     Hospitalizados::UInt16 = 0;
     Recuperados::UInt16 = 0;
     Mortos::UInt16 = 0;
-    Nhospitalizados= 0
+    Nhospitalizados::UInt16= 0
     N::UInt16 = length(faixas)
 
     prob_estagio = rand(N)
     estagio = zeros(UInt8,N)
-    vacinado = zeros(UInt8,N)
+    vacinado = falses(N)
 
 
     sintomatico = @SVector [29.1/100, 37.4/100, 41.68/100, 39.4/100, 31.3/100]
@@ -101,7 +101,6 @@ function infect(seed,S0,E0,infect_time,quant)
     t::Float64 = 0.5
     ano = 0
     while true
-
         acumulada = cumsum([calc_estagio(site,Rede,estagio,vacinado,faixas,prob_estagio,morte,hospitalizacao) for site in 1:N])
         rate = acumulada[end]
 
@@ -118,7 +117,7 @@ function infect(seed,S0,E0,infect_time,quant)
         if ano >= 3*365
             break
         end
-
+        
         site = searchsortedfirst(acumulada, Delta)
 
         if estagio[site] == 0 # Suscetiveis
@@ -129,7 +128,7 @@ function infect(seed,S0,E0,infect_time,quant)
 
         elseif estagio[site] == 1 # Expostos
     
-            sintoma = sintomatico[faixas[site]]*( vacinado[site] == 1 ? 0.34693877551 : 1)
+            sintoma = sintomatico[faixas[site]]*( vacinado[site] ? 0.34693877551 : 1)
             if prob_estagio[site] < sintoma
                 estagio[site] = 3
                 Sintomaticos += 1

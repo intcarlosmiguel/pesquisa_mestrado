@@ -4,7 +4,6 @@ using Pkg
 using Combinatorics
 using DelimitedFiles
 using LoopVectorization
-
 function CM()
     degree = reverse(sort([parse(Int, line) for line in eachline("./input/degree.txt")]))
     sitios = 1:length(degree)
@@ -36,11 +35,7 @@ function CM100()
     end
 end
 
-mutable struct Graph
-    viz::Matrix{Cint}
-    Nodes::Int32
-    edges::Int32
-end
+
 
 function SBM(N,seed)
     Random.seed!(seed)
@@ -121,13 +116,6 @@ function Configuration_Model(seed)
             add_edge!(g, i, j)
         end
     end
-    L =maximum([length(neighbors(g,i)) for i in 1:length(faixas)])
-    v = Array{Cint}(undef,length(faixas),L+1)
-    for i in 1:length(faixas)
-        v[i,1] = length(neighbors(g,i))
-        v[i,2:length(neighbors(g,i))+1] .= neighbors(g,i)
-        v[i,length(neighbors(g,i))+2:end] .= -1
-    end
-    G = Graph(v,length(faixas),length(collect(edges(g))))
-    return G,faixas
+
+    return g,faixas
 end

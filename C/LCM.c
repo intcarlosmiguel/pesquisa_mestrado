@@ -45,11 +45,11 @@ int somatorio(int** array,int elemento,int N){
     return soma;
 }
 
-struct LCM local_conf_model_p(struct LCM Z,int ego,double p){
+/* struct LCM local_conf_model_p(struct LCM Z,int ego,double p){
     int N = 0;
     int *vizinhos = (int*) malloc(0*sizeof(int));
 
-    for (int i = 0; i < Z.G.viz[ego][0]; i++){
+    for (int i = 0; i < G.viz[ego][0]; i++){
         int vizinho = Z.G.viz[ego][i+1];
         if(somatorio(Z.degree,vizinho,5) !=0){
             vizinhos = (int*) realloc(vizinhos,(N+1)*sizeof(int));
@@ -114,55 +114,51 @@ struct LCM local_conf_model_p(struct LCM Z,int ego,double p){
     }
     free(vizinhos);
     return Z;
-}
+} */
 
-struct LCM local_add_edge(struct LCM Z,int* shuff, int n,int site,double p){
+struct Graph local_add_edge(struct Graph G,int** degree,int* faixa,int* shuff, int n,int site,double p){
     for (int i = 0; i < n; i++){
         int vizinho = shuff[i];
-        if(somatorio(Z.degree,site,5) == 0){
-            if(p>0) Z = local_conf_model_p(Z,site,p);
+        if(somatorio(degree,site,5) == 0){
+            //if(p>0) Z = local_conf_model_p(Z,site,p);
             break;
         }
-        int rep = check_existence(Z.mat,Z.G.edges,site,vizinho);
-
-
-        int faixa1 = Z.faixa[site];
-        int faixa2 = Z.faixa[vizinho];
-        if((rep == 1) || (Z.degree[vizinho][faixa1] == 0) || (Z.degree[site][faixa2] == 0) ) continue;
-        Z.mat = (int**) realloc(Z.mat,(Z.G.edges+1)*sizeof(int*));
-        Z.mat[Z.G.edges] = (int*) malloc(2* sizeof(int));
-        Z.mat[Z.G.edges][0] = site;
-        Z.mat[Z.G.edges][1] = vizinho;
-        Z.G.edges += 1;
-
-        Z.degree[site][faixa2]--;
-        Z.degree[vizinho][faixa1]--;
+        int rep = 0;
+        for (int j = 0; j < G.viz[site][0]; j++) if(i == G.viz[site][j+1]) {rep = 1; break;}
         
-        Z.G.viz[site][0]++;
-        Z.G.viz[vizinho][0]++;
-        Z.G.viz[site] = (int*) realloc(Z.G.viz[site],(Z.G.viz[site][0]+1)*sizeof(int));
-        Z.G.viz[vizinho] = (int*) realloc(Z.G.viz[vizinho],(Z.G.viz[vizinho][0]+1)*sizeof(int));
-        Z.G.viz[site][Z.G.viz[site][0]] = vizinho;
-        Z.G.viz[vizinho][Z.G.viz[vizinho][0]] = site;
+
+        int faixa1 = faixa[site];
+        int faixa2 = faixa[vizinho];
+        if((rep == 1) || (degree[vizinho][faixa1] == 0) || (degree[site][faixa2] == 0) ) continue;
+        G.edges += 1;
+
+        degree[site][faixa2]--;
+        degree[vizinho][faixa1]--;
+        
+        G.viz[site][0]++;
+        G.viz[vizinho][0]++;
+        G.viz[site] = (int*) realloc(G.viz[site],(G.viz[site][0]+1)*sizeof(int));
+        G.viz[vizinho] = (int*) realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
+        G.viz[site][G.viz[site][0]] = vizinho;
+        G.viz[vizinho][G.viz[vizinho][0]] = site;
     }
-    return Z;
+    return G;
 }
 
 struct Graph local_configuration_model(int N, double p,int seed){
     
-    struct LCM Z;
-    Z.G.Nodes = N;
-    Z.G.viz = (int **)malloc(N*sizeof(int*));
+    struct Graph G;
+    G.Nodes = N;
+    G.viz = (int **)malloc(N*sizeof(int*));
     for (int j = 0; j < N; j++){ 
-        Z.G.viz[j] =(int*) malloc(1*sizeof(int));
-        Z.G.viz[j][0] = 0;
+        G.viz[j] =(int*) malloc(1*sizeof(int));
+        G.viz[j][0] = 0;
     }
-    Z.mat = (int **)malloc(0*sizeof(int*));
-    Z.G.edges = 0;
-    Z.existir = 0;
-    if(p > 0)Z.n_existir = (int **)malloc(0* sizeof(int*));
-    Z.degree = get_array(N);
-    Z.faixa = get_faixas(N);
+    G.edges = 0;
+    //existir = 0;
+    //if(p > 0)n_existir = (int **)malloc(0* sizeof(int*));
+    int** degree = get_array(N);
+    int* faixa = get_faixas(N);
 
     init_genrand64(seed);
     
@@ -170,26 +166,26 @@ struct Graph local_configuration_model(int N, double p,int seed){
 
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++) shuff[j] = j;
-        shuff = randomize(shuff,N,seed);
-        shuff = ending(shuff,N, i,0);
-        Z = local_add_edge(Z,shuff,N-1,i,p);
+        swap(&shuff[i],&shuff[N-1]);
+        shuff = realloc(shuff,(N-1)*sizeof(int));
+        shuff = randomize(shuff,N-1,seed);
+        //shuff = ending(shuff,N, i,0);
+        G = local_add_edge(G,degree,faixa,shuff,N-1,i,p);
     }
     if(seed == 0){
         FILE *file;
         file = fopen("./output/LCM/distribution_LCM.txt","w");
-        for (int i = 0; i < Z.G.Nodes; i++) fprintf(file,"%d\n",Z.G.viz[i][0]);
+        for (int i = 0; i < G.Nodes; i++) fprintf(file,"%d\n",G.viz[i][0]);
         fclose(file);
     }
-    for (int i = 0; i < Z.G.Nodes; i++) free(Z.degree[i]);
-    for (int i = 0; i < Z.G.edges; i++) free(Z.mat[i]);
-    if(p > 0) for (int i = 0; i < Z.existir; i++) free(Z.n_existir[i]);
+    for (int i = 0; i < G.Nodes; i++) free(degree[i]);
+    //if(p > 0) for (int i = 0; i < existir; i++) free(n_existir[i]);
     
-    if(p > 0)free(Z.n_existir);
-    free(Z.degree);
-    free(Z.mat);
-    free(Z.faixa);
+    //if(p > 0)free(n_existir);
+    free(degree);
+    free(faixa);
     free(shuff);
-    return Z.G;
+    return G;
 }
 
 void generate_local_configuration_model(double p, int T,int teste){

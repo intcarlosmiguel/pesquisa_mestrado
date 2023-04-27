@@ -227,8 +227,9 @@ void infect(struct Graph G,int* faixas,int S0,int E0,int N,int seed,double** inf
 
 
         for (i = 0; i < G.Nodes; i++){
+            printf("Proximo %d\n",G.viz[i][0]);
             rate += calc_estagio(i, estagio,prob_estagio,faixas,G,vacinado,hospitalizacao,morte);
-            printf("Proximo %f\n",rate);
+            printf("Proximo %f\n",prob_estagio[i]);
         }
 
         if(rate==0) break;
@@ -365,7 +366,12 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check,d
     fclose(file);
 }
 
-void generate_infect(struct Graph G,int* faixas,int seed, int redes,double f){
+void generate_infect(int** vizinhos,int nos,int ligacoes,int* faixas,int seed, int redes,double f){
+    struct Graph G;
+    G.viz = vizinhos;
+    G.Nodes = nos;
+    G.edges = ligacoes;
+    printf("%d\n",vizinhos[0][0]);
     rodou = 0;
     uint16_t N = G.Nodes;
     uint16_t tempo = 365*3*2;
