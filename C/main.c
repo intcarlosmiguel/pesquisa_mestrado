@@ -47,8 +47,9 @@ int main(int argc,char *argv[ ]){
     } */
     int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);
+    double tau = (double)atof(argv[3])/2;
     //if(numero == 90) for(int i =numero;i<=numero+10;i++) generate_infect(seed, redes,(double)i/100);
     //else for(int i =numero;i<numero+10;i++) generate_infect(seed, redes,(double)i/100);
     //for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100);
-    generate_infect(seed, 1,0.0);
+    for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100,tau);
 }

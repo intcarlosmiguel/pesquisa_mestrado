@@ -18,7 +18,8 @@ int rodou;
 const double beta1 = (double)0.5;
 const double beta2 = (double)0.41;
 const double sigma = (double)1/5.1;
-const double gamma_A = (double)1/7;
+//const double gamma_A = (double)1/7;
+double gamma_A;
 const double phi = (double)0.025;
 const double gamma_I = (double)1/7;
 const double gamma_H = (double)1/14;
@@ -84,6 +85,7 @@ bool* vacinacao_idade(bool* vacinado,int* faixas, int Suscetiveis, int Recuperad
 
 double calc_estagio(int site,uint8_t* estagio,double* prob_estagio,int* faixas, struct Graph G,bool* vacinado,double* hospitalizacao,double* morte){
 
+
     switch (estagio[site]){
         case 0:// Suscetível
             double beta = 0;
@@ -143,12 +145,6 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     uint16_t Mortos = 0;
     bool Vac = false;
     int site;
-    
-    //FILE *file;
-    //char filename[40];
-
-    //sprintf(filename,"./output/infect/%d.txt",E0);
-    //file = fopen(filename,"a");
 
     struct Graph G;
     G = local_configuration_model(N,0,seed);
@@ -211,8 +207,8 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
 
 
     uint16_t Nhospitalizados = 0;
-    long double tempo = 0;
-    long double ano = 0;
+    double tempo = 0;
+    double ano = 0;
     double rate,Delta;
     double sintoma;
     double grau;
@@ -228,13 +224,14 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
             fclose(file);
         } */
         if((ano>= 61) && (!Vac)){
-            //vacinado = vacinacao_aleatoria(vacinado,Suscetiveis, Recuperados,f, estagio,G.Nodes);
+            vacinado = vacinacao_aleatoria(vacinado,Suscetiveis, Recuperados,f, estagio,G.Nodes);
             //vacinado = vacinacao_grau(vacinado,G,Suscetiveis, Recuperados,f, estagio);
             ///vacinado = vacinacao_idade(vacinado,faixas,Suscetiveis, Recuperados,f, estagio,G.Nodes);
             Vac = true;
         }
-
-        if(inicio){
+        rate = 0;
+        for (i = 0; i < G.Nodes; i++)  rate += calc_estagio(i, estagio,prob_estagio,faixas,G,vacinado,hospitalizacao,morte);
+        /* if(inicio){
             for (i = 0; i < G.Nodes; i++) {
                 rates[i] = calc_estagio(i, estagio,prob_estagio,faixas,G,vacinado,hospitalizacao,morte);
                 rate += rates[i];
@@ -252,8 +249,7 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
                 rate += rates[vizinho];
             }
             
-        }
-        
+        } */
         if(rate==0) break;
         tempo = exponentialRand(rate);
         if(tempo ==0) break;
@@ -332,7 +328,6 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
         infect_time[s - 1][4] += Hospitalizados;
         infect_time[s - 1][5] += Recuperados;
         infect_time[s - 1][6] += Mortos;
-
         grau = 0;
         for (i = 0; i < G.Nodes; i++) if((estagio[i] == 0) || (estagio[i] == 5))grau+= G.viz[i][0];
         
@@ -359,7 +354,7 @@ void infect(int S0,int E0,int N,int seed,double** infect_time,double* quant,doub
     free(G.viz);
     rodou++;
     //printf("\e[1;1H\e[2J");
-    printf("%d\n",rodou);
+    printf("Rodou %d\n",rodou);
 }
 
 void generate_file(char* filename,void* array,int linhas,int colunas,int check,double f){
@@ -388,7 +383,8 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check,d
     fclose(file);
 }
 
-void generate_infect(int seed, int redes,double f){
+void generate_infect(int seed, int redes,double f,double tau){
+    gamma_A = 1/tau;
     rodou = 0;
     uint16_t N = size_txt();
     uint16_t tempo = 365*3*2;
@@ -410,34 +406,33 @@ void generate_infect(int seed, int redes,double f){
     final[2] = 0;
     final[3] = 0;
 
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for (j = 0; j < redes; j++)infect(N-1,1,N,seed+j ,infect_time,quant,final,f);
     
     for (i = 0; i < tempo; i++) for (int j = 0; j < 9; j++) infect_time[i][j] /= quant[i];
     for (i = 0; i < tempo; i++) infect_time[i][8] = pow(infect_time[i][8] - pow(infect_time[i][7],2),0.5);
     for(i = 0;i < 4;i++) final[i] /= redes;
+    
 
-    if(f==0.5){
+    /* if(f==0.5){
         char filename[200] = "./output/infect/infect_vacinado_idade";
         generate_file(filename,infect_time,tempo,9,sizeof(infect_time[0][0]),f);
-    }
+    } */
 
     if (redes != 1){
         FILE *file;
         char filename[200];
-        sprintf(filename,"./output/infect/infect_vacinado_idade.txt");
+        sprintf(filename,"./output/infect/infect_shape_idade.txt");
         file = fopen(filename,"a");
-        fprintf(file,"%f %f %f %f %f\n",f, final[0], final[1],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
+        fprintf(file,"%f %f %f %f %f %f\n",f, tau, final[0], final[1],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
         fclose(file);
     }
-
 
     for (i = 0; i < tempo; i++) free(infect_time[i]);
     free(infect_time);
     free(final);
-    //free(resultados);
     free(quant);
 
     if (redes != 1) printf("\e[1;1H\e[2J");
-    printf("Rodou: %f\n",f);
+    printf("Terminou: %f\n",f);
 }
