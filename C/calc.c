@@ -78,22 +78,67 @@ void print_vetor(int* array,int N){
     }
 }
 
-int* bubble_sort_by(int *array,int *valor,int N){
-    
-    for (int i = 0 ; i < ( N - 1 ); i++){
-        for (int j= 0 ; j < N - i - 1; j++){
-            if(array[j] < array[j+1]){
-                int temp = array[j];
-                array[j]   = array[j+1];
-                array[j+1] = temp;
-                int v = valor[j];
-                valor[j] = valor[j+1];
-                valor[j+1] = v;
+void bubbleSort(int *arr, int n, void *ref,int check) {
+    switch (check){
+    case sizeof(int):
+        int temp;
+        int* ref2 = (int*) malloc(n*sizeof(int));
+        for (int i = 0; i < n; i++) ref2[i] = *(int *)(ref + i * sizeof(int)); 
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (ref2[j] > ref2[j + 1]) {
+                    temp = ref2[j];
+                    ref2[j] = ref2[j + 1];
+                    ref2[j + 1] = temp;
+                    temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
             }
         }
+        free(ref2);
+        break;
+    case sizeof(double):
+        double temp_;
+        double* ref2_ = (double*) malloc(n*sizeof(double));
+        for (int i = 0; i < n; i++) ref2_[i] = *(double *)(ref + i * sizeof(double)); 
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (ref2_[j] > ref2_[j + 1]) {
+                    temp_ = ref2_[j];
+                    ref2_[j] = ref2_[j + 1];
+                    ref2_[j + 1] = temp_;
+                    temp_ = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp_;
+                }
+            }
+        }
+        free(ref2_);
+        break;
+    default:
+        break;
     }
-    
-    return array;
+}
+
+void sortIntByRef(int *arr, void *ref, int n,int check) {
+    // cria vetor de índices
+    int idx[n];
+    for (int i = 0; i < n; i++) {
+        idx[i] = i;
+    }
+
+    // ordena o vetor de índices com base no vetor de referência
+    bubbleSort(arr, n, ref,check);
+
+    // reorganiza o vetor original com base no vetor de índices ordenado
+    int sortedArr[n];
+    for (int i = 0; i < n; i++) {
+        sortedArr[i] = arr[idx[i]];
+    }
+    for (int i = 0; i < n; i++) {
+        arr[i] = sortedArr[i];
+    }
 }
 
 int* bubble_sort(int* array,int N){
@@ -246,25 +291,4 @@ double exponentialRand(double lambda) {
 double normalRand(double mean, double stdDev) {
     double z = sqrt(-2 * log(genrand64_real1())) * cos(2 * M_PI * genrand64_real1());
     return mean + stdDev * z;
-}
-int partition(int *arr, int low, int high) {
-    int pivot = arr[high];
-    int i = (low - 1);
-
-    for (int j = low; j <= high - 1; j++) {
-        if (arr[j] >= pivot) {
-            i++;
-            swap(&arr[i], &arr[j]);
-        }
-    }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
-}
-
-void quicksort(int *arr, int low, int high) {
-    if (low < high) {
-        int pi = partition(arr, low, high);
-        quicksort(arr, low, pi - 1);
-        quicksort(arr, pi + 1, high);
-    }
 }

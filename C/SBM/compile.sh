@@ -1,1 +1,0 @@
-gcc main.c rede.c calc.c mtwister.c -o main -lm -O3 -fopenmp

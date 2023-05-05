@@ -7,10 +7,15 @@
 #include <omp.h>
 
 #include "mtwister.h"
-#include "infect.h"
 #include "calc.h"
+#include "rede.h"
+//#include "CM.h"
+//#include "SBM.h"
+#include "LCM.h"
+#include "infect.h"
+//#include "estagio.h"
 
-int main(int argc,char *argv[ ]){
+int main(/*void (*ptr_funcao)(int** viz,int N)*/){
     //generate_configuration_model((double) 0,1);
     /* int T = atoi(argv[1]);
     int model = atoi(argv[2]);
@@ -40,10 +45,12 @@ int main(int argc,char *argv[ ]){
     default:
         break;
     } */
-    int seed = atoi(argv[1]);
-    int redes = atoi(argv[2]);
-    int numero = (int)atoi(argv[3]);
+    //struct Graph G = local_configuration_model(2029,0.0,1);
+    //printf("%d\n",G.viz[0][0]);
+    //ptr_funcao(G.viz,2029);
     //if(numero == 90) for(int i =numero;i<=numero+10;i++) generate_infect(seed, redes,(double)i/100);
     //else for(int i =numero;i<numero+10;i++) generate_infect(seed, redes,(double)i/100);
-    generate_infect(seed, redes,1.0);
+    //for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100);
+    //for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100,tau);
+    generate_infect(42, 1,0.0);
 }

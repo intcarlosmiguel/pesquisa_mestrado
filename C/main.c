@@ -13,7 +13,6 @@
 #include "SBM.h"
 #include "LCM.h"
 #include "infect.h"
-#include "estagio.h"
 
 int main(int argc,char *argv[ ]){
     //generate_configuration_model((double) 0,1);
@@ -47,9 +46,10 @@ int main(int argc,char *argv[ ]){
     } */
     int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);
-    double tau = (double)atof(argv[3])/2;
+    int vacina = atoi(argv[3]);
     //if(numero == 90) for(int i =numero;i<=numero+10;i++) generate_infect(seed, redes,(double)i/100);
     //else for(int i =numero;i<numero+10;i++) generate_infect(seed, redes,(double)i/100);
-    //for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100);
-    for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100,tau);
+    for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100,vacina);
+    //generate_infect(seed, redes,1.0,0);
+    //generate_infect(42, 1,0.0,5.1);
 }

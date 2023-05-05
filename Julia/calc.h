@@ -20,4 +20,5 @@ void generate_resultados(double** resultados, int T,char arquivo[]);
 double normalRand(double mean, double stdDev);
 double exponentialRand(double lambda);
 void quicksort(int *arr, int low, int high);
+void swap_double (double *a, double *b);
 #endif

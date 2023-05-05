@@ -13,6 +13,7 @@ delta::Float64 = 1/14;
 recupera::Float64 = 1/40;
 
 function calc_estagio(site,g,estagio,vacinado,faixas,prob_estagio,morte,hospitalizacao)
+
     vacinado_site::Float64 = vacinado[site] ? 0.058 : 1
 
 
@@ -30,7 +31,7 @@ function calc_estagio(site,g,estagio,vacinado,faixas,prob_estagio,morte,hospital
     elseif estagio[site] == 3
 
         hs = hospitalizacao[faixas[site]]
-        if vacinado[site] == 1
+        if vacinado[site] 
              hs *= 0.034
         end
         if(prob_estagio[site]<hs) 
@@ -42,7 +43,7 @@ function calc_estagio(site,g,estagio,vacinado,faixas,prob_estagio,morte,hospital
     elseif estagio[site] == 4
 
         m = morte[faixas[site]]
-        if vacinado[site] == 1
+        if vacinado[site]
              m *= 0.034
         end
         if(prob_estagio[site]<m) 
@@ -72,10 +73,10 @@ function infect(seed,S0,E0,infect_time,quant)
     Expostos::UInt16 = E0;
     Assintomaticos::UInt16 = 0;
     Sintomaticos::UInt16 = 0;
-    Hospitalizados::UInt16 = 0;
+    Hospitalizados = 0;
     Recuperados::UInt16 = 0;
-    Mortos::UInt16 = 0;
-    Nhospitalizados::UInt16= 0
+    Mortos = 0;
+    Nhospitalizados = 0
     N::UInt16 = length(faixas)
 
     prob_estagio = rand(N)
@@ -99,11 +100,26 @@ function infect(seed,S0,E0,infect_time,quant)
     end
     s = 1
     t::Float64 = 0.5
-    ano = 0
+    ano = 0.0
+    inicio = true
+    rates = 0.0
+    rate = 0.0
+    site = 0
     while true
-        acumulada = cumsum([calc_estagio(site,Rede,estagio,vacinado,faixas,prob_estagio,morte,hospitalizacao) for site in 1:N])
+        if(inicio)
+            
+            rates = map(site -> calc_estagio(site, Rede, estagio, vacinado, faixas, prob_estagio, morte, hospitalizacao), 1:N)
+            inicio = false
+        else
+            rate -= rates[site]
+            rates[site] = calc_estagio(site,Rede,estagio,vacinado,faixas,prob_estagio,morte,hospitalizacao)
+            rate += rates[site]
+            rate -= sum(rates[neighbors(Rede,site)])
+            rates[neighbors(Rede,site)] = [calc_estagio(j,Rede,estagio,vacinado,faixas,prob_estagio,morte,hospitalizacao) for j in neighbors(Rede,site)]
+            rate += sum(rates[neighbors(Rede,site)])
+        end
+        acumulada = cumsum(rates)
         rate = acumulada[end]
-
         if rate == 0
             break
         end
@@ -113,7 +129,6 @@ function infect(seed,S0,E0,infect_time,quant)
         end
         ano += tempo
         Delta = rand()*rate
-        rate = 0
         if ano >= 3*365
             break
         end
@@ -192,7 +207,7 @@ function infect(seed,S0,E0,infect_time,quant)
         quant[s] += 1
 
     end
-    return [Nhospitalizados,Mortos,Nhospitalizados*Nhospitalizados,Mortos*Mortos],infect_time
+    return [Nhospitalizados,Mortos,Nhospitalizados^2,Mortos*Mortos],infect_time
 end
 
 function generate_infect(redes)
@@ -212,4 +227,5 @@ function generate_infect(redes)
     final = final./redes
     final[4] = final[4] - final[2]*final[2]
     final[3] = final[3] - final[1]*final[1]
+    println(final)
 end

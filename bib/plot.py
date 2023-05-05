@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 from bib.cleaning import *
+from scipy import stats
 
 font = {'family': 'monospace',
             'size': 16,
@@ -268,64 +269,90 @@ def adj(df,contacts,contacts02,Nmortos):
 
 
 def generate_vacinado(plot = 0,erro = 0):
-    dir = [i for i in os.listdir('./C/output/infect/')]
-    infect_vacinado = [i for i in dir if(('vacinado' in i) and ('0.50' not in i))]
+    infect_vacinado = os.listdir('./C/output/infect/vacina')
 
     vac = []
 
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/output/infect/{i}')
+        x = np.loadtxt(f'./C/output/infect/vacina/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
     plt.figure(figsize=(8,5),dpi=500)
-    
+    y =[]
+    x = []
     for infect,file in zip(vac,infect_vacinado):
         if(erro == 0):
             plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,s = 5,marker ='D')
         elif(erro == 1):
-             if(infect.shape[0] == 5):
-                plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4] , markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=5,marker = 'D',label = file)
+            plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file,alpha = 0.5)
+    y = np.array(y)
+    x = np.array(x)
+
     plt.plot()
     plt.legend()
     plt.grid()
     plt.ylabel('# de Hospitalizados'if(plot ==0) else '# de Mortos')
     plt.xlabel('Fração de Vacinados')
-    plt.savefig('./img/infect/hospitalizado_tempo.jpg' if(plot ==0) else './img/infect/hospitalizado_tempo.jpg')
+    plt.savefig('./img/infect/hospitalizado_fracao.jpg' if(plot ==0) else './img/infect/mortos_fracao.jpg')
     plt.show()
+    
 
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
 
-    infect_shape = [i for i in dir if('shape' in i)]
-    shape = np.loadtxt(f'./C/output/infect/{infect_shape[0]}').T
-    fig, (ax1, ax2) = plt.subplots(1,2, figsize=(13.5, 5),dpi = 500, gridspec_kw={'width_ratios': [1, 0.7]})
+    infect_shape = [i for i in os.listdir("./C/output/infect/") if(('shape' in i) & ('txt' in i))]
+    y = [
+        "Eficácia contra Sintomáticos",
+        "Eficácia para Espalhamento",
+        "Tempo para se recuperar"
+        ]
+    for shape,y_ in zip(infect_shape,y):
+        shape = np.loadtxt(f'./C/output/infect/{shape}').T
+        fig, (ax1, ax2) = plt.subplots(1,2, figsize=(13.5, 5),dpi = 500, gridspec_kw={'width_ratios': [1, 0.7]})
 
-    #fig = plt.figure(figsize=(8,8),dpi = 100)
-    ax1.set_axis_off()
-    ax1 = fig.add_subplot(121, projection='3d')
-    # Criação do scatter plot em 3D
-    ax1.scatter(shape[0], shape[1], shape[2 if(plot == 0) else 3], marker='o',s=10,c = color)
+        #fig = plt.figure(figsize=(8,8),dpi = 100)
+        ax1.set_axis_off()
+        ax1 = fig.add_subplot(121, projection='3d')
+        # Criação do scatter plot em 3D
+        ax1.scatter(shape[0], shape[1], shape[2 if(plot == 0) else 3], marker='o',s=10,c = color)
 
-    # Definição dos rótulos dos eixos
-    ax1.set_xlabel('Fração de Vacinados')
-    ax1.set_ylabel('1 - Eficácia da Vacina')
-    ax1.set_zlabel('# de Hospitalizados' if(plot == 0) else '# de Mortos')
-    #ax1.set_box_aspect([1, 1, 1])
-    # Exibição do gráfico
+        # Definição dos rótulos dos eixos
+        ax1.set_xlabel('Fração de Vacinados')
+        ax1.set_ylabel(y_)
+        ax1.set_zlabel('# de Hospitalizados' if(plot == 0) else '# de Mortos')
+        #ax1.set_box_aspect([1, 1, 1])
+        # Exibição do gráfico
+        Nx= len(np.unique(shape[1]))
+        Ny= len(np.unique(shape[0]))
+        
+        S = shape[2 if(plot == 0) else 3].reshape(101,-1)
+        #ax2 = fig.add_subplot(122)
+        #fig, ax = plt.subplots(figsize = (10,6))
+        im = ax2.imshow(S, cmap=cmap)
+        ax2.set_xticks(np.arange(Nx))
+        ax2.set_xticklabels(['']*Nx)
+        ax2.set_yticks(np.arange(Ny))
+        ax2.set_yticklabels(['']*Ny)
+        ax2.set_ylabel('Fração de Vacinados')
+        ax2.set_xlabel('1 - Eficácia da Vacina')
+        cbar = ax2.figure.colorbar(im, ax=ax2)
 
-    S = shape[2 if(plot == 0) else 3].reshape(101,-1)
-    #ax2 = fig.add_subplot(122)
-    #fig, ax = plt.subplots(figsize = (10,6))
-    im = ax2.imshow(S, cmap=cmap)
-    ax2.set_xticks(np.arange(101))
-    ax2.set_xticklabels(['']*101)
-    ax2.set_yticks(np.arange(101))
-    ax2.set_yticklabels(['']*101)
-    ax2.set_ylabel('Fração de Vacinados')
-    ax2.set_xlabel('1 - Eficácia da Vacina')
-    cbar = ax2.figure.colorbar(im, ax=ax2)
+        pos = ax1.get_position()
+        ax1.set_position([pos.x0, pos.y0 + 0.02, pos.width, pos.height])
+        fig.suptitle('Gráfico 3D de Hospitalizados'if(plot == 0) else 'Gráfico 3D de Mortos')
+        plt.savefig(f'./img/infect/shape_hospitalizados_{y_}.png' if(plot == 0) else f'./img/infect/shape_mortos_{y_}.png')
+        plt.show()
 
-    pos = ax1.get_position()
-    ax1.set_position([pos.x0, pos.y0 + 0.02, pos.width, pos.height])
-    fig.suptitle('Gráfico 3D de Hospitalizados'if(plot == 0) else 'Gráfico 3D de Mortos')
-    plt.savefig('./img/infect/shape_hospitalizados.png' if(plot == 0) else './img/infect/shape_mortos.png')
+def infect_distribution():
+    vac = np.loadtxt("./C/output/infect/infect_0.50.txt").T
+
+    plt.figure(figsize=(8,5),dpi=500)
+    plt.errorbar(np.arange(3*365*2)/2,vac[-2],yerr = vac[-1], markersize=5, capsize=4,c = 'royalblue',ecolor = 'gray',marker = 'D')
+    #
+    #plt.legend()
+    plt.grid()
+    plt.ylabel('Grau Médio')
+    plt.xlabel('Tempo')
+    #plt.ylim(0.01,0.1)
+    plt.xlim(0,60)
+    plt.savefig('./img/infect/grau_tempo.jpg')
     plt.show()

@@ -69,7 +69,6 @@ double* list_clustering(int** viz,int N){
 }
 
 int find_cluster(int** viz,int N,int site){
-    double l = 0;
     int tam = 1;
     int infinity = N+2;
     int* lista = (int*) malloc(1*sizeof(int));
@@ -119,7 +118,7 @@ int* find_largest_cluster(struct Graph G,int* big){
     return resultado2;
 }
 
-double shortest_length(int** viz,int N,int site,double* diametro){
+double shortest_length(int** viz,int N,int site,int* diametro){
 
     double l = 0;
     int tam = 1;
@@ -131,6 +130,8 @@ double shortest_length(int** viz,int N,int site,double* diametro){
     for (int i = 0; i < N; i++) distance[i] = infinity;
     lista[0] = site;
     distance[site] = 0;
+    *diametro = 0;
+    if(viz[site][0] == 0) return 0;
     while ((current<tam) && (tam != N)){
 
         int sitio = lista[current];
@@ -142,7 +143,7 @@ double shortest_length(int** viz,int N,int site,double* diametro){
                 tam++;
                 lista = (int*) realloc(lista,tam*sizeof(int));
                 lista[tam-1] = vizinho;
-                if(distance[sitio]+1 > *diametro) *diametro = (double) distance[sitio]+1;
+                if(distance[sitio]+1 > *diametro) *diametro = distance[sitio]+1;
             }
         }
         current++;
@@ -153,7 +154,7 @@ double shortest_length(int** viz,int N,int site,double* diametro){
     return (double) l/(tam-1);
 }
 
-double av_path_length(struct Graph G,double* diametro){
+double av_path_length(struct Graph G,int* diametro){
     double l = 0;
     int big = 0;
     int* sites = find_largest_cluster(G,&big);
@@ -185,7 +186,9 @@ void degree_distribution(struct Graph G,double* media1,double* median1,double* s
 }
 
 void result(struct Graph G,double* resultados){
-    resultados[5] = av_path_length(G,&resultados[6]);
+    int l;
+    resultados[5] = av_path_length(G,&l);
+    resultados[6] = (double) l;
     double *deg = degree_list(G.viz,G.Nodes);
     double *clustering = list_clustering(G.viz,G.Nodes);
 

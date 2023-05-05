@@ -52,6 +52,12 @@ void swap (int *a, int *b){
     *b = temp;
 }
 
+void swap_double (double *a, double *b){
+    double temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
 int* ending(int* array, int n, int site,int inicio){
     for (int i = inicio; i < n; i++){
         if(array[i] == site){

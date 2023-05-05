@@ -116,6 +116,6 @@ function Configuration_Model(seed)
             add_edge!(g, i, j)
         end
     end
-
+    println(betweenness_centrality(g))
     return g,faixas
 end

@@ -146,7 +146,7 @@ struct Graph configuration_model(int N, double p,int seed){
     MC.n_existir = (int **)malloc(0* sizeof(int*));
 
     init_genrand64(seed);
-    quicksort(degree,0,N-1);
+    //quicksort(degree,0,N-1);
     int *shuff = (int*) malloc(N*sizeof(int));
 
     for (int i = 0; i < N; i++){
