@@ -3,7 +3,9 @@ import numpy as np
 import math
 from bib.cleaning import *
 from scipy import stats
-
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+import matplotlib as mpl
 font = {'family': 'monospace',
             'size': 16,
             }
@@ -206,12 +208,12 @@ def heat_conncetion(data,contatos,contatos02):
     B_ = np.copy(B)
     np.fill_diagonal(A,0)
     np.fill_diagonal(B,0)
-    A = (A+A.T)/2
-    B = (B+B.T)/2
+    A = np.ceil((A+A.T)/2)
+    B = np.ceil((B+B.T)/2)
     np.fill_diagonal(A,np.diag(A_/2))
     np.fill_diagonal(B,np.diag(B_/2))
     C = (A+B)/2
-    C = C.astype(int)
+    C = np.ceil(C)
     return C
 
 def adj(df,contacts,contacts02,Nmortos):
@@ -269,15 +271,15 @@ def adj(df,contacts,contacts02,Nmortos):
 
 
 def generate_vacinado(plot = 0,erro = 0):
-    infect_vacinado = os.listdir('./C/output/infect/vacina')
+    infect_vacinado = os.listdir('./C/vacina')
 
     vac = []
 
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/output/infect/vacina/{i}')
+        x = np.loadtxt(f'./C/vacina/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
-    plt.figure(figsize=(8,5),dpi=500)
+    plt.figure(figsize=(12,7),dpi=500)
     y =[]
     x = []
     for infect,file in zip(vac,infect_vacinado):
@@ -291,7 +293,7 @@ def generate_vacinado(plot = 0,erro = 0):
     plt.plot()
     plt.legend()
     plt.grid()
-    plt.ylabel('# de Hospitalizados'if(plot ==0) else '# de Mortos')
+    plt.ylabel('Número de Hospitalizados'if(plot ==0) else 'Número de Mortos')
     plt.xlabel('Fração de Vacinados')
     plt.savefig('./img/infect/hospitalizado_fracao.jpg' if(plot ==0) else './img/infect/mortos_fracao.jpg')
     plt.show()
@@ -355,4 +357,196 @@ def infect_distribution():
     #plt.ylim(0.01,0.1)
     plt.xlim(0,60)
     plt.savefig('./img/infect/grau_tempo.jpg')
+    plt.show()
+
+
+def time():
+    
+    infect_time = [i for i in os.listdir("./C/time")]
+    time = np.arange(3*365*2)/2
+
+    mpl.rcParams['font.size'] = 16
+    
+    plt.figure(figsize=(12,8),dpi = 500)
+    plt.style.use('ggplot')
+    infect_without = np.loadtxt("./C/time/"+'infect_without.txt').T
+    plt.scatter(time,infect_without[0],label = "Suscetível",c = 'seagreen')
+    plt.scatter(time,infect_without[1],label = "Expostos",c = 'steelblue')
+    plt.scatter(time,infect_without[5],label = "Recuperados",c = 'tomato')
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("Número de Sítios")
+    #plt.ylim(0,750)
+    plt.xlim(0,60)
+    plt.savefig("./img/infect/primeiros_60_dias.png")
+    plt.show()
+
+
+    mpl.rcParams['font.size'] = 18
+    fig, axs = plt.subplots(1, 2, figsize=(18, 8),dpi =500)
+    #plt.figure(figsize=(12,8),dpi = 500)
+    legenda = ['VI',
+               'VG',
+               'VR',
+               ''
+               ]
+    for file,leg in zip(infect_time,legenda):
+        infect = np.loadtxt("./C/time/"+file).T
+        print(file)
+        if('without' in file):
+            axs[0].plot(time,infect[4],label = "Sem vacina",linestyle="--")
+            axs[1].plot(time,infect[6],label = "Sem vacina",linestyle="--")
+        else:
+            axs[0].scatter(time,infect[4],label = "Vacinação "+leg,s = 50, marker= 'D')
+            axs[1].scatter(time,infect[6],label = "Vacinação "+leg,s = 50, marker= 'D')
+            
+    plt.grid()
+    #axs[0].legend()
+    axs[1].legend()
+    axs[0].set_xlabel("Dias")
+    axs[0].set_ylabel("H(t)")
+    axs[1].set_xlabel("Dias")
+    axs[1].set_ylabel("D(t)")
+    axs[0].set_ylim(0,10)
+    #axs[1].set_ylim(0,200)
+    axs[0].set_xlim(60,600)
+    #axs[1].set_xlim(60,600)
+    fig.tight_layout()
+    plt.savefig("./img/infect/double_infeccao_tempo.png")
+    plt.show()
+
+    mpl.rcParams['font.size'] = 16
+    plt.figure(figsize=(12,8),dpi = 500)
+    for file,leg in zip(infect_time,legenda):
+        infect = np.loadtxt("./C/time/"+file).T
+        if('without' in file):
+            plt.plot(time,infect[0],label = "Sem vacina",linestyle="--")
+        else:
+            plt.scatter(time,infect[0],label = "Vacinação "+leg,s = 5, marker= 'D',alpha = 0.7)
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("Número de Suscetíveis")
+    plt.ylim(0,750)
+    plt.xlim(60,600)
+    #plt.savefig("./img/infect/infeccao_tempo.png")
+    plt.show()
+
+
+    plt.figure(figsize=(12,8),dpi = 500)
+    for file,leg in zip(infect_time,legenda):
+        infect = np.loadtxt("./C/time/"+file).T
+        if('without' in file):
+            plt.plot(time,infect[1],label = "Sem vacina",linestyle="--")
+        else:
+            plt.scatter(time,infect[1],label = "Vacinação "+leg,s = 20, marker= 'D',alpha = 0.7)
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("E(t)")
+    plt.ylim(0,200)
+    plt.xlim(60,600)
+    plt.savefig("./img/infect/infeccao_tempo.png")
+    plt.show()
+
+    plt.figure(figsize=(12,8),dpi = 500)
+    for file,leg in zip(infect_time,legenda):
+        infect = np.loadtxt("./C/time/"+file).T
+        if('without' in file):
+            plt.plot(time,infect[3],label = "Sem vacina",linestyle="--")
+        else:
+            plt.scatter(time,infect[3],label = "Vacinação "+leg,s = 5, marker= 'D',alpha = 0.7)
+        
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("Número de Assintomáticos")
+    plt.ylim(0,100)
+    plt.xlim(60,600)
+    #plt.savefig("./img/infect/infeccao_tempo.png")
+    plt.show()
+
+    mpl.rcParams['font.size'] = 14
+    
+    plt.figure(figsize=(12,8),dpi = 500)
+    plt.style.use('ggplot')
+    infect_without = np.loadtxt("./C/time/"+'infect_without.txt').T
+    infect_random = np.loadtxt("./C/time/infect_aleatorio.txt").T
+    plt.scatter(time,infect_without[4],label = "Hospitalizados sem Vacina",c = 'tomato')
+    plt.scatter(time,infect_random[4],label = "Hospitalizados com vacinação aleatória",c = 'steelblue')
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("# de Hospitalizados")
+    #plt.ylim(0,200)
+    plt.savefig("./img/infect/hospitalizados_aleatorio.png")
+    plt.xlim(0,200)
+    plt.show()
+
+    plt.figure(figsize=(12,8),dpi = 500)
+    plt.style.use('ggplot')
+    plt.plot(time,infect_without[6],label = "Hospitalizados sem Vacina",c = 'tomato')
+    plt.plot(time,infect_random[6],label = "Hospitalizados com vacinação aleatória",c = 'steelblue')
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("# de Mortos")
+    plt.ylim(0,10)
+    plt.savefig("./img/infect/mortos_aleatorio.png")
+    plt.xlim(0,200)
+    plt.show()
+
+    plt.figure(figsize=(12,8),dpi = 500)
+    for file,leg in zip(infect_time,legenda):
+        infect = np.loadtxt("./C/time/"+file).T
+        if('without' in file):
+            plt.plot(time,infect[6],label = "Sem vacina",linestyle="--")
+        else:
+            plt.scatter(time,infect[6],label = "Vacinação "+leg,s = 8, marker= 'D',alpha = 0.7)
+        reg = LinearRegression()
+        reg.fit(time[time > 100].reshape(-1, 1), infect[6][time > 100])
+        y_pred = reg.predict(time[time > 100].reshape(-1, 1))
+        r2 = r2_score(infect[6][time > 100].reshape(-1, 1), y_pred)
+        print(leg,[reg.coef_]+[reg.intercept_] ,r2)
+    plt.grid()
+    plt.legend()
+    plt.xlabel("Dias")
+    plt.ylabel("# de Mortos")
+    plt.savefig("./img/infect/mortos_tempo.png")
+    plt.show()
+
+    
+
+    # Treine o modelo com os dados
+    
+
+    plt.figure(figsize=(12,8),dpi = 500)
+    for file,leg in zip(infect_time,legenda):
+        infect = np.loadtxt("./C/time/"+file).T
+        if('without' in file):
+            plt.plot(time,infect[4],label = "Sem vacina",linestyle="--")
+        else:
+            plt.scatter(time,infect[4],label = "Vacinação "+leg,s = 5, marker= 'D',alpha = 0.7)
+    plt.grid()
+    plt.legend()
+    plt.ylim(0,10)
+    plt.xlim(60,600)
+    plt.xlabel("Dias")
+    plt.ylabel("# de Hospitalizados")
+    plt.savefig("./img/infect/hospitalizado_tempo.png")
+    plt.show()
+
+def plot_idades(a):
+    idades = a.drop_duplicates(subset='id')
+    idades = idades['Idade'].values
+    idades = idades[idades < 200]
+    x = np.arange(np.max(idades)+1)
+    hist = np.zeros(len(x))
+    for i in idades:
+        hist[int(i)] += 1
+    hist = hist/np.sum(hist)
+    plt.scatter(x,hist)
+    plt.title("Histograma de Idades")
+    plt.grid()
     plt.show()

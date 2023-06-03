@@ -14,8 +14,15 @@
 #include "LCM.h"
 #include "infect.h"
 
+void teste_resto_ligacoes(){
+    struct Graph G;
+    for(int i = 0;i < 1; i++) G = local_configuration_model(2025,0,8,0);
+}
+
 int main(int argc,char *argv[ ]){
-    //generate_configuration_model((double) 0,1);
+    //generate_configuration_model((double) 0.5,1000);
+    //generate_SBM_p_model(1,1,0);
+    //generate_local_configuration_model(0,1000);
     /* int T = atoi(argv[1]);
     int model = atoi(argv[2]);
     switch (model){
@@ -45,11 +52,10 @@ int main(int argc,char *argv[ ]){
         break;
     } */
     int seed = atoi(argv[1]);
+    local_configuration_model(160029,0.0,seed,2);
+    //teste_resto_ligacoes();
+    /*int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);
     int vacina = atoi(argv[3]);
-    //if(numero == 90) for(int i =numero;i<=numero+10;i++) generate_infect(seed, redes,(double)i/100);
-    //else for(int i =numero;i<numero+10;i++) generate_infect(seed, redes,(double)i/100);
-    for(int i =0;i<=100;i++) generate_infect(seed, redes,(double)i/100,vacina);
-    //generate_infect(seed, redes,1.0,0);
-    //generate_infect(42, 1,0.0,5.1);
+    for(int i = 50;i < 51; i++)generate_infect(seed+i, redes,(double)i/100,vacina);*/
 }

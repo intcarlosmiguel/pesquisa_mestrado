@@ -3,71 +3,110 @@ import numpy as np
 import pandas as pd
 import json
 import os
+from sklearn.linear_model import LinearRegression
 
-def generate_contatos(contatos,texto):
+def generate_contatos(contatos):
     colunas = [list(contatos.columns).index(i) for i in contatos.columns if('moyen' in i )]
     colunas.append(colunas[-1]+12)
     s = [list(contatos.columns).index(i) for i in contatos.columns if('Nombre de contacts' in i )][0]
     s = contatos.columns[s]
     numeros = contatos[s].values
-
     lista = []
     ids = []
     contato = {}
-    for n,id in zip(numeros,contatos.index):
+    c = []
+    for i in range(1,len(colunas)):
+        c += list(range(colunas[i-1],colunas[i]))
+    df = contatos.iloc[:,c]
+    df.insert(0, 'id', list(contatos.index))
+    df = df.values
+    dic = {}
+    for row in df:
+        dic[int(row[0])] = row[1:]
+    # Reshape para a forma desejada
+    #df = df.reshape((81320, 12))
+    a = []
+    for row in dic:
+        dic[row] = dic[row].reshape(-1,12)
+        d = pd.DataFrame(dic[row])
+        d = d.dropna(subset=[0])
+        d = d.fillna(-1).values
+        a += np.hstack((np.ones(d.shape[0]).reshape(-1,1)*int(row),np.array(d))).tolist()
+    a = np.array(a)
+    
+    """ for n,id in zip(numeros,contatos.index):
         if(n!=0):
             data = contatos.iloc[id,list(range(colunas[0],colunas[n]))]
             lista.append(np.reshape(data.values,(n,-1)))
             ids.append(id)
     
-    lista = np.array([np.concatenate(([id],j)).astype(int) for i,id in zip(lista,ids) for j in i])
+    lista = np.array([np.concatenate(([id],j)).astype(int) for i,id in zip(lista,ids) for j in i]) """
 
-    contato['id'] = lista.T[0]
-    contato['idade'] = lista.T[1]
-    contato['sexo'] = lista.T[2]
-    contato['pele'] = lista.T[-2]
-    contato['frequência'] = lista.T[-3]
-    contato['duração'] = lista.T[-1]
+    contato['id'] = a.T[0].astype(int)
+    contato['idade'] = a.T[1]
+    contato['sexo'] = a.T[2]
+    contato['pele'] = a.T[-2]
+    contato['frequência'] = a.T[-3]
+    contato['duração'] = a.T[-1]
     contato = pd.DataFrame.from_dict(contato)
-    contato['local'] = list(lista[:,3:10])
-    pd.DataFrame.to_csv(contato,f'./output/{texto}.csv')
+    contato['local'] = list(a[:,3:10].astype(int))
+    
 
 
     return contato
 
 def generate_df():
-    
-    df = pd.read_excel('./input/RawData_ComesF.xlsx',index_col=False,skiprows=[0, 1])
-    participantes = df.iloc[:,:54]
-    contatos = df.iloc[:,54:]
-    for i in contatos.columns:
-        if(('min' in i) or ('max' in i)):
-            del contatos[i]
-    degree = contatos['Nombre de contacts saisis JOUR 1 + JOUR 2'].values
-    np.savetxt('./output/degree.txt',np.ceil(degree[degree>0]/2),fmt='%d')
-    x = list(contatos.columns).index('jour2mois2')
-    contatos01 = contatos[contatos.columns[:x]]
-    contatos02 = contatos[contatos.columns[x:]]
-    contatos01 = generate_contatos(contatos01,'contatos_01')
-    contatos02 = generate_contatos(contatos02,'contatos_02')
-    data = participantes[[
-        "Age du sujet de l'enquête",
-        "Sexe du sujet de l'enquête",
-        'Nombre de personnes au foyer',
-        'situation professionnelle ',
-        "Dans quel secteur d'activité travaillez-vous"
+    if('participantes.csv' not in os.listdir("./output/")):
+        df = pd.read_excel('./input/RawData_ComesF.xlsx',index_col=False,skiprows=[0, 1])
+        participantes = df.iloc[:,:54]
+        contatos = df.iloc[:,54:]
+        for i in contatos.columns:
+            if(('min' in i) or ('max' in i)):
+                del contatos[i]
+        degree = contatos['Nombre de contacts saisis JOUR 1 + JOUR 2'].values
+        np.savetxt('./output/degree.txt',np.ceil(degree[degree>0]/2),fmt='%d')
+        x = list(contatos.columns).index('jour2mois2')
+        contatos01 = contatos[contatos.columns[:x]]
+        contatos02 = contatos[contatos.columns[x:]]
+        contatos01 = generate_contatos(contatos01)
+        contatos02 = generate_contatos(contatos02)
+        data = participantes[[
+            "Age du sujet de l'enquête",
+            "Sexe du sujet de l'enquête",
+            'Nombre de personnes au foyer',
+            'situation professionnelle ',
+            "Dans quel secteur d'activité travaillez-vous"
+            ]
         ]
-    ]
-    data['id'] = data.index
-    colunas = ['Idade','Sexo','#Familiares','Profissão','Setor']
-    for i,j in zip(data.columns,colunas):
-        data = data.rename(columns={i:j})
-    data['#Contatos01'] = contatos['Nombre de contacts saisis JOUR 1']
-    data['#Contatos02'] = contatos['Nombre de contacts saisis JOUR 2']
-    data['Dia01'] = contatos['jour1mois1']
-    data['Dia02'] = contatos['jour2mois2']
-    pd.DataFrame.to_csv(data,'./output/participantes.csv')
-    return data,contatos01,contatos02
+        data['id'] = list(df.index)
+        colunas = ['Idade','Sexo','#Familiares','Profissão','Setor']
+        for i,j in zip(data.columns,colunas):
+            data = data.rename(columns={i:j})
+        data['#Contatos01'] = contatos['Nombre de contacts saisis JOUR 1']
+        data['#Contatos02'] = contatos['Nombre de contacts saisis JOUR 2']
+        data['Dia01'] = contatos['jour1mois1']
+        data['Dia02'] = contatos['jour2mois2']
+
+        faixas = [
+            [0,20],
+            [20,30],
+            [30,50],
+            [50,70],
+            [70,100000]
+        ]
+        data['Faixas'] = [check_faixa(i,faixas) for i in data['Idade'] ]
+        contatos01['faixas'] = [check_faixa(i,faixas) for i in contatos01['idade'] ]
+        contatos02['faixas'] = [check_faixa(i,faixas) for i in contatos02['idade'] ]
+
+        pd.DataFrame.to_csv(data,'./output/participantes.csv',index=False)
+        pd.DataFrame.to_csv(contatos01,f'./output/contatos_01.csv',index=False)
+        pd.DataFrame.to_csv(contatos02,f'./output/contatos_02.csv',index=False)
+        return data,contatos01,contatos02
+    else:
+        data = pd.read_csv('./output/participantes.csv')
+        contatos01 = pd.read_csv('./output/contatos_01.csv')
+        contatos02 = pd.read_csv('./output/contatos_02.csv')
+        return data,contatos01,contatos02
     
 
 def change_age(data):
@@ -348,3 +387,99 @@ def create_degree(data):
     degree02 = data['#Contatos02'].values
     np.savetxt('./dados/degree01.txt',degree01,fmt = "%d")
     np.savetxt('./dados/degree02.txt',degree02,fmt = "%d")
+
+def LM(x,y,axs,color = 'reds'):
+    X = x.reshape(-1,1)
+    regressor = LinearRegression()
+    regressor.fit(X, y)
+    coeficientes = regressor.coef_[0]
+    intercepto = regressor.intercept_
+
+    # Calcular o coeficiente de determinação (R²)
+    r2 = regressor.score(X, y)
+    if(axs != -1):
+        axs.plot(x,x*coeficientes + intercepto,c = color,label = 'R² :{:.3f}, {:.3f}x + {:.3f}'.format(r2,coeficientes,intercepto))
+    return coeficientes,intercepto,r2
+
+def degree_distribution(graus,faixas,tipo = 0):
+    c = ['red','blue','green','k','navy']
+    M = np.zeros((5,5))
+    A = np.zeros((5,5))
+    for i in range(5):
+        degree = graus[faixas == i,:].T
+        rang = np.arange(np.max(degree)+1)
+        fig, axs = plt.subplots(5,figsize=(8, 20))
+        k = 0
+        for deg,color in zip(degree,c):
+            hist = np.zeros(len(rang))
+            for j in deg:
+                hist[int(j)] += 1
+            hist = hist/np.sum(hist)
+            x = rang[hist > 0]
+            hist = hist[hist > 0]
+            
+            hist = hist[x<30]
+            x = x[x<30]
+            if(tipo == 1):
+                hist = hist[x > 2]
+                x = x[x > 2]
+                x = np.log(x)
+            hist = np.log(hist)
+            axs[k].scatter(x,hist,c = color)
+            M[i][k],A[i][k] = LM(x,hist,axs[k],color)
+            axs[k].grid()
+            k += 1
+        fig.suptitle(f"Faixa {int(i)+1}")
+        fig.legend()
+        plt.show()
+    return -M,A
+
+def filter_age(contacts,data,name):
+    age = np.array([contacts["cnt_age_exact"].values,contacts["part_id"]]).T
+    min = contacts["cnt_age_est_min"].values
+    max = contacts["cnt_age_est_max"].values
+    for i,j,k in zip(range(len(age)),min,max):
+        try:
+            age[i][0] = float(age[i][0])
+            if(math.isnan(float(age[i][0]))):
+                age[i][0] = (j+k)/2
+        except:
+            age[i][0] = -1
+    age = age[age[:,0] != -1]
+
+    ids = data["part_id"].values
+    mapeamento_ids = {}
+    for i in zip(ids,range(data.shape[0])):
+        mapeamento_ids[i[0]] = name+"_"+str(i[1])
+    
+    age = pd.DataFrame(data=age, columns=["Idade","part_id"])
+    age = pd.merge(age, data, on='part_id')
+    age['part_id'] = age['part_id'].replace(mapeamento_ids)
+    return age.values.tolist()
+
+def get_all_data():
+    dir = "./input/"
+    dir = [i for i in os.listdir(dir) if("." not in i)]
+    a = []
+    for j in dir:
+
+        files = os.listdir("./input/"+j+"/")
+        data = ["./input/"+j+"/"+i for i in files if( 'participant' in i)][0]
+        contacts = ["./input/"+j+"/"+i for i in files if( 'contact' in i)][0]
+        data = pd.read_csv(data,usecols = ["part_id","part_age"])
+        contacts = pd.read_csv(contacts,usecols = ["part_id","cnt_age_exact","cnt_age_est_min","cnt_age_est_max"])
+        a += filter_age(contacts,data,j)
+    a = pd.DataFrame(data=a, columns=["Contato_idade","id","Idade"])
+    a = a.dropna(subset=['Idade'])
+    return a
+
+def transform_faixa(a,coluna,quartis):
+    faixas = []
+    for i in a[coluna]:
+        for j in range(len(quartis)):
+            if(i<quartis[j]):
+                break
+        faixas.append(j-1)
+    faixas = np.array(faixas)
+    a[coluna+"Faixas"] = faixas
+    return a

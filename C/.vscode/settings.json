@@ -17,6 +17,7 @@
         "rede.h": "c",
         "calc.h": "c",
         "model.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "lcm.h": "c"
     }
 }

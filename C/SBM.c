@@ -29,8 +29,9 @@ int** get_lig(int N){
     return degree;
 }
 
-int* get_vetor(int N,char arquivo[]){
+int* get_vetor(char* arquivo){
     FILE* file;
+    int N = size_txt(arquivo);
     file = fopen(arquivo,"r");
     int* degree = (int*) malloc(sizeof(int)*N);
     for(int i = 0; i < N; i++) if(fscanf(file,"%d\n",&degree[i]));
@@ -53,23 +54,23 @@ double** get_probability(int N){
 struct Graph SBM_p(int N){
 
     struct Graph G;
+    char file[200] = "./dados/faixas.txt";
+    int* faixas = get_vetor("./dados/faixas.txt");
 
-    int* faixas = get_vetor(N,"./dados/faixas.txt");
     G.Nodes = N;
     G.viz = (int **)malloc(N*sizeof(int*));
-    for (int j = 0; j < N; j++){
-        G.viz[j] =(int*) malloc(1*sizeof(int));
-        G.viz[j][0] = 0;
-    }
+    int* sitio = (int *)malloc(N*sizeof(int));
+    int* degree = (int *)malloc(N*sizeof(int));
+    for (int j = 0; j < N; j++) G.viz[j] =(int*) calloc(1,sizeof(int));
     G.edges = 0;
 
     double **probability = get_probability(5);
+
     for (int i = 0; i < N; i++){
         int faixa1 = faixas[i];
         for (int j = i+1; j < N; j++){
-            double rand = genrand64_real2();
             int faixa2 = faixas[j];
-            if(rand <= probability[faixa1][faixa2]){
+            if(genrand64_real2() <= probability[faixa1][faixa2]){
                 G.viz[i][0]++;
                 G.viz[j][0]++;
                 G.viz[i] = (int*) realloc(G.viz[i],(G.viz[i][0]+1)*sizeof(int));
@@ -79,8 +80,27 @@ struct Graph SBM_p(int N){
                 G.edges += 1;
             }
         }
+        sitio[i] = i;
         
     }
+    for (int i = 0; i < G.Nodes; i++) degree[i] = G.viz[i][0];
+    FILE *ARQUIVO,*arquivo;
+    ARQUIVO = fopen("./output/degrees.txt","w");
+    arquivo = fopen("./output/faixas.txt","w");
+    sortIntByRef(sitio,degree,G.Nodes,sizeof(degree[0]));
+    for (int i = N-1; i >=0 ; i--){
+        int site = sitio[i];
+        int* faixa = (int *) calloc(5,sizeof(int));
+        if(G.viz[site][0] != 0) {
+            for (int j = 0; j < G.viz[site][0]; j++) faixa[faixas[G.viz[site][j+1]]]++;
+            fprintf(ARQUIVO,"%d\t%d\t%d\t%d\t%d\n",faixa[0],faixa[1],faixa[2],faixa[3],faixa[4]);
+            fprintf(arquivo,"%d\n",faixas[i]);
+        }
+        free(faixa);
+    }
+    fclose(ARQUIVO);
+    fclose(arquivo);
+    
     free(faixas);
     for (int i = 0; i < 5; i++) free(probability[i]);
     free(probability);
@@ -204,84 +224,75 @@ struct SBM increase_clustering(struct SBM SBM2,int* faixas,double p){
     return SBM2;   
 }
 
-struct SBM append_edges(struct SBM SBM2,int site,int vizinho){
-    SBM2.mat = (int**) realloc(SBM2.mat,(SBM2.G.edges+1)*sizeof(int*));
-    SBM2.mat[SBM2.G.edges] = (int*) malloc(2* sizeof(int));
-    SBM2.mat[SBM2.G.edges][0] = site;
-    SBM2.mat[SBM2.G.edges][1] = vizinho;
-    return SBM2;
+struct Graph append_neighbors(struct Graph G,int site,int vizinho){
+    G.viz[site][0]++;
+    G.viz[vizinho][0]++;
+    G.viz[site] = (int*) realloc(G.viz[site],(G.viz[site][0]+1)*sizeof(int));
+    G.viz[vizinho] = (int*) realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
+    G.viz[site][G.viz[site][0]] = vizinho;
+    G.viz[vizinho][G.viz[vizinho][0]] = site;
+    return G;
 }
 
-struct SBM append_neighbors(struct SBM SBM2,int site,int vizinho){
-    SBM2.G.viz[site][0]++;
-    SBM2.G.viz[vizinho][0]++;
-    SBM2.G.viz[site] = (int*) realloc(SBM2.G.viz[site],(SBM2.G.viz[site][0]+1)*sizeof(int));
-    SBM2.G.viz[vizinho] = (int*) realloc(SBM2.G.viz[vizinho],(SBM2.G.viz[vizinho][0]+1)*sizeof(int));
-    SBM2.G.viz[site][SBM2.G.viz[site][0]] = vizinho;
-    SBM2.G.viz[vizinho][SBM2.G.viz[vizinho][0]] = site;
-    return SBM2;
-}
-
-struct SBM miguel_clustering(struct SBM SBM2,int* faixas,int site, int vizinho,double p){
-    if(SBM2.G.viz[site][0] > 1){
-        for (int i = 1; i <= SBM2.G.viz[site][0]; i++){
-            int outro = SBM2.G.viz[site][i];
+struct Graph miguel_clustering(struct Graph G,int* faixas,int** ligacoes,int site, int vizinho,double p){
+    if(G.viz[site][0] > 1){
+        for (int i = 1; i <= G.viz[site][0]; i++){
+            int outro = G.viz[site][i];
             int faixa1 = faixas[outro];
             int faixa2 = faixas[vizinho];
             int maior = maior_entre(faixa1,faixa2);
             int menor = menor_entre(faixa1,faixa2);
-            int rep = check_existence(SBM2.mat,SBM2.G.edges,outro,vizinho);
-            if((rep == 0) && (SBM2.ligacoes[menor][maior]>= 1) && (outro!=vizinho) && (genrand64_real1() <= p)){
-                SBM2 = append_edges(SBM2,outro,vizinho);
-                SBM2 = append_neighbors(SBM2,outro,vizinho);
-                SBM2.G.edges += 1;
-                if(SBM2.ligacoes[menor][maior] >=1)SBM2.ligacoes[menor][maior] -= 1;
+            int rep = 0;
+            for(int k = 0; k < G.viz[site][0];k++) if(G.viz[site][k+1] == outro) {rep = 1;break;}
+            if((rep == 0) && (ligacoes[menor][maior]>= 1) && (outro!=vizinho) && (genrand64_real1() <= p)){
+                G = append_neighbors(G,outro,vizinho);
+                G.edges += 1;
+                if(ligacoes[menor][maior] >=1)ligacoes[menor][maior] -= 1;
             }
 
         }
         
     }
-    return SBM2;
+    return G;
 }
 
-struct Graph SBM_edges(int N,int seed,double p){
-    struct SBM SBM2;
-    int *faixas = get_vetor(N,"./dados/faixas.txt");
-    SBM2.G.Nodes = N;
-    SBM2.G.viz = (int **)malloc(N*sizeof(int*));
-    for (int j = 0; j < N; j++){
-        SBM2.G.viz[j] =(int*) malloc(1*sizeof(int));
-        SBM2.G.viz[j][0] = 0;
-    }
-    SBM2.mat = (int **)malloc(0*sizeof(int*));
-    SBM2.G.edges = 0;
+/*struct Graph SBM_edges(int N,int seed,double p){
 
-    SBM2.ligacoes = get_lig(5);
+    char file[200] = "./dados/faixas.txt";
+    int *faixas = get_vetor("./dados/faixas.txt");
+    struct Graph G;
+
+    G.Nodes = N;
+    G.viz = (int **)malloc(N*sizeof(int*));
+    for (int j = 0; j < N; j++) G.viz[j] =(int*) calloc(1,sizeof(int));
+    G.edges = 0;
+
+    int** ligacoes = get_lig(5);
    
     int edges = 0;
-    for(int i = 0;i < 5; i++) for(int j = 0; j < 5; j++)  edges += SBM2.ligacoes[i][j];
+    for(int i = 0;i < 5; i++) for(int j = 0; j < 5; j++)  edges += ligacoes[i][j];
     init_genrand64(seed);
     int repeat = 0;
-    while(SBM2.G.edges != edges){
+    while(G.edges != edges){
 
-        int i = genrand64_real1()*SBM2.G.Nodes;
-        int j = genrand64_real1()*SBM2.G.Nodes;
-        int rep = check_existence(SBM2.mat,SBM2.G.edges,i,j);
+        int i = genrand64_real1()*G.Nodes;
+        int j = genrand64_real1()*G.Nodes;
+        int rep = 0;
+        for(int k = 0; k < G.viz[i][0];k++) if(G.viz[i][k+1] == j) {rep = 1;break;}
         int faixa1 = faixas[i];
         int faixa2 = faixas[j];
         int maior = maior_entre(faixa1,faixa2);
         int menor = menor_entre(faixa1,faixa2);
 
-        if((rep == 0) && (SBM2.ligacoes[menor][maior]>= 1) && (i!=j)){
+        if((rep == 0) && (ligacoes[menor][maior]>= 1) && (i!=j)){
 
-            SBM2 = append_edges(SBM2,i,j);
-            SBM2 = append_neighbors(SBM2,i,j);
-            SBM2.G.edges += 1;
-            if(SBM2.ligacoes[menor][maior] >=1)SBM2.ligacoes[menor][maior] -= 1;
+            G = append_neighbors(G,i,j);
+            G.edges += 1;
+            if(ligacoes[menor][maior] >=1)ligacoes[menor][maior] -= 1;
             repeat = 0;
 
-            if(p > 0) SBM2 = miguel_clustering(SBM2,faixas,i,j,p);
-            if(p > 0) SBM2 = miguel_clustering(SBM2,faixas,j,i,p);
+            //if(p > 0) SBM2 = miguel_clustering(SBM2,faixas,i,j,p);
+            //if(p > 0) SBM2 = miguel_clustering(SBM2,faixas,j,i,p);
 
         }
         else{
@@ -295,8 +306,8 @@ struct Graph SBM_edges(int N,int seed,double p){
         file = fopen("./output/SBM/faixas_SBM.txt","w");
         int* Nodes_faixa = (int*) malloc(5*sizeof(int));
         for(int j = 0; j < 5; j++) Nodes_faixa[j] = 0;
-        for(int j = 0; j < SBM2.G.Nodes; j++){
-            for (int k = 1; k <= SBM2.G.viz[j][0];k++) Nodes_faixa[faixas[SBM2.G.viz[j][k]]]++;
+        for(int j = 0; j < G.Nodes; j++){
+            for (int k = 1; k <= G.viz[j][0];k++) Nodes_faixa[faixas[G.viz[j][k]]]++;
             
             fprintf(file,"%d\t%d\t%d\t%d\t%d\n",Nodes_faixa[0],Nodes_faixa[1],Nodes_faixa[2],Nodes_faixa[3],Nodes_faixa[4]);
             for(int k = 0; k < 5; k++) Nodes_faixa[k] = 0;
@@ -304,34 +315,29 @@ struct Graph SBM_edges(int N,int seed,double p){
         fclose(file);
     }
     free(faixas);
-    for (int i = 0; i < 5; i++) free(SBM2.ligacoes[i]);
-    for (int i = 0; i < SBM2.G.edges; i++) free(SBM2.mat[i]);
-    free(SBM2.ligacoes);
-    free(SBM2.mat);
-    return SBM2.G;
-}
+    for (int i = 0; i < 5; i++) free(ligacoes[i]);
+    free(ligacoes);
+    return G;
+}*/
 
 void generate_SBM_p_model(int T,int model,double p){
-
-    int N = size_txt();
-    
+    char file[200] = "./dados/degree.txt";
+    int N = size_txt(file);
     double** resultados = (double **)malloc(T*sizeof(double*));
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int i = 0; i < T; i++){
 
         //if(T!=1) printf("\e[1;1H\e[2J");
         struct Graph G;
         if(model == 1) G = SBM_p(N);
-        if(model == 2) G = SBM_edges(N,i,p);
+        //if(model == 2) G = SBM_edges(N,i,p);
         resultados[i] = (double*) malloc(7*sizeof(double));
 
         result(G,resultados[i]);
-        printf("%d\n",i+1);
-        
         for(int j = 0; j < N; j++)free(G.viz[j]);
         free(G.viz);
     }
-    //if(model == 1)generate_resultados(resultados,T,"SBM_p");
-    if(model == 2)generate_resultados(resultados,T,"SBM_edges_miguel_clustering");
+    generate_resultados(resultados,T,"SBM_p");
+    //if(model == 2)generate_resultados(resultados,T,"SBM_edges_miguel_clustering");
 
 }

@@ -3,6 +3,7 @@
 #include "mtwister.h"
 #include <string.h>
 #include <math.h>
+
 #define M_PI 3.14159265358979323846
 
 double media(double* x,int N){
@@ -71,9 +72,21 @@ int* randomize (int* array, int n,int seed){
     return array;
 }
 
+int geometry(double lambda){
+    double n = -1*(1/lambda)*log(genrand64_real1()/(1 - exp(-lambda)));
+    if(n <0) return geometry(lambda);
+    return (int) n;
+}
+
+int potentia(double lambda,double A){
+    double n = pow(A/genrand64_real1(),1/lambda);
+    if((int)n <0) return potentia(lambda,A);
+    return (int) n;
+}
+
 void print_vetor(int* array,int N){
     for (int i = 0; i < N; i++){
-        if(i!=N-1) printf("%d\t",array[i]);
+        if(i!=N-1) printf("%d ",array[i]);
         else printf("%d\n",array[i]);
     }
 }
@@ -180,9 +193,9 @@ int** get_degree2(int N){
     return degree;
 }
 
-int* get_faixas(int N){
+int* get_faixas(int N,char* str){
     FILE* file;
-    file = fopen("./output/SBM/site_faixas_SBM.txt","r");
+    file = fopen(str,"r");
     int* faixas = (int*) malloc(sizeof(int)*N);
 
     for(int i = 0; i < N; i++) if(fscanf(file,"%d\n",&faixas[i]));
@@ -190,20 +203,18 @@ int* get_faixas(int N){
     return faixas;
 }
 
-int size_txt(){
+int size_txt(char *str){
     FILE* f;
     int L = 0;
     char c;
-    f = fopen("./dados/degree.txt","r");
+    f = fopen(str,"r");
     for (c = getc(f); c != EOF; c = getc(f)) if (c == '\n') L = L + 1;
     return L+1;
 }
 
 void print_matrix(int** mat,int N,int n){
-    for (int i = 0; i < N; i++){
-        for (int j= 0; j < n; j++) printf("%d,",mat[i][j]);
-        printf("\n");
-    }
+    printf("========================================================\n");
+    for (int i = 0; i < N; i++) print_vetor(mat[i],n);
     printf("========================================================\n");
 }
 
@@ -269,7 +280,7 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
     r22 = pow(r22/T - pow(r2/T,2),0.5);
     diametro2 = pow(diametro2/T - pow(diametro/T,2),0.5);
 
-    //printf("%f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",p,media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
+    printf("%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\n",media/T,median/T,std/T,as/T,r2/T,l/T,diametro/T);
     /*FILE* file;
 
     char destination[100] = "./output/resultados_";
@@ -291,4 +302,81 @@ double exponentialRand(double lambda) {
 double normalRand(double mean, double stdDev) {
     double z = sqrt(-2 * log(genrand64_real1())) * cos(2 * M_PI * genrand64_real1());
     return mean + stdDev * z;
+}
+int partition(int *arr, int low, int high) {
+    int pivot = arr[high];
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] > pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[high]);
+    return (i + 1);
+}
+
+void quickSort(int *arr, int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+void generate_file(char* filename,void* array,int linhas,int colunas,int check){
+
+    FILE *file;
+    file = fopen(filename,"w");
+    for (int i = 0; i < linhas; i++){
+        char print[100] = "";
+        for(int j = 0;j<colunas;j++){
+            switch (check){
+                case sizeof(int)/* constant-expression */:
+                    if(j != colunas-1) sprintf(print,"%s%d ",print,((int**)array)[i][j]);
+                    else  sprintf(print,"%s%d\n",print,((int**)array)[i][j]);
+                    break;
+                case sizeof(double):
+                    if(j != colunas-1) sprintf(print,"%s%f ",print,((double**)array)[i][j]);
+                    else  sprintf(print,"%s%f\n",print,((double**)array)[i][j]);
+                    break;
+                default:
+                    break;
+                }
+        }
+        fprintf(file,"%s",print);
+    }
+    fclose(file);
+}
+
+double* load_file(char* filename,int linhas){
+
+    FILE *file;
+    file = fopen(filename,"r");
+    double* array = (double*) malloc(linhas*sizeof(double));
+    for (int i = 0; i < linhas; i++) fscanf(file,"%lf\n",&array[i]);
+    fclose(file);
+    return array;
+}
+
+void generate_multinomial(int n, int k, double *probabilities, int *outcomes) {
+    double remaining_prob = 1.0;
+    int i,j;
+
+    // Gera os k-1 primeiros valores
+    for (i = n; i > 0; i-- ) {
+        double r = genrand64_real1();
+        for(j = 0; j < k; j++) if(r < probabilities[j]) break;
+        outcomes[j]++;
+    }
+
+    // O último valor é determinado pelo resto
+}
+
+int generalized_geometry(double lambda,double A){
+    double n = -1*(1/lambda)*log(genrand64_real1()/A);
+    if(n <0) return generalized_geometry(lambda,A);
+    return (int) n;
 }

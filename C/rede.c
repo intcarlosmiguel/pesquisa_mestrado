@@ -118,26 +118,26 @@ int* find_largest_cluster(struct Graph G,int* big){
     return resultado2;
 }
 
-double shortest_length(int** viz,int N,int site,int* diametro){
+double shortest_length(struct Graph G,int site,int* diametro){
 
     double l = 0;
     int tam = 1;
-    int infinity = N+2;
+    int infinity = G.Nodes+2;
     int* lista = (int*) malloc(1*sizeof(int));
-    int* distance = (int*) malloc(N*sizeof(int));
+    int* distance = (int*) malloc(G.Nodes*sizeof(int));
     int current = 0;
 
-    for (int i = 0; i < N; i++) distance[i] = infinity;
+    for (int i = 0; i < G.Nodes; i++) distance[i] = infinity;
     lista[0] = site;
     distance[site] = 0;
     *diametro = 0;
-    if(viz[site][0] == 0) return 0;
-    while ((current<tam) && (tam != N)){
+    if(G.viz[site][0] == 0) return 0;
+    while ((current<tam) && (tam != G.Nodes)){
 
         int sitio = lista[current];
-        int vizinhos = viz[sitio][0];
+        int vizinhos = G.viz[sitio][0];
         for(int j = 1; j<=vizinhos;j++){
-            int vizinho = viz[sitio][j];
+            int vizinho = G.viz[sitio][j];
             if((distance[vizinho]>distance[sitio]+1)){
                 distance[vizinho] = distance[sitio]+1;
                 tam++;
@@ -148,19 +148,22 @@ double shortest_length(int** viz,int N,int site,int* diametro){
         }
         current++;
     }
-    for (int i = 0; i < N; i++) if(distance[i] != infinity) l += distance[i];
+    //printf("=======================\n");
+    
+    for (int i = 0; i < G.Nodes; i++)if(distance[i] != infinity) l += distance[i];
     free(distance);
     free(lista);
+    //print_vetor(distance,tam);
     return (double) l/(tam-1);
 }
 
 double av_path_length(struct Graph G,int* diametro){
     double l = 0;
-    int big = 0;
-    int* sites = find_largest_cluster(G,&big);
-    for(int i = 0; i < big; i++) l += shortest_length(G.viz,G.Nodes,sites[i],diametro);
-    free(sites);
-    return l/big;
+    //int big = 0;
+    //int* sites = find_largest_cluster(G,&big);
+    for(int i = 0; i < G.Nodes; i++) l += shortest_length(G,i,diametro);
+    //free(sites);
+    return l/G.Nodes;
 }
 
 void degree_distribution(struct Graph G,double* media1,double* median1,double* std1){
@@ -204,10 +207,10 @@ void result(struct Graph G,double* resultados){
 }
  void create_network(struct Graph G,double p){
     char arquivo[100];
-    sprintf(arquivo, "./output/degree_%.2f_CM.txt", p);
+    sprintf(arquivo, "./rede.txt");
     FILE* file;
     file = fopen(arquivo,"w");
-    for (int i = 0; i < G.Nodes; i++) fprintf(file,"%d\n",G.viz[i][0]);
+    for (int i = 0; i < G.Nodes; i++) for (int j = 0; j < G.viz[i][0]; j++) fprintf(file,"%d %d\n",i,G.viz[i][j+1]);
     
     fclose(file);
 } 
