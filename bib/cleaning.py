@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 import os
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 def generate_contatos(contatos):
@@ -483,3 +484,40 @@ def transform_faixa(a,coluna,quartis):
     faixas = np.array(faixas)
     a[coluna+"Faixas"] = faixas
     return a
+
+def generate_distribution_byfaixas(contagem,faixas):
+    graus = np.sum(contagem,axis = 1)
+    A = []
+    B = contagem/(np.sum(contagem,axis = 1)[:, np.newaxis])
+    B = [np.mean(B[faixas == i,:],axis = 0) for i in range(5)]
+    C = []
+    for faixa in range(5):
+        g = graus[faixas == faixa]
+        x = np.arange(np.max(g)+1)
+        x,y = np.unique(g,return_counts=True)
+        y = y/np.sum(y)
+
+
+        y =y[x>2]
+        x = x[x>2]
+        r = 0
+        max_ = 0
+        for max in range(100,30,-1):
+            teste_y =y[x<max]
+            teste_x = x[x<max]
+            alpha, beta,r2 = LM(teste_x,np.log(teste_y),-1)
+            if(r2 > r):
+                r = r2
+                max_ = max
+        y =y[x<max_]
+        x = x[x<max_]
+        alpha, beta,r2 = LM(x,np.log(y),-1)
+        C.append(beta)
+        A.append(alpha)
+        plt.scatter(x,np.log(y))
+        plt.plot(x,x*alpha + beta,c = 'red',label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,alpha,beta))
+        plt.title(f"Faixa {faixa+1}")
+        plt.grid()
+        plt.legend()
+        plt.show()
+    return A,B,C
