@@ -23,7 +23,7 @@ struct CM{
 
 int* get_degree(int N){
     FILE* file;
-    file = fopen("./dados/degree.txt","r");
+    file = fopen("./dados/graus.txt","r");
     int* degree = (int*) malloc(sizeof(int)*N);
     for(int i = 0; i < N; i++) if(fscanf(file,"%d\n",&degree[i]));
     fclose(file);
@@ -199,7 +199,16 @@ struct Graph add_edge(struct Graph G,int* degree,int* shuff, int n,int site,doub
 struct Graph configuration_model(int N, double p,int seed){
 
     struct Graph G;
-    int* degree = get_degree(N);
+    char filename[200];
+
+    sprintf(filename,"./dados/graus.txt");
+    int* degree = (int*) calloc(N,sizeof(int));
+    load_file(filename,degree,sizeof(degree[0]));
+
+    sprintf(filename,"./dados/faixas_test.txt");
+    int* faixa = (int*) calloc(N,sizeof(int));
+    load_file(filename,faixa,sizeof(faixa[0]));
+
     G.Nodes = N;
     G.viz = (int **)malloc(N*sizeof(int*));
     for (int j = 0; j < N; j++){ 
@@ -209,12 +218,10 @@ struct Graph configuration_model(int N, double p,int seed){
     G.edges = 0;
     //existir = 0;
     //n_existir = (int **)malloc(0* sizeof(int*));
-
+    bubbleSort_by(faixa, degree, N);
     init_genrand64(seed);
-    degree = bubble_sort(degree,N);
+    //degree = bubble_sort(degree,N);
     int *shuff = (int*) malloc(N*sizeof(int));
-    //print_vetor(degree,G.Nodes);
-    //printf("Erro 1\n");
     for (int i = 0; i < N; i++){
         //shuff = realloc(shuff,N*sizeof(int));
         for (int j = 0; j < N; j++) shuff[j] = j;
@@ -223,18 +230,22 @@ struct Graph configuration_model(int N, double p,int seed){
         shuff = randomize(shuff,N-1,seed+i);
         G = add_edge(G,degree,shuff,N-1,i,p);
     }
-
+    int x = 0;
+    for (int i = 0; i < G.Nodes; i++) x += degree[i];
+    //printf("%d\n",x);
+    for (int i = 0; i < G.Nodes; i++) for (int j = 0; j < G.viz[i][0]; j++) printf("%d\t%d\n",i, G.viz[i][j+1]);
+    //for (int i = 0; i < G.Nodes; i++) printf("%d\n",faixa[i]);
+    
     //create_network(G,0.0);
     //for(int i = 0; i < existir; i++)free(n_existir[i]);
     //free(n_existir);
     free(shuff);
     free(degree);
-    //printf("Erro\n");
     return G;
 }
 
 void generate_configuration_model(double p, int T){
-    char file[200] = "./dados/degree.txt";
+    char file[200] = "./dados/graus.txt";
     int N = size_txt(file);
     
     double** resultados = (double **)malloc(T*sizeof(double*));
@@ -244,14 +255,14 @@ void generate_configuration_model(double p, int T){
         //if(T!=1) printf("\e[1;1H\e[2J");
         struct Graph G;
         G = configuration_model(N,p,i);
-        resultados[i] = (double*) malloc(7*sizeof(double));
-        result(G,resultados[i]);
+        //resultados[i] = (double*) malloc(7*sizeof(double));
+        //result(G,resultados[i]);
         
         for(int j = 0; j < N; j++)free(G.viz[j]);
         
         free(G.viz);
-        printf("Rodou: %d\n",i+1);
+        //printf("Rodou: %d\n",i+1);
     }
-    generate_resultados(resultados,T,"CM");
+    //generate_resultados(resultados,T,"CM");
 
 }

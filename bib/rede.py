@@ -74,45 +74,78 @@ def visualize(degree,T):
         metrics[i] = ['{0:.3g}'.format(i) for i in metrics[i]]
     for metrica,probabilidade in zip(metrics,p):
         print(probabilidade,*metrica, sep = "\t")
+
+def adapted_configuration_model(degree,seed,faixas,preference):
     
+    deg = list(degree.copy())
+    np.random.seed(seed)
+    #deg.sort()
+    #deg = np.array(deg[::-1])
+
+    G = nx.Graph()
+    for i in range(len(deg)):
+        p_ = preference[faixas[i]]
+        shuff = []
+        s = np.arange(len(deg))
+        for faixa in p_:
+            lista_idade = s[faixas == faixa]
+            np.random.shuffle(lista_idade)
+            shuff += list(lista_idade)
+        shuff = np.array(shuff)
+        shuff = shuff[shuff!=i]
+        #np.random.shuffle(shuff)
+        #print(f"{i}/{len(deg)}")
+        for j in shuff:
+            if(deg[i] == 0):
+                break
+            if((deg[j] == 0) or G.has_edge(i, j)):
+                continue
+            deg[i] -= 1
+            deg[j] -= 1
+            G.add_edge(i,j)
+
+    #print(np.arange(len(deg))[deg>0])
+    
+
+    return G
+
 def configuration_model(degree,seed,number,p = 0):
     
     deg = list(degree.copy())
     np.random.seed(seed)
     A = []
 
-    deg.sort()
-    deg = np.array(deg[::-1])
-    vizinhos = {i:[] for i in range(len(deg))}
+    #deg.sort()
+    #deg = np.array(deg[::-1])
     n_existir = []
     clear_output(wait=True)
-    
+    G = nx.Graph()
     for i in range(len(deg)):
+        print(f"{i}/{len(deg)}")
         shuff = np.arange(len(deg))
+        shuff = shuff[deg != 0]
         shuff = shuff[shuff != i]
         np.random.shuffle(shuff)
-
+        #print(f"{i}/{len(deg)}")
         for j in shuff:
             if(deg[i] == 0):
-                A,deg,vizinhos,n_existir = conf_model_p(A,deg,p,vizinhos,i,n_existir)
                 break
             if((deg[j] == 0) or ((i,j) in A) or ((j,i) in A)):
                 continue
-
             A.append((i,j))
             deg[i] -= 1
             deg[j] -= 1
+            G.add_edge(i,j)
+            G.add_edge(j,i)
 
-            vizinhos[i].append(j)
-            vizinhos[j].append(i)
     #print(np.arange(len(deg))[deg>0])
-    G = nx.Graph()
-    for i in A:
-        G.add_edge(i[0],i[1])
+    
+
+    return G
     if(not nx.is_connected(G)):
         largest_cc = max(nx.connected_components(G), key=len)
         print('Errou!')
-    print(number+1,p)
+    print(f"{np.sum(deg)}")
     return calculate(G)
 
 def ER(degree,T):

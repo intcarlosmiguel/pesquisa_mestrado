@@ -12,7 +12,7 @@
 #include "rede.h"
 #include "CM.h"
 #include "SBM.h"
-
+int teste = 0;
 struct Graph{
     int **viz;
     int Nodes;
@@ -25,6 +25,17 @@ struct LCM{
     int *faixa;
     struct Graph G;
 };
+struct Retorno{
+    int* faixa;
+    int** degree;
+};
+
+double distance(double* point1,double* point2,int N){
+    double distance2 = 0;
+    for (int i = 0; i < N; i++) distance2 += pow(point1[i] - point2[i],2);
+    distance2 = sqrt(distance2);
+    return distance2;
+}
 
 double** double_get_array(int N,char* ptr){
     FILE* file;
@@ -50,6 +61,12 @@ int** get_array(int N,char* ptr){
     }
     fclose(file);
     return degree;
+}
+
+int vetor_soma(int* array, int L){
+    int soma = 0;
+    for (int i = 0; i < L; i++) soma += array[i];
+    return soma;
 }
 
 int somatorio(int** array,int elemento,int N){
@@ -79,6 +96,22 @@ int** M_bubbleSort(int **matriz, int linhas, int colunas) {
         }
     }
     return matriz;
+}
+
+double** distribution_faixas(){
+    double** distribution = (double**) malloc(5*sizeof(double*));
+    char filename[200];
+    FILE *file;
+    int N;
+    for (int i = 0; i < 5; i++){
+        sprintf(filename,"./dados/distribution_%d.txt",i);
+        file = fopen(filename,"r");
+        N = size_txt(filename);
+        distribution[i] = (double*) calloc(N,sizeof(double));
+        for (int j = 0; j < N; j++) if(fscanf(file, "%lf\n", &distribution[i][j]));
+        fclose(file);
+    }
+    return distribution;
 }
 
 
@@ -182,32 +215,24 @@ struct Graph local_add_edge(struct Graph G,int** degree,int* faixa,int* shuff, i
     return G;
 }
 
-struct Graph local_configuration_model(int N, double p,int seed,int rede){
-    struct Graph G;
-    G.Nodes = N;
-    G.viz = (int **)malloc(N*sizeof(int*));
-    for (int j = 0; j < N; j++){ 
-        G.viz[j] =(int*) malloc(1*sizeof(int));
-        G.viz[j][0] = 0;
-    }
-    G.edges = 0;
-    //existir = 0;
-    //if(p > 0)n_existir = (int **)malloc(0* sizeof(int*));
-    int** degree;
-    int* faixa;
-    if(rede == 0){
+struct Retorno generate_degree(int N,int seed,int check){
+    struct Retorno Return;/*
+    if(check == 0){
         char file_name[200] = "./output/teste.txt";
         degree = get_array(N,file_name);
         char sfile_name[200] = "./output/teste0.txt";
         faixa = get_faixas(N,sfile_name);
     }
-    if(rede == 1){
+    if(check == 1){
+
         char file_name[200] = "./dados/geometry.txt";
         double** probability = double_get_array(5,file_name);
         char file_names[200] = "./dados/constant.txt";
         double** constant = double_get_array(5,file_names);
+
         degree = (int**) malloc(N*sizeof(int*));
         double* p_faixas = malloc(5*sizeof(double));
+        int* grau = (int*) malloc(N*sizeof(int));
         int i = 0,j = 0;
         double r;
 
@@ -232,41 +257,61 @@ struct Graph local_configuration_model(int N, double p,int seed,int rede){
         for (i = 0; i < N; i++){
             degree[i] = (int*) calloc(5,sizeof(int));
             //while(somatorio(degree,i,5) == 0) for (j = 0; j < 5; j++) degree[i][j] = geometry(probability[faixa[i]][j]);
-            while(somatorio(degree,i,5) == 0) for (j = 0; j < 5; j++) degree[i][j] = potentia(probability[faixa[i]][j],constant[faixa[i]][j]);
-            x += somatorio(degree,i,5);
+            //while(somatorio(degree,i,5) == 0) for (j = 0; j < 5; j++) degree[i][j] = potentia(probability[faixa[i]][j],constant[faixa[i]][j]);
+            grau[i] = somatorio(degree,i,5);
+            x += grau[i];
         }
         degree = M_bubbleSort(degree,N,5);
         printf("%f\n",x/N);
+        bubbleSort_by(faixa, grau, N);
     }
-    else{
+    */if(check == 2){
+
         char file_name[200] = "./dados/lambda.txt";
-        double* probability = load_file(file_name,5);
+        double* probability = (double*) calloc(5,sizeof(double));
+        load_file(file_name,probability,sizeof(probability[0]));
         char file_names[200] = "./dados/multi_probability.txt";
         double** constant = double_get_array(5,file_names);
+        double** distrbution = distribution_faixas();
+
+        int** m_grau = malloc(5*sizeof(int*));
+        int* n_faixa = calloc(5,sizeof(int));
+        double* media_grau = calloc(5,sizeof(double));
+
+        
         //char file_namess[200] = "./dados/multi_constant.txt";
         //double* A = load_file(file_namess,5);
 
-        degree = (int**) malloc(N*sizeof(int*));
+        Return.degree = (int**) malloc(N*sizeof(int*));
+        int* grau = (int*) malloc(N*sizeof(int));
         double* p_faixas = malloc(5*sizeof(double));
         int i = 0,j = 0;
         double r;
 
-        p_faixas[0] = 0.28215076;
-        p_faixas[1] = 0.11551187;
-        p_faixas[2] = 0.32406636;
-        p_faixas[3] = 0.2107681;
-        p_faixas[4] = 0.06750292;
-        printf("%f\n",constant[0][0]);
+        p_faixas[0] = 0.34393182;
+        p_faixas[1] =  0.14065873;
+        p_faixas[2] = 0.31957894;
+        p_faixas[3] = 0.15781574;
+        p_faixas[4] = 0.03801476;
         for ( j = 0; j < 5; j++) for (i = 1; i < 5; i++) constant[j][i] += constant[j][i-1];
         for (i = 1; i < 5; i++)p_faixas[i] += p_faixas[i-1];
+        for (i = 0; i < 5; i++) m_grau[i] = (int*) calloc(5,sizeof(int));
         
 
-        faixa = calloc(N,sizeof(int));
+        Return.faixa = calloc(N,sizeof(int));
 
         for (i = 0; i < N; i++){
+            j = 0;
             r = genrand64_real1();
-            for (j = 0; j < 5; j++) if(r < p_faixas[j]) break;
-            faixa[i] = j;
+            while(r > p_faixas[j]) j++;
+            n_faixa[j]++;
+        }
+        //for (i = 0; i < 4; i++) n_faixa[i+1] += n_faixa[i]; 
+        j = 0;
+        int s = n_faixa[0];
+        for (i = 0; i < N; i++){
+            if(i==s) {j++;s+= n_faixa[j];}
+            Return.faixa[i] = j;
         }
         free(p_faixas);
         int k =0;
@@ -274,22 +319,110 @@ struct Graph local_configuration_model(int N, double p,int seed,int rede){
         for (i = 0; i < N; i++){
             k = 0;
             init_genrand64(seed+i);
-            degree[i] = (int*) calloc(5,sizeof(int));
-            while(k == 0)k = geometry(probability[faixa[i]]);
+            Return.degree[i] = (int*) calloc(5,sizeof(int));
+            //while(k == 0)k = geometry(probability[Return.faixa[i]]);
+            while(k == 0)k = empiric_distribution(distrbution[Return.faixa[i]]);
+            grau[i] = k;
             //while(k == 0)k = generalized_geometry(probability[faixa[i]],A[faixa[i]]);
-            generate_multinomial(k, 5, constant[faixa[i]], degree[i]);
+            generate_multinomial(k, 5, constant[Return.faixa[i]], Return.degree[i]);
             x += k;
+            media_grau[Return.faixa[i]] += k;
+            for(j = 0;j < 5;j++) m_grau[Return.faixa[i]][j] += Return.degree[i][j];
         }
-        printf("%f\n",x/N);
-        degree = M_bubbleSort(degree,N,5);
+        print_matrix(m_grau,5,5);
+        printf("Grau médio: %f\n",x/N);
+        Return.degree = M_bubbleSort(Return.degree,N,5);
+        //print_vetor(Return.faixa,N,sizeof(int));
+        bubbleSort_by(Return.faixa, grau, N);
+        //print_matrix(Return.degree,N,5);
+        //print_vetor(Return.faixa,N,sizeof(int));
+        for(i = 0;i < 5;i++){
+            media_grau[i] /= n_faixa[i];
+            free(constant[i]);
+            free(distrbution[i]);
+        }
+        print_vetor(media_grau,5,sizeof(double));
+
+        free(constant);
+        free(distrbution);
+        free(media_grau);
+        free(n_faixa);
+        free(grau);
     }
+    if(check == 3){
+        int i,j;
+        char file_name[200] = "./dados/distribution.txt";
+        int tamanho = size_txt(file_name);
+        double* probability = (double*) calloc(tamanho,sizeof(double));
+        load_file(file_name,probability,sizeof(double));
+        
+        double* p_faixas = malloc(5*sizeof(double));
+        Return.degree = (int**) malloc(N*sizeof(int*));
+
+        char file_names[200] = "./dados/multi_probability.txt";
+        double** constant = double_get_array(5,file_names);
+        p_faixas[0] = 0.34393182;
+        p_faixas[1] =  0.14065873;
+        p_faixas[2] = 0.31957894;
+        p_faixas[3] = 0.15781574;
+        p_faixas[4] = 0.03801476;
+
+        for (i = 1; i < 5; i++)p_faixas[i] += p_faixas[i-1];
+        Return.faixa = calloc(N,sizeof(int));
+        for (i = 0; i < N; i++){
+            init_genrand64(seed);
+            double r = genrand64_real1();
+            for (j = 0; j < 5; j++) if(r < p_faixas[j]) break;
+            Return.faixa[i] = j;
+            seed++;
+        }
+        free(p_faixas);
+        double x = 0;
+        for (i = 0; i < N; i++){
+            int k = 0;
+            init_genrand64(seed);
+            Return.degree[i] = (int*) calloc(5,sizeof(int));
+            //if(rede == 2) while(k == 0)k = geometry(probability[faixa[i]]);
+            //while(k == 0)k = empiric_distribution(probability);
+            generate_multinomial(k, 5, constant[Return.faixa[i]], Return.degree[i]);
+            x += k;
+            seed++;
+        }
+        printf("Grau médio: %f\n",x/N);
+    }
+    return Return;
+}
+
+struct Graph local_configuration_model(int N, double p,int seed,int rede){
+
+    struct Graph G;
+    G.Nodes = N;
+    G.viz = (int **)malloc(N*sizeof(int*));
+
+    for (int j = 0; j < N; j++){ 
+        G.viz[j] =(int*) malloc(1*sizeof(int));
+        G.viz[j][0] = 0;
+    }
+    int* n_faixa = calloc(5,sizeof(int));
+    double* media_grau = calloc(5,sizeof(double));
+
+    G.edges = 0;
+    //existir = 0;
+    //if(p > 0)n_existir = (int **)malloc(0* sizeof(int*));
+
+    int** degree;
+    int* faixa;
+    struct Retorno Return = generate_degree(N,seed,2);
+    faixa = Return.faixa;
+    degree = Return.degree;
+    //print_matrix(Return.degree,N,5);
+    
     //print_vetor(faixa,G.Nodes);
     int *shuff = (int*) malloc(N*sizeof(int));
     int i = 0,j = 0;
     int total = 0;
     for (i = 0; i < G.Nodes; i++)  total += somatorio(degree,i,5);
     for (i = 0; i < N; i++){
-        
         for (j = 0; j < N; j++) shuff[j] = j;
         swap(&shuff[i],&shuff[N-1]);
         shuff = randomize(shuff,N-1,seed+i);
@@ -297,6 +430,16 @@ struct Graph local_configuration_model(int N, double p,int seed,int rede){
         G = local_add_edge(G,degree,faixa,shuff,N-1,i,p);
     }
     //print_matrix(degree,N,5);
+    double k_medio = 0;
+    for ( i = 0; i < G.Nodes; i++){
+        k_medio += G.viz[i][0];
+        media_grau[faixa[i]] += G.viz[i][0];
+        n_faixa[faixa[i]]++;
+    }
+    for ( i = 0; i < 5; i++)media_grau[i] /= n_faixa[i];
+    printf("\n%f\n",k_medio/G.Nodes);
+    print_vetor(media_grau,5,sizeof(double));
+
     if(seed != 0){
         FILE *arquivo;
         arquivo = fopen("./dados/faixas_finais.txt","w");
@@ -305,20 +448,152 @@ struct Graph local_configuration_model(int N, double p,int seed,int rede){
     }
     double a = 0;
     int x = 0;
-    for (i = 0; i < G.Nodes; i++)  x += somatorio(degree,i,5);
-    for (i = 0; i < G.Nodes; i++) free(degree[i]);
+    int n = 0;
+    int* ids = (int*)malloc(0*sizeof(int));
+    for (i = 0; i < G.Nodes; i++){
+        x += somatorio(degree,i,5);
+        if(somatorio(degree,i,5)!= 0 ){
+            ids = realloc(ids,sizeof(int)*(n+1));
+            ids[n] = i;
+            n++;
+        }
+    }
+    /*for (i = 0; i < G.Nodes; i++) free(degree[i]);
     for (i = 0; i < G.Nodes; i++) {
+        mean_grau[faixa[i]] += G.viz[i][0];
+        n_sitio[faixa[i]]++;
         degree[i] = (int*) calloc(5,sizeof(int));
         for (j = 0; j < G.viz[i][0]; j++) degree[i][faixa[G.viz[i][j+1]]] += 1;
         a += G.viz[i][0];
-    }
-    printf("%f %f\n",a/N,(double)x/total);
-    char file[200] = "./dados/graus_finais.txt";
-    generate_file(file,degree,G.Nodes,5,sizeof(degree[0][0]));
+    }*/
+    //print_matrix(degree,G.Nodes,5);
+    //printf("%f\n",(double)x/total);
+    //printf("%f\n",(double)(total - x)/N);
+    //print_matrix(degree,G.Nodes,5);
+    //char file[200] = "./dados/graus_finais.txt";
+    //generate_file(file,degree,G.Nodes,5,sizeof(degree[0][0]));
     
+    char file_names[200] = "./dados/multi_probability.txt";
+    double** constant = double_get_array(5,file_names);
+    double** distrbution = distribution_faixas();
+    //char file_namess[200] = "./dados/multi_constant.txt";
+    //double* A = load_file(file_namess,5);
 
-    //if(p > 0) for (int i = 0; i < existir; i++) free(n_existir[i]);
+    double* p_faixas = malloc(5*sizeof(double));
+    double r;
+
+    p_faixas[0] = 0.34393182;
+    p_faixas[1] =  0.14065873;
+    p_faixas[2] = 0.31957894;
+    p_faixas[3] = 0.15781574;
+    p_faixas[4] = 0.03801476;
+
+    for ( j = 0; j < 5; j++) for (i = 1; i < 5; i++) constant[j][i] += constant[j][i-1];
+    for (i = 1; i < 5; i++)p_faixas[i] += p_faixas[i-1];
+
+    int cont = 0;
     
+    while(x != 0){
+
+        int k = 0;
+        int faixas = 0;
+        int* vetor = calloc(5,sizeof(int));
+
+        r = genrand64_real1();
+        while(r > p_faixas[faixas]) faixas++;
+        while(k == 0)k = empiric_distribution(distrbution[faixas]);
+        
+        if(x - k < 0) continue;
+
+        int* ligacoes = (int*) calloc(k,sizeof(int));
+
+        //generate_multinomial(k, 5, constant[faixas],vetor);
+        ids = randomize(ids,n,seed);
+        seed++;
+        int cont = k;
+        for (i = 0; i < n; i++){
+            int site = ids[i];
+            if(degree[site][faixas] != 0){
+                vetor[faixa[site]]++;
+                degree[site][faixas]--;
+                ligacoes[(k - cont)] = site;
+                cont--;
+            }
+            if(cont == 0) break;
+        }
+        x = x - (k - cont);
+        if(vetor_soma(vetor,5) != 0){
+            cont = vetor_soma(vetor,5);
+
+            G.viz = realloc(G.viz,(G.Nodes+1)*sizeof(int*));
+            G.viz[G.Nodes] = calloc(cont+1,sizeof(int));
+            G.viz[G.Nodes][0] = cont;
+            for (i = 0; i < cont; i++)G.viz[G.Nodes][i+1] = ligacoes[i];
+            for (i = 0; i < cont; i++){
+                int vizinho = ligacoes[i];
+                G.viz[vizinho][0]++;
+                G.viz[vizinho] = realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
+                G.viz[vizinho][G.viz[vizinho][0]] = G.Nodes;
+            }
+            faixa = realloc(faixa,(G.Nodes+1)*sizeof(int));
+            faixa[G.Nodes] = faixas;
+            G.edges += (k - cont);
+            G.Nodes++;
+        }
+        //if(vetor_soma(vetor,5) != 0) print_vetor(ligacoes,k,sizeof(int));
+        free(ligacoes);
+        free(vetor);
+    }
+    free(p_faixas);
+    for(i = 0;i < 5;i++){
+        free(constant[i]);
+        free(distrbution[i]);
+    }
+    free(constant);
+    free(distrbution);
+    //x = 0;
+    //for ( i = 0; i < G.Nodes; i++)x += somatorio(degree,i,5);
+    //printf("Sobrou: %d, Nós: %d\n",x,G.Nodes);
+    FILE* arquivo;
+    FILE* arquivo2;
+    char test[200] = "./test.txt";
+    arquivo = fopen(test,"a");
+    char test2[200] = "./test2.txt";
+    arquivo2 = fopen(test2,"a");
+    int** final = malloc(G.Nodes*sizeof(int*));
+    for (i = 0; i < G.Nodes; i++){
+        //printf("%d %d\n",i,G.Nodes);
+        final[i] = calloc(5,sizeof(int));
+        //print_vetor(G.viz[i],G.viz[i][0]+1,sizeof(int));
+        for (j = 0; j < G.viz[i][0]; j++) final[i][faixa[G.viz[i][j+1]]]++;
+        for (j = 0; j < 5; j++){
+            if(j!= 4) fprintf(arquivo,"%d\t",final[i][j]);
+            else fprintf(arquivo,"%d\n",final[i][j]);
+        }
+        fprintf(arquivo2,"%d\n",faixa[i]);
+        
+        //print_vetor(final[i],5,sizeof(int));
+        //if(i == 5819){print_vetor(G.viz[i],G.viz[i][0],sizeof(int));print_vetor(final[i],5,sizeof(int));}
+        //printf("%d\n",faixa[i]);
+    
+    }
+    fclose(arquivo);
+    fclose(arquivo2);
+    n_faixa = calloc(5,sizeof(int));
+    media_grau = calloc(5,sizeof(double));
+    k_medio = 0;
+    for ( i = 0; i < G.Nodes; i++){
+        k_medio += G.viz[i][0];
+        media_grau[faixa[i]] += G.viz[i][0];
+        n_faixa[faixa[i]]++;
+    }
+    for ( i = 0; i < 5; i++)media_grau[i] /= n_faixa[i];
+    printf("\n%f\n",k_medio/G.Nodes);
+    print_vetor(media_grau,5,sizeof(double));
+    
+    //print_matrix(degree,G.Nodes,5);
+    //if(p > 0) for (int i = 0; i < existir; i++) free(n_existir[i]);
+    for (i = 0; i < N; i++) free(degree[i]);
     //if(p > 0)free(n_existir);
     free(degree);
     free(faixa);

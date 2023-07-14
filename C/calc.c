@@ -73,7 +73,7 @@ int* randomize (int* array, int n,int seed){
 }
 
 int geometry(double lambda){
-    double n = -1*(1/lambda)*log(genrand64_real1()/(1 - exp(-lambda)));
+    double n = -1*(1/lambda)*log(genrand64_real1()/(exp(lambda) - 1));
     if(n <0) return geometry(lambda);
     return (int) n;
 }
@@ -84,10 +84,20 @@ int potentia(double lambda,double A){
     return (int) n;
 }
 
-void print_vetor(int* array,int N){
-    for (int i = 0; i < N; i++){
-        if(i!=N-1) printf("%d ",array[i]);
-        else printf("%d\n",array[i]);
+void print_vetor(void* array,int N,int check){
+    if(check == sizeof(int)){
+        int* intArray = (int*)array;
+        for (int i = 0; i < N; i++){
+            if(i!=N-1) printf("%d ",intArray[i]);
+            else printf("%d\n",intArray[i]);
+        }
+    }
+    if(check == sizeof(double)){
+        double* doubleArray = (double*)array;
+        for (int i = 0; i < N; i++){
+            if(i!=N-1) printf("%f ",doubleArray[i]);
+            else printf("%f\n",doubleArray[i]);
+        }
     }
 }
 
@@ -209,12 +219,12 @@ int size_txt(char *str){
     char c;
     f = fopen(str,"r");
     for (c = getc(f); c != EOF; c = getc(f)) if (c == '\n') L = L + 1;
-    return L+1;
+    return L;
 }
 
 void print_matrix(int** mat,int N,int n){
     printf("========================================================\n");
-    for (int i = 0; i < N; i++) print_vetor(mat[i],n);
+    for (int i = 0; i < N; i++) print_vetor(mat[i],n,sizeof(mat[i][0]));
     printf("========================================================\n");
 }
 
@@ -351,14 +361,19 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check){
     fclose(file);
 }
 
-double* load_file(char* filename,int linhas){
-
+void load_file(char* filename,void* array,int check){
+    int linhas = size_txt(filename);
     FILE *file;
     file = fopen(filename,"r");
-    double* array = (double*) malloc(linhas*sizeof(double));
-    for (int i = 0; i < linhas; i++) fscanf(file,"%lf\n",&array[i]);
+    if(check == sizeof(int)){
+        int* intArray = (int*)array;
+        for (int i = 0; i < linhas; i++) if(fscanf(file,"%d\n",&intArray[i]));
+    }
+    if(check == sizeof(double)){
+        double* doubleArray = (double*)array;
+        for (int i = 0; i < linhas; i++) if(fscanf(file,"%lf\n",&doubleArray[i]));
+    }
     fclose(file);
-    return array;
 }
 
 void generate_multinomial(int n, int k, double *probabilities, int *outcomes) {
@@ -379,4 +394,32 @@ int generalized_geometry(double lambda,double A){
     double n = -1*(1/lambda)*log(genrand64_real1()/A);
     if(n <0) return generalized_geometry(lambda,A);
     return (int) n;
+}
+
+int empiric_distribution(double* distribution){
+    double r = genrand64_real1();
+    int n = 0;
+    while(r > distribution[n]) n++;
+    return n;
+}
+
+void bubbleSort_by(int* v, int* v2, int n) {
+    int i, j, temp;
+
+    for (i = 0; i < n-1; i++) {
+        for (j = 0; j < n-i-1; j++) {
+            // Comparamos os valores em v2
+            if (v2[j] < v2[j+1]) {
+                // Troca os elementos em v
+                temp = v[j];
+                v[j] = v[j+1];
+                v[j+1] = temp;
+
+                // Troca os elementos em v2
+                temp = v2[j];
+                v2[j] = v2[j+1];
+                v2[j+1] = temp;
+            }
+        }
+    }
 }

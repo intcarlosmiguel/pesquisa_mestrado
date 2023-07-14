@@ -52,7 +52,8 @@ int main(int argc,char *argv[ ]){
         break;
     } */
     int seed = atoi(argv[1]);
-    local_configuration_model(160029,0.0,seed,2);
+    //generate_configuration_model((double) 0.0,1);
+    local_configuration_model(7286,0.0,seed+232,2);
     //teste_resto_ligacoes();
     /*int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);

@@ -402,14 +402,15 @@ def LM(x,y,axs,color = 'reds'):
         axs.plot(x,x*coeficientes + intercepto,c = color,label = 'R² :{:.3f}, {:.3f}x + {:.3f}'.format(r2,coeficientes,intercepto))
     return coeficientes,intercepto,r2
 
-def degree_distribution(graus,faixas,tipo = 0):
+def degree_distribution(graus,faixas,tipo = 0,grafico = 0):
     c = ['red','blue','green','k','navy']
     M = np.zeros((5,5))
     A = np.zeros((5,5))
     for i in range(5):
         degree = graus[faixas == i,:].T
         rang = np.arange(np.max(degree)+1)
-        fig, axs = plt.subplots(5,figsize=(8, 20))
+        if(grafico == 1):
+            fig, axs = plt.subplots(5,figsize=(8, 20))
         k = 0
         for deg,color in zip(degree,c):
             hist = np.zeros(len(rang))
@@ -419,20 +420,26 @@ def degree_distribution(graus,faixas,tipo = 0):
             x = rang[hist > 0]
             hist = hist[hist > 0]
             
-            hist = hist[x<30]
-            x = x[x<30]
+            hist = hist[x<10]
+            x = x[x<10]
+
             if(tipo == 1):
                 hist = hist[x > 2]
                 x = x[x > 2]
                 x = np.log(x)
             hist = np.log(hist)
-            axs[k].scatter(x,hist,c = color)
-            M[i][k],A[i][k] = LM(x,hist,axs[k],color)
-            axs[k].grid()
+            if(grafico == 1):
+                axs[k].scatter(x,hist,c = color)
+                M[i][k],A[i][k],r2 = LM(x,hist,axs[k],color)
+                axs[k].grid()
+            else:
+                M[i][k],A[i][k],r2 = LM(x,hist,-1,color)
+                
             k += 1
-        fig.suptitle(f"Faixa {int(i)+1}")
-        fig.legend()
-        plt.show()
+        if(grafico == 1):
+            fig.suptitle(f"Faixa {int(i)+1}")
+            fig.legend()
+            plt.show()
     return -M,A
 
 def filter_age(contacts,data,name):
@@ -491,15 +498,26 @@ def generate_distribution_byfaixas(contagem,faixas):
     B = contagem/(np.sum(contagem,axis = 1)[:, np.newaxis])
     B = [np.mean(B[faixas == i,:],axis = 0) for i in range(5)]
     C = []
+    S = []
     for faixa in range(5):
         g = graus[faixas == faixa]
-        x = np.arange(np.max(g)+1)
-        x,y = np.unique(g,return_counts=True)
+        x = np.arange(59+1)
+        y = np.zeros(len(x))
+        for i in g:
+            try:
+                y[int(i)] += 1
+            except:
+                pass
+        id0 = y == 0
         y = y/np.sum(y)
-
-
+        soma = np.cumsum(y)
+        soma[id0] = -1
+        S.append(np.cumsum(y))
+        #np.savetxt(f"./C/dados/distribution_{faixa}.txt",soma,fmt = "%f");
         y =y[x>2]
         x = x[x>2]
+        x = x[y>0]
+        y =y[y>0]
         r = 0
         max_ = 0
         for max in range(100,30,-1):
@@ -520,4 +538,38 @@ def generate_distribution_byfaixas(contagem,faixas):
         plt.grid()
         plt.legend()
         plt.show()
-    return A,B,C
+    return -np.array(A),B,C,S
+
+def comparacao(graus,faixas,tem_plot = 1,Graus = np.loadtxt("./C/dados/graus_finais.txt"),faixas_ = np.loadtxt("./C/dados/faixas_finais.txt")):
+    M = np.zeros((5,5))
+    for faixa in range(5):
+        if(tem_plot == 1):
+            fig, axs = plt.subplots(5,figsize=(8, 20))
+        for plotinho in range(5):
+
+            g = Graus.T[plotinho][faixas_ == faixa]
+            c = graus.T[plotinho][faixas == faixa]
+            C = np.sqrt(-0.5*np.log(0.05/2))*np.sqrt((len(g)+len(c))/(len(g)*len(c)))
+
+            x1,y1 = np.unique(g,return_counts=True)
+            x2,y2 = np.unique(c,return_counts=True)
+            y1 = y1/np.sum(y1)
+            y2 = y2/np.sum(y2)
+
+            #isin = np.isin(x2,x1)
+            #isin2 = np.isin(x1,x2)
+            #D = np.max(np.abs(y1[isin2] - y2[isin]))
+
+
+            if(tem_plot == 1):
+                axs[plotinho].bar(x1,y1, label = 'Rede',zorder = 1,alpha = 0.75)
+                axs[plotinho].bar(x2,y2, label = 'Dados',zorder = 0)
+                axs[plotinho].grid()
+                axs[plotinho].legend()
+                axs[plotinho].set_xlim(-0.5,50)
+            #
+            #M[faixa][plotinho] = D < C
+        if(tem_plot == 1):
+            fig.suptitle(f"Faixa {faixa+1}")
+            plt.show()
+    print(M)
