@@ -6,13 +6,13 @@
 
 #include <omp.h>
 
-#include "mtwister.h"
-#include "calc.h"
-#include "rede.h"
-#include "CM.h"
-#include "SBM.h"
-#include "LCM.h"
-#include "infect.h"
+#include "bib/mtwister.h"
+#include "bib/calc.h"
+#include "bib/rede.h"
+#include "bib/CM.h"
+#include "bib/SBM.h"
+#include "bib/LCM.h"
+#include "bib/infect.h"
 
 void teste_resto_ligacoes(){
     struct Graph G;
@@ -20,7 +20,7 @@ void teste_resto_ligacoes(){
 }
 
 int main(int argc,char *argv[ ]){
-    //generate_configuration_model((double) 0.5,1000);
+    generate_configuration_model((double) 0.0,100);
     //generate_SBM_p_model(1,1,0);
     //generate_local_configuration_model(0,1000);
     /* int T = atoi(argv[1]);
@@ -51,9 +51,9 @@ int main(int argc,char *argv[ ]){
     default:
         break;
     } */
-    int seed = atoi(argv[1]);
+    //int seed = atoi(argv[1]);
     //generate_configuration_model((double) 0.0,1);
-    local_configuration_model(7286,0.0,seed+232,2);
+    //local_configuration_model(7286,0.0,seed+232,2);
     //teste_resto_ligacoes();
     /*int seed = atoi(argv[1]);
     int redes = atoi(argv[2]);

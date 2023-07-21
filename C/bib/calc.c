@@ -256,7 +256,7 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
     double l2 = 0;
     double r22 = 0;
     double diametro2 = 0;
-
+    printf("Oi\n");
     for (int i = 0; i < T; i++){
 
         media += resultados[i][0];
@@ -281,7 +281,6 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
         diametro2 += pow(resultados[i][6],2);
 
     }
-
     media2 = pow(media2/T - pow(media/T,2),0.5);
     median2 = pow(median2/T - pow(median/T,2),0.5);;
     std2 = pow(std2/T - pow(std/T,2),0.5);

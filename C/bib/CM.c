@@ -7,6 +7,7 @@
 #include "calc.h"
 #include "rede.h"
 #include <math.h>
+#include <igraph.h>
 
 struct Graph{
     int **viz;
@@ -98,6 +99,63 @@ int* get_degree(int N){
     return G;
 }*/
 
+void graph_add_edge(igraph_t* Grafo,int* degree,igraph_vector_int_t* shuff, int n,int site,double p){
+    int vizinho;
+    clock_t inicio, fim; 
+    igraph_bool_t res;
+    double tempo_decorrido;
+    igraph_vector_int_t vector;
+    igraph_vector_int_init(&vector, 0);
+    for (int i = 0; i < n; i++){
+        if(degree[site] == 0) break;
+        vizinho = VECTOR(*shuff)[i];
+        igraph_are_connected(Grafo, site, vizinho, &res);
+        if(res) continue;
+        if(degree[vizinho] == 0) continue;
+        igraph_vector_int_push_back(&vector, site);
+        igraph_vector_int_push_back(&vector, vizinho);
+        
+        degree[site]--;
+        degree[vizinho]--;
+    }
+    inicio = clock();
+    igraph_add_edges(Grafo, &vector, NULL);
+    fim = clock();
+    tempo_decorrido = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
+    //printf("Tempo decorrido: %f segundos.\n", tempo_decorrido);
+    igraph_vector_int_destroy(&vector);
+}
+
+void igraph_configuration_model(int N, double p){
+    clock_t inicio, fim; 
+    double tempo_decorrido;
+    igraph_t Grafo;
+    
+    igraph_empty(&Grafo, N, IGRAPH_UNDIRECTED);
+    char file[200] = "./dados/degree.txt";
+    sprintf(file,"./dados/degree.txt");
+    int* degree = (int*) calloc(N,sizeof(int));
+    load_file(file,degree,sizeof(degree[0]));
+    for (int i = 0; i < N; i++){
+        igraph_vector_int_t shuffle;
+        igraph_vector_int_init(&shuffle, 0);
+        inicio = clock();
+        igraph_vector_int_init_range(&shuffle,0,N);
+        igraph_vector_int_remove(&shuffle, i);
+        igraph_vector_int_shuffle(&shuffle);
+        
+        
+        graph_add_edge(&Grafo,degree,&shuffle,N-1,i,p);
+        fim = clock();
+        tempo_decorrido = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
+        //printf("Tempo decorrido: %f segundos.\n", tempo_decorrido);
+        igraph_vector_int_destroy(&shuffle);
+    }
+    
+    igraph_destroy(&Grafo);
+    free(degree);
+}
+
 int* reverse(int* arr,int N){
     int* new = (int*) malloc(N*sizeof(int));
     for (int i = 0; i < N; i++) new[i] = arr[N-(i+1)];
@@ -168,7 +226,9 @@ struct Graph conf_model_p(struct Graph G,int* degree,int ego,double p){
     return G;
 }
 
-struct Graph add_edge(struct Graph G,int* degree,int* shuff, int n,int site,double p){
+struct Graph add_edge(struct Graph G,int* degree,int* shuff, int n,int site,double p,igraph_vector_int_t* vector){
+    clock_t inicio, fim;
+    double tempo_decorrido;
     for (int i = 0; i < n; i++){
         int vizinho = shuff[i];
         if(degree[site] == 0){
@@ -192,7 +252,10 @@ struct Graph add_edge(struct Graph G,int* degree,int* shuff, int n,int site,doub
         G.viz[vizinho] = (int*) realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
         G.viz[site][G.viz[site][0]] = vizinho;
         G.viz[vizinho][G.viz[vizinho][0]] = site;
+        igraph_vector_int_push_back(vector, site);
+        igraph_vector_int_push_back(vector, vizinho);
     }
+    
     return G;
 }
 
@@ -200,15 +263,7 @@ struct Graph configuration_model(int N, double p,int seed){
 
     struct Graph G;
     char filename[200];
-
-    sprintf(filename,"./dados/graus.txt");
-    int* degree = (int*) calloc(N,sizeof(int));
-    load_file(filename,degree,sizeof(degree[0]));
-
-    sprintf(filename,"./dados/faixas_test.txt");
-    int* faixa = (int*) calloc(N,sizeof(int));
-    load_file(filename,faixa,sizeof(faixa[0]));
-
+    
     G.Nodes = N;
     G.viz = (int **)malloc(N*sizeof(int*));
     for (int j = 0; j < N; j++){ 
@@ -218,51 +273,84 @@ struct Graph configuration_model(int N, double p,int seed){
     G.edges = 0;
     //existir = 0;
     //n_existir = (int **)malloc(0* sizeof(int*));
-    bubbleSort_by(faixa, degree, N);
     init_genrand64(seed);
-    //degree = bubble_sort(degree,N);
     int *shuff = (int*) malloc(N*sizeof(int));
+    clock_t inicio, fim; 
+    double tempo_decorrido;
+
+    char file[200] = "./dados/degree.txt";
+    sprintf(file,"./dados/degree.txt");
+    int* degree = (int*) calloc(N,sizeof(int));
+    load_file(file,degree,sizeof(degree[0]));
+    degree = bubble_sort(degree,N);
+    
+    igraph_vector_int_t vector;
+    igraph_vector_int_init(&vector, 0);
+
+    igraph_t Grafo;
+    
+    igraph_empty(&Grafo, N, IGRAPH_UNDIRECTED);
+
     for (int i = 0; i < N; i++){
         //shuff = realloc(shuff,N*sizeof(int));
         for (int j = 0; j < N; j++) shuff[j] = j;
         swap(&shuff[i],&shuff[N-1]);
         //shuff = realloc(shuff,(N-1)*sizeof(int));
         shuff = randomize(shuff,N-1,seed+i);
-        G = add_edge(G,degree,shuff,N-1,i,p);
+        
+        
+        inicio = clock();
+        G = add_edge(G,degree,shuff,N-1,i,p,&vector);
+        fim = clock();
+        tempo_decorrido = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
+        
     }
-    int x = 0;
-    for (int i = 0; i < G.Nodes; i++) x += degree[i];
-    //printf("%d\n",x);
-    for (int i = 0; i < G.Nodes; i++) for (int j = 0; j < G.viz[i][0]; j++) printf("%d\t%d\n",i, G.viz[i][j+1]);
-    //for (int i = 0; i < G.Nodes; i++) printf("%d\n",faixa[i]);
     
     //create_network(G,0.0);
     //for(int i = 0; i < existir; i++)free(n_existir[i]);
     //free(n_existir);
+    //printf("%ld\n",igraph_vector_int_size(&vector));
+    igraph_vector_int_t v;
+    igraph_vector_int_init(&v, N);
+    
+    igraph_add_edges(&Grafo, &vector, NULL);
+    igraph_degree(&Grafo, &v, igraph_vss_all(), IGRAPH_IN, IGRAPH_NO_LOOPS);
+
+    double media = (double)igraph_vector_int_sum(&v)/N;
+    igraph_vector_int_add_constant(&v,-media);
+    igraph_vector_int_mul(&v,&v);
+    double std = (double)igraph_vector_int_sum(&v)/N;
+    printf("%f %f\n",media,sqrt(std));
+
+    igraph_vector_int_destroy(&vector);
+    igraph_vector_int_destroy(&v);
     free(shuff);
-    free(degree);
     return G;
 }
 
 void generate_configuration_model(double p, int T){
-    char file[200] = "./dados/graus.txt";
+    char file[200] = "./dados/degree.txt";
     int N = size_txt(file);
     
     double** resultados = (double **)malloc(T*sizeof(double*));
+    
     //#pragma omp parallel for
+    
     for (int i = 0; i < T; i++){
 
         //if(T!=1) printf("\e[1;1H\e[2J");
         struct Graph G;
         G = configuration_model(N,p,i);
+        //igraph_configuration_model(N,p);
         //resultados[i] = (double*) malloc(7*sizeof(double));
         //result(G,resultados[i]);
         
-        for(int j = 0; j < N; j++)free(G.viz[j]);
+        //for(int j = 0; j < N; j++)free(G.viz[j]);
         
-        free(G.viz);
-        //printf("Rodou: %d\n",i+1);
+        //free(G.viz);
+        printf("Rodou: %d\n",i+1);
     }
+    
     //generate_resultados(resultados,T,"CM");
 
 }
