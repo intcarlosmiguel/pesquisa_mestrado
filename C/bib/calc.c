@@ -256,7 +256,6 @@ void generate_resultados(double** resultados, int T,char arquivo[]){
     double l2 = 0;
     double r22 = 0;
     double diametro2 = 0;
-    printf("Oi\n");
     for (int i = 0; i < T; i++){
 
         media += resultados[i][0];

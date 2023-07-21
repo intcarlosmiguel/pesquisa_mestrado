@@ -441,8 +441,6 @@ struct Graph local_configuration_model(int N, double p,int seed,int rede){
     }
     
     G.edges = 0;
-    //existir = 0;
-    //if(p > 0)n_existir = (int **)malloc(0* sizeof(int*));
 
     int** degree;
     int* faixa;

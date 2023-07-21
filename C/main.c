@@ -20,7 +20,7 @@ void teste_resto_ligacoes(){
 }
 
 int main(int argc,char *argv[ ]){
-    generate_configuration_model((double) 0.0,100);
+    generate_configuration_model((double) 1.0,500);
     //generate_SBM_p_model(1,1,0);
     //generate_local_configuration_model(0,1000);
     /* int T = atoi(argv[1]);
