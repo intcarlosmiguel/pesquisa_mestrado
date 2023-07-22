@@ -106,12 +106,9 @@ struct Graph add_edge(struct Graph G,int* degree,int* shuff, int n,int site,doub
         if(n > 1){
             for (int i = 0; i < n-1; i++){
                 int vizinho1 = vizinhos[i];
-                //printf("%d %d\n",vizinho1,site);
                 int *shuff = (int*) malloc((n-(i+1))*sizeof(int));
                 for (int j = i+1; j < n; j++) shuff[j - (i+1)] = vizinhos[j];
-                //print_vetor(shuff,n-(i+1),sizeof(int));
                 shuff = randomize(shuff,n-(i+1),i);
-                //print_vetor(shuff,n-(i+1),sizeof(int));
                 G = conf_model_p(G,degree,p,shuff,n-(i+1),vizinho1,vector);
                 
                 free(shuff);
@@ -150,13 +147,11 @@ igraph_t configuration_model(int N, double p,int seed){
     igraph_empty(&Grafo, N, IGRAPH_UNDIRECTED);
 
     for (int i = 0; i < N; i++){
-        init_genrand64(seed);        
-        //shuff = realloc(shuff,N*sizeof(int));
+        init_genrand64(seed);
+
         for (int j = 0; j < N; j++) shuff[j] = j;
         swap(&shuff[i],&shuff[N-1]);
-        //shuff = realloc(shuff,(N-1)*sizeof(int));
         shuff = randomize(shuff,N-1,seed+i);
-        
         
         G = add_edge(G,degree,shuff,N-1,i,p,&vector);
         
@@ -164,9 +159,6 @@ igraph_t configuration_model(int N, double p,int seed){
     
     igraph_add_edges(&Grafo, &vector, NULL);
     //create_network(G,0.0);
-    //for(int i = 0; i < existir; i++)free(n_existir[i]);
-    //free(n_existir);
-    //printf("%ld\n",igraph_vector_int_size(&vector));
     
     free(shuff);
     igraph_vector_int_destroy(&vector);
