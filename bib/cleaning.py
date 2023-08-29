@@ -499,7 +499,9 @@ def generate_distribution_byfaixas(contagem,faixas):
     B = [np.mean(B[faixas == i,:],axis = 0) for i in range(5)]
     C = []
     S = []
-    for faixa in range(5):
+    eixos = ([0,0],[0,1],[1,0],[1,1],[2,0])
+    fig, axs = plt.subplots(3, 2, figsize=(12, 17))
+    for faixa,eix in zip(range(5),eixos):
         g = graus[faixas == faixa]
         x = np.arange(59+1)
         y = np.zeros(len(x))
@@ -523,21 +525,29 @@ def generate_distribution_byfaixas(contagem,faixas):
         for max in range(100,30,-1):
             teste_y =y[x<max]
             teste_x = x[x<max]
-            alpha, beta,r2 = LM(teste_x,np.log(teste_y),-1)
+            angular, beta,r2 = LM(teste_x,np.log(teste_y),-1)
             if(r2 > r):
                 r = r2
                 max_ = max
         y =y[x<max_]
         x = x[x<max_]
-        alpha, beta,r2 = LM(x,np.log(y),-1)
+        angular, beta,r2 = LM(x,np.log(y),-1)
         C.append(beta)
-        A.append(alpha)
-        plt.scatter(x,np.log(y))
-        plt.plot(x,x*alpha + beta,c = 'red',label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,alpha,beta))
-        plt.title(f"Faixa {faixa+1}")
-        plt.grid()
-        plt.legend()
-        plt.show()
+        A.append(angular)
+
+        axs[eix[0],eix[1]].scatter(x,np.log(y),alpha = 0.8)
+        axs[eix[0],eix[1]].plot(x,x*angular + beta,c = 'red',label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,angular,beta))
+        axs[eix[0],eix[1]].set_title(f"Faixa {faixa+1}")
+        axs[eix[0],eix[1]].set_xlabel(f"Número de Ligações")
+        axs[eix[0],eix[1]].set_ylabel(f"log(P)")
+        axs[eix[0],eix[1]].grid()
+        axs[eix[0],eix[1]].legend()
+    axs[2, 1].axis('off')
+    #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
+    axs[2, 0].set_position([0.25, 0.05, 0.5, 0.25])
+    plt.savefig(f"./img/contatos_faixa.png")
+    plt.show()
+
     return -np.array(A),B,C,S
 
 def comparacao(graus,faixas,tem_plot = 1,Graus = np.loadtxt("./C/dados/graus_finais.txt"),faixas_ = np.loadtxt("./C/dados/faixas_finais.txt")):

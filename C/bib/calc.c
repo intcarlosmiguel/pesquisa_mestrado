@@ -352,7 +352,7 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check){
                     break;
                 default:
                     break;
-                }
+            }
         }
         fprintf(file,"%s",print);
     }

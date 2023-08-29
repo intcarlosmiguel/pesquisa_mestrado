@@ -2,11 +2,11 @@
 
 Por conseguinte é natural a utilização de Redes Complexas como modelagem para estudos da Covid-19. Para tanto precisamos agora de dados sobre redes de contágio que contenham informações relevantes para esse estudo, como idade, tempo de contato, se faz parte de grupo de risco ou não, dentre outros.
 
-Entretanto, não é fácil encontrar um banco de dados tão completo assim e não enviesado pela recente pandemia. Em 2008, visando o estudo da pandemia de influenza, a Comissão Europeia criou o projeto chamado POLYMOD \cite{POLYMOD} que tinha o intuito da coleta de dados para entender quais seriam os padrões de contatos da Europa \cite{Mossong2008}. Apoiado nesse estudo, pesquisas posteriores se inspiraram no molde do POLYMOD \cite{Belga2009,Belga2010,China,France,HongKong,Peru,Russia,Thailand,Vietnam,Zambia,Zimbabwe}.
+Entretanto, não é fácil encontrar um banco de dados tão completo e não enviesado pela recente pandemia. Em 2008, visando o estudo da pandemia de influenza, a Comissão Europeia criou o projeto chamado POLYMOD \cite{POLYMOD} que tinha o intuito da coleta de dados para entender quais seriam os padrões de contatos da Europa \cite{Mossong2008}. Apoiado nesse estudo, pesquisas posteriores se inspiraram no molde do POLYMOD \cite{Belga2009,Belga2010,China,France,HongKong,Peru,Russia,Thailand,Vietnam,Zambia,Zimbabwe}.
 
 \section{Análise dos Dados}
 
-O foco dessa pesquisa será no banco de dados da França \cite{France} durante o primeiro semestre de 2012, ele foi coletado a partir de ligações aleatórias da população francesa excluindo territórios ultramarinos. Cada indivíduo que atendesse o telefone receberia um diário de contato para ser preenchido em 2 dias. Apenas uma pessoa por ligação poderia participar, com exceção de crianças e adolescentes para ter uma maior precisão e nesse caso um adulto ficaria responsável por fazer ou auxiliar. Ao final do dia a pessoa teria que preencher o diário anotando sobre informações pessoais, ambiente (escola, trabalho, casa,...) e as pessoas na qual teve contato de curto alcance no dia, a idade aproximada (ou exata) dessas pessoas, duração da conversa, frequência na qual têm contato, dentre outras informações, além disso para facilitar a memorização notificação os participantes foram instruídos a anotarem no máximo 40 contatos. Caso o participante fosse empregado, ele teria que informar qual a média de contatos no seu trabalho, caso fosse maior que 20 então os contatos que seriam anotados no diário seriam os não profissionais.
+O foco dessa pesquisa será no banco de dados da França \cite{France} que aconteceu durante o primeiro semestre de 2012. Ele foi coletado a partir de ligações aleatórias da população francesa excluindo territórios ultramarinos. Cada indivíduo que atendesse o telefone receberia um diário de contato para ser preenchido em 2 dias. Apenas uma pessoa por ligação poderia participar, com exceção de crianças e adolescentes para ter uma maior precisão e nesse caso um adulto ficaria responsável por fazer ou auxiliar. Ao final do dia a pessoa teria que preencher o diário anotando sobre informações pessoais, ambiente (escola, trabalho, casa,...) e as pessoas na qual teve contato de curto alcance no dia, a idade aproximada (ou exata) dessas pessoas, duração da conversa, frequência na qual têm contato, dentre outras informações, além disso para facilitar a memorização notificação os participantes foram instruídos a anotarem no máximo 40 contatos. Caso o participante fosse empregado, ele teria que informar qual a média de contatos no seu trabalho, caso fosse maior que 20 então os contatos que seriam anotados no diário seriam os não profissionais.
 
 Toda a pesquisa era para acontecer em dois períodos: Fevereiro a Março e Abril a Maio de 2012. Contudo, no primeiro período foram recrutados menos pessoas do que deveriam e para corrigir isso foi criado um novo período em Abril para completar o primeiro. No total 24.250 pessoas receberam as ligações, 3.977 diários foram enviados, 2033 foram devolvidos e 2029 diários apresentaram contatos próximos. A Figura \ref{Idade_mes} mostra o número de contatos por dia em cada mês dos períodos da pesquisa.
 
@@ -38,6 +38,7 @@ A partir desses dados vamos coletar alguns resultados deles. Na Figura \ref{M_Id
 
 Na Figura \ref{características} observamos como os contatos são caracterizados. Quanto mais tempo nós passamos conversando com a pessoa menores as chances de acontecer algum contato físico, apesar de ser muito comum. A frequência com a qual você vê a pessoa também tem importante na probabilidade de acontecer ou não contato físico, contudo fora a primeira contato e o contado diário, praticamente a chance de haver contato físico é a mesma. A última imagem vai ao encontro dessa afirmação, percebe-se que as convivências que acontecem pela primeira vez tendem a durar em torno de minutos, enquanto que os convivências diárias podem facilmente durar horas, já em outras frequências de contatos, não parece haver uma diferenciação clara. À vista disso, há uma tendência a uma supervalorização (em questão de tempo) no contato diário pelas pessoas, há uma desvalorização na primeira vez e não há uma diferença em qualquer outra frequência.
 
+
 \begin{figure}[H]
   \centering
   \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
@@ -49,6 +50,37 @@ Na Figura \ref{características} observamos como os contatos são caracterizados
    \caption*{\\Fonte: Autor.}
    \label{características}
 \end{figure}
+
+Outro elemento importante a ser investigado é como são as conexões entre as idades do estudo. Para isso cada indivíduo será categorizado em 5 faixas etárias: [0,20) (jovens), [20,30) (jovens adultos), [30,50) (adultos), [50,70)  (adultos seniors) e maiores de 70 que representam os idosos. Na Figura  nota-se como é a distribuição de idades da pesquisa. Ao analisar a distribuição de ligações por faixa etária é percebido que seguem uma distribuição geométrica na qual pode ser escrita como $P \propto (1 - p)^xp$ ou $P \propto e^{-\lambda x}(1 - e^\lambda)$ . Na Figura \ref{contatos_faixas} temos o estudo das distribuições como se fosse da segunda forma, no eixo das abscissas temos o grau e no eixo das coordenadas temos o logaritmo da probabilidade, com isso é encontrado uma reta com Mínimos Quadrados na qual o coeficiente angular é igual ao $\lambda$ e seu respectivo $R^2$.
+
+Além de examinarmos as ligações dentro de cada faixa etária, também é relevante analisarmos as interações entre as diferentes faixas etárias. Na Figura \ref{heat}, podemos observar a fração média de ligações entre essas faixas etárias. Notavelmente, encontramos um número significativo de ligações entre pessoas com idades entre 30 e 50 anos, visto que essa faixa etária é bastante presente tanto no ambiente de trabalho como no âmbito familiar. Além disso, junto à faixa etária 1, essas idades representam as maiores interações. Por outro lado, a faixa etária mais avançada apresenta menos ligações, pois poucas pessoas chegam a essa fase da vida e, dentre elas, muitas mantêm contato com indivíduos mais jovens para cuidados médicos.
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+
+  \caption{Fração média de ligações entre faixas etárias}
+
+  \includegraphics[scale=0.8]{./img/heat.png}
+
+  \captionsetup{font=small,position=below,skip=-1pt}
+   \caption*{\\Fonte: Autor.}
+   \label{heat}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \captionsetup{font=normalsize,skip=1pt,singlelinecheck=on,labelsep=endash}
+
+  \caption{Proporção de cada faixa etária no Banco de dados.}
+
+  \includegraphics[scale=0.5]{./img/contatos_faixa.png}
+  \captionsetup{font=small,position=below,skip=-1pt}
+   \caption*{\\Fonte: Autor.}
+   \label{contatos_faixas}
+\end{figure}
+
 
 Apesar da grande quantidade de pessoas e contatos há um problema essencial: não há garantia de que os entrevistados se conectem em si. Por exemplo, no caso da França \cite{France} foram feitas ligações aleatórias extraída da população francesa excluindo territórios ultramarinos, assim nossa análise em rede estaria bastante limitada.
 
@@ -322,7 +354,17 @@ p = 1.0                             & 9.72(0.00)                      & 8.00(0.0
 \label{table:Miguel}
 \end{table}
 
+Assim a partir dos resultados mostrados na Figura \ref{contatos_faixas}, podemos construir um grafo $G(\mathpzc{N} ,\mathpzc{L})$ na qual cada sítio $i$ recebe $k_i$ ligações que seguem a distribuição empírica dos dados e assim cada sítio terá $k_{i,j}$ ligações com a faixa etária $j$ que seguirá uma distribuição multinomial a partir das probabilidades encontradas na Figura \ref{heat}.
 
+Nesse sentido jogaremos esse conjunto {$k_{i,j}$} de ligações no modelo de configuração e será feita uma nova alteração considerando ligações por faixa etária. Contudo, na prática isso não funcionou satisfatoriamente, pois como não se há informação completa de como é a rede real tanto porque os entrevistados não se conectam ente si o algoritmo não converge, faltando de 9\% a 20\% das ligações.
+
+Para solucionar esse problema é proposto uma última modificação, ao final do modelo de configuração será utilizado o seguinte algoritmo:
+\begin{enumerate}
+  \item Será criado um nó sintético $i'$ com faixa etária aleatória e com um conjunto {$k_{i',j}$} de ligações com outras faixas etárias que segue a mesma distribuição da rede.
+  \item Esse novo sítio $i'$ tentará ser conectado aleatoriamente com os nós que sobraram ligações até que todas as {$k_{i',j}$} sejam colocadas ou seja tentado todos os sítios (em geral acontece a segunda opção).
+  \item Então se foi possível colocar ligações com o nó $i'$ coloca-se ele na rede.
+  \item Repete 1-3 até o momento em que todas as ligações forem colocadas.
+\end{enumerate}
 
 \newpage
 \mycomment{

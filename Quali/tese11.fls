@@ -1350,6 +1350,16 @@ INPUT ./img/contatos01.jpg
 INPUT ./img/contatos01.jpg
 INPUT ./img/contatos01.jpg
 INPUT ./img/contatos01.jpg
+INPUT ./img/heat.png
+INPUT ./img/heat.png
+INPUT ./img/heat.png
+INPUT ./img/heat.png
+INPUT ./img/heat.png
+INPUT ./img/contatos_faixa.png
+INPUT ./img/contatos_faixa.png
+INPUT ./img/contatos_faixa.png
+INPUT ./img/contatos_faixa.png
+INPUT ./img/contatos_faixa.png
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/adobe/times/zptmcm7y.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/adobe/times/zptmcm7m.vf

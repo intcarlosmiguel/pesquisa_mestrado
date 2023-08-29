@@ -18,6 +18,7 @@
         "calc.h": "c",
         "model.h": "c",
         "time.h": "c",
-        "lcm.h": "c"
+        "lcm.h": "c",
+        "algorithm": "c"
     }
 }

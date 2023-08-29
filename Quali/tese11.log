@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.4.1)  7 MAY 2023 22:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.5.30)  24 JUL 2023 12:13
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -393,7 +393,7 @@ Package: babel 2022/01/26 3.70 The Babel package
  (/usr/share/texlive/texmf-dist/tex/generic/babel-portuges/brazil.ldf
 Language: portuges 2021/07/09 v1.2t Portuguese support from the babel system
 Package babel Info: Hyphen rules for 'brazil' set to \l@portuguese
-(babel)             (\language60). Reported on input line 111.
+(babel)             (\language47). Reported on input line 111.
 Package babel Info: Making " an active character on input line 143.
 )) (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
@@ -1036,6 +1036,16 @@ Overfull \hbox (2.12227pt too wide) detected at line 14
 \OT1/ptm/m/n/12 Figura 13 --  
  []
 
+
+Overfull \hbox (2.12227pt too wide) detected at line 15
+\OT1/ptm/m/n/12 Figura 14 --  
+ []
+
+
+Overfull \hbox (2.12227pt too wide) detected at line 16
+\OT1/ptm/m/n/12 Figura 15 --  
+ []
+
 )
 \tf@lof=\write4
 \openout4 = `tese11.lof'.
@@ -1178,9 +1188,20 @@ Package pdftex.def Info: ./img/idade_contatos.jpg  used on input line 33.
 <./img/contatos01.jpg, id=146, 867.24pt x 1300.86pt>
 File: ./img/contatos01.jpg Graphic file (type jpg)
 <use ./img/contatos01.jpg>
-Package pdftex.def Info: ./img/contatos01.jpg  used on input line 47.
+Package pdftex.def Info: ./img/contatos01.jpg  used on input line 48.
 (pdftex.def)             Requested size: 433.61894pt x 650.42842pt.
  [28 <./img/idade_contatos.jpg>] [29 <./img/contatos01.jpg>]
+<./img/heat.png, id=153, 433.62pt x 433.62pt>
+File: ./img/heat.png Graphic file (type png)
+<use ./img/heat.png>
+Package pdftex.def Info: ./img/heat.png  used on input line 64.
+(pdftex.def)             Requested size: 346.89647pt x 346.89647pt.
+<./img/contatos_faixa.png, id=154, 867.24pt x 1228.59pt>
+File: ./img/contatos_faixa.png Graphic file (type png)
+<use ./img/contatos_faixa.png>
+Package pdftex.def Info: ./img/contatos_faixa.png  used on input line 78.
+(pdftex.def)             Requested size: 433.61894pt x 614.2935pt.
+ [30 <./img/heat.png>] [31 <./img/contatos_faixa.png>]
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
@@ -1208,40 +1229,40 @@ Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
 Missing character: There is no ; in font nullfont!
-[30]
-Overfull \hbox (26.58789pt too wide) in paragraph at lines 262--284
+[32]
+Overfull \hbox (26.58789pt too wide) in paragraph at lines 294--316
  []| [] 
  []
 
 
-Overfull \hbox (12.84424pt too wide) in paragraph at lines 298--318
+Overfull \hbox (12.84424pt too wide) in paragraph at lines 330--350
  []| [] 
  []
 
-[31] [32] [33]
-Overfull \hbox (1.5998pt too wide) in paragraph at lines 447--449
+[33] [34] [35]
+Overfull \hbox (1.5998pt too wide) in paragraph at lines 489--491
  [][] 
  []
 
-LaTeX Font Info:    Trying to load font information for OML+ptm on input line 487.
+LaTeX Font Info:    Trying to load font information for OML+ptm on input line 529.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omlptm.fd
 File: omlptm.fd 
 )
 LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <12> not available
-(Font)              Font shape `OML/cmm/m/it' tried instead on input line 487.
- [34]) [35]
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 529.
+ [36]) [37]
 Cap\'{\i }tulo 4.
-(./tese11.bbl [36
+(./tese11.bbl [38
 
-] [37
+] [39
 
-] [38]) [39]
+] [40]) [41]
 Apendice A.
-[40
+[42
 
 ]
 Apendice B.
-[41
+[43
 
 ]
 Anexo A.
@@ -1249,22 +1270,22 @@ Anexo A.
 | Comentario, sugestao ou critica sobre o abnTeX? Entre em contato: |
 |                  http://abntex.codigolivre.org.br                 |
 +-------------------------------------------------------------------+
-AED: lastpage setting LastPage [42
+AED: lastpage setting LastPage [44
 
 ] (./tese11.aux) ) 
 Here is how much of TeX's memory you used:
- 24313 strings out of 478287
- 515204 string characters out of 5849290
- 824335 words of memory out of 5000000
- 41853 multiletter control sequences out of 15000+600000
+ 24329 strings out of 478287
+ 515543 string characters out of 5849289
+ 824359 words of memory out of 5000000
+ 41867 multiletter control sequences out of 15000+600000
  532955 words of font info for 171 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 100i,16n,104p,1299b,1060s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 100i,16n,104p,1313b,1060s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on tese11.pdf (43 pages, 2149787 bytes).
+Output written on tese11.pdf (45 pages, 2805586 bytes).
 PDF statistics:
- 255 PDF objects out of 1000 (max. 8388607)
- 152 compressed objects within 2 object streams
+ 265 PDF objects out of 1000 (max. 8388607)
+ 156 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 139 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 149 words of extra memory for PDF output out of 10000 (max. 10000000)
 

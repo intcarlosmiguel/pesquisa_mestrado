@@ -271,10 +271,12 @@ def adj(df,contacts,contacts02,Nmortos):
 
 
 def generate_vacinado(plot = 0,erro = 0):
-    infect_vacinado = os.listdir('./C/vacina')
-
+    infect_vacinado = [i for i in os.listdir('./C/vacina')]
+    prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
+    nomes = [i.split("_")[-2]+"\n"+i.split("_")[-1][:4] for i in infect_vacinado]
     vac = []
-
+    #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
+    #cores = ["#"+i for i in cores]
     for i in infect_vacinado:
         x = np.loadtxt(f'./C/vacina/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
@@ -282,20 +284,36 @@ def generate_vacinado(plot = 0,erro = 0):
     plt.figure(figsize=(12,7),dpi=500)
     y =[]
     x = []
-    for infect,file in zip(vac,infect_vacinado):
+    integral = []
+    mark = {
+        0.0:"D",
+        0.5:"o",
+        1.0:'8',
+    }
+    for infect,file,p in zip(vac,infect_vacinado,prob):
+        integral.append(np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2]))))
         if(erro == 0):
-            plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,s = 5,marker ='D')
+            
+            plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,marker =mark[p])
         elif(erro == 1):
             plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file,alpha = 0.5)
+    plt.legend()
+    plt.ylabel('Número de Hospitalizados'if(plot ==0) else 'Número de Mortos')
+    plt.xlabel('Fração de Vacinados')
+    plt.savefig('./img/infect/hospitalizado_fracao.jpg' if(plot ==0) else './img/infect/mortos_fracao.jpg')
+    plt.show()
+    
+    plt.figure(figsize=(15,7),dpi=500)
+    integral = np.array(integral)
+    arr = np.argsort(integral)
+    plt.bar(np.array(nomes)[arr][:10],integral[arr][:10])
     y = np.array(y)
     x = np.array(x)
 
     plt.plot()
-    plt.legend()
-    plt.grid()
-    plt.ylabel('Número de Hospitalizados'if(plot ==0) else 'Número de Mortos')
-    plt.xlabel('Fração de Vacinados')
-    plt.savefig('./img/infect/hospitalizado_fracao.jpg' if(plot ==0) else './img/infect/mortos_fracao.jpg')
+    #plt.legend()
+    #plt.grid()
+    
     plt.show()
     
 
