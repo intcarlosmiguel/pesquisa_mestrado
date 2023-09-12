@@ -340,21 +340,24 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check){
     file = fopen(filename,"w");
     for (int i = 0; i < linhas; i++){
         char print[100] = "";
+        char resultado[100] = "";
         for(int j = 0;j<colunas;j++){
             switch (check){
                 case sizeof(int)/* constant-expression */:
-                    if(j != colunas-1) sprintf(print,"%s%d ",print,((int**)array)[i][j]);
-                    else  sprintf(print,"%s%d\n",print,((int**)array)[i][j]);
+                    if(j != colunas-1) sprintf(print,"%d ",((int**)array)[i][j]);
+                    else  sprintf(print,"%d\n",((int**)array)[i][j]);
+                    strcat(resultado, print);
                     break;
                 case sizeof(double):
-                    if(j != colunas-1) sprintf(print,"%s%f ",print,((double**)array)[i][j]);
-                    else  sprintf(print,"%s%f\n",print,((double**)array)[i][j]);
+                    if(j != colunas-1) sprintf(print,"%f ",((double**)array)[i][j]);
+                    else  sprintf(print,"%f\n",((double**)array)[i][j]);
+                    strcat(resultado, print);
                     break;
                 default:
                     break;
             }
         }
-        fprintf(file,"%s",print);
+        fprintf(file,"%s",resultado);
     }
     fclose(file);
 }

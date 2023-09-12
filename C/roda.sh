@@ -1,0 +1,2 @@
+gcc -I/home/miguel/Downloads/igraph-0.10.4/build/include -I/home/miguel/Downloads/igraph-0.10.4/include main.c bib/rede.c bib/calc.c bib/mtwister.c bib/infect.c bib/CM.c bib/SBM.c bib/LCM.c -o main -l -L -lm -Ibib -ligraph -O3
+./main 1000 2029 1 8 100 100

@@ -270,15 +270,15 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.show()
 
 
-def generate_vacinado(plot = 0,erro = 0):
-    infect_vacinado = [i for i in os.listdir('./C/vacina')]
+def generate_vacinado(plot = 0,erro = 0,N = 7189):
+    infect_vacinado = [i for i in os.listdir(f'./C/vacina/{N}') if("0.00" in i)]
     prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
     nomes = [i.split("_")[-2]+"\n"+i.split("_")[-1][:4] for i in infect_vacinado]
     vac = []
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/vacina/{i}')
+        x = np.loadtxt(f'./C/vacina/{N}/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
     plt.figure(figsize=(12,7),dpi=500)
@@ -296,7 +296,7 @@ def generate_vacinado(plot = 0,erro = 0):
             
             plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,marker =mark[p])
         elif(erro == 1):
-            plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file,alpha = 0.5)
+            plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file.split("_")[2],alpha = 0.5)
     plt.legend()
     plt.ylabel('Número de Hospitalizados'if(plot ==0) else 'Número de Mortos')
     plt.xlabel('Fração de Vacinados')
@@ -309,7 +309,7 @@ def generate_vacinado(plot = 0,erro = 0):
     plt.bar(np.array(nomes)[arr][:10],integral[arr][:10])
     y = np.array(y)
     x = np.array(x)
-
+    
     plt.plot()
     #plt.legend()
     #plt.grid()
