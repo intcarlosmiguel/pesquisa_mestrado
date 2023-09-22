@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import plotly.graph_objs as go
 from bib.cleaning import *
 from scipy import stats
 from sklearn.linear_model import LinearRegression
@@ -270,10 +271,10 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.show()
 
 
-def generate_vacinado(plot = 0,erro = 0,N = 7189):
-    infect_vacinado = [i for i in os.listdir(f'./C/vacina/{N}') if("0.00" in i)]
+def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
+    infect_vacinado = [i for i in os.listdir(f'./C/vacina/{N}') if(f"{c}0" in i)]
     prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
-    nomes = [i.split("_")[-2]+"\n"+i.split("_")[-1][:4] for i in infect_vacinado]
+    nomes = [i.split("_")[-2] for i in infect_vacinado]
     vac = []
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
@@ -281,7 +282,120 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189):
         x = np.loadtxt(f'./C/vacina/{N}/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
-    plt.figure(figsize=(12,7),dpi=500)
+    integral = []
+    fig = go.Figure()
+    arquivo = {
+        "k":"CK",
+        "eigenvector":"CE",
+        "clustering":"CC",
+        "idade":"CI",
+        "grau":"CG",
+        "harmonic":"CH",
+        "random":"CR",
+        "close":"CCO",
+        "eccentricity":"CEC",
+        "betweenness":"CB"
+    }
+    df = {}
+    for infect,file,p in zip(vac,infect_vacinado,prob):
+        integral.append(np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2]))))
+        if(erro == 0):
+            #plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,marker =mark[p])
+            fig.add_trace(
+                go.Scatter(
+                    x=infect[0], 
+                    y=infect[1 if(plot ==0) else 2], 
+                    mode='markers', 
+                    name=arquivo[file.split("_")[2]],
+                    marker=dict(
+                        size = 5,
+                    )
+                )
+            )
+            #print(file.split("_")[2],len(infect[1 if(plot ==0) else 2]))
+            df[arquivo[file.split("_")[2]]] = infect[1 if(plot ==0) else 2]
+        elif(erro == 1):
+            pass
+            #plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file.split("_")[2],alpha = 0.5)
+    
+    tit = 'Hospitalizados' if(plot ==0) else 'Mortos'
+    fig.update_layout(
+        width=800,  # Largura do gráfico em pixels
+        height=800,  # Altura do gráfico em pixels
+        xaxis=dict(title='Tempo'),
+        #xaxis=dict(),
+        yaxis=dict(title='Número de Hospitalizados'if(plot ==0) else 'Número de Mortos'),
+        template = "seaborn"
+    )
+    fig.show()
+    fig.write_image(f'./img/infect/vacinas_{tit}_{c}0.png')
+    #print(integral)
+    #plt.figure(figsize=(15,7),dpi=500)
+    arquivo = {
+        "shell":"CK",
+        "eigenvector":"CE",
+        "clustering":"CC",
+        "idade":"CI",
+        "grau":"CG",
+        "harmonic":"CH",
+        "random":"CR",
+        "close":"CCO",
+        "eccentricity":"CEC",
+        "betweenness":"CB"
+    }
+    integral = np.array(integral)
+    arr = np.argsort(integral)
+
+    bar = go.Figure()
+    bar.add_trace(
+        go.Bar(
+            x=[arquivo[i] for i in np.array(nomes)[arr][:10]],  # Categorias no eixo X
+            y=integral[arr][:10],  # Valores no eixo Y
+            text=np.round(integral[arr][:10],4),  # Texto exibido no topo de cada barra
+            textposition='auto'  # Posição do texto ('auto' para escolher automaticamente a melhor posição)
+        )
+    )
+    bar.update_layout(
+        xaxis=dict(title='Estratégia'),
+        yaxis=dict(title='Integral'),
+        template = "seaborn"
+    )
+
+    bar.show()
+    bar.write_image(f'./img/infect/vacinas_bar_{tit}_{c}0.png')
+    #plt.bar(np.array(nomes)[arr][:10],integral[arr][:10])
+
+    df = pd.DataFrame(df)
+    matriz_correlacao = df.corr().T
+    heat = go.Figure(data=go.Heatmap(
+        z=matriz_correlacao.values,  # Os valores para o heatmap
+        x=matriz_correlacao.columns,  # Rótulos do eixo X (colunas do DataFrame)
+        y=matriz_correlacao.index,  # Rótulos do eixo Y (índices do DataFrame)
+        colorscale='Cividis_r', 
+    ))
+    annotations = []
+    for i in range(len(matriz_correlacao.index)):
+        for j in range(len(matriz_correlacao.index)):
+            annotations.append(dict(x=matriz_correlacao.index[j], 
+                                    y=matriz_correlacao.index[i],
+                                    text=str(np.round(matriz_correlacao.values[i, j], 2)),
+                                    showarrow=False,
+                                    font=dict(color='white' if(matriz_correlacao.values[i, j] > np.max(matriz_correlacao)*0.95) else 'black' )))
+
+    heat.update_layout(
+        width=800,  # Largura do gráfico em pixels
+        height=800,  # Altura do gráfico em pixels
+        #xaxis=dict(title='Tempo'),
+        #xaxis=dict(),
+        #yaxis=dict(title='Fração'),
+        #template = "seaborn"
+        annotations = annotations
+    )
+    
+    # Mostrar o heatmap
+    heat.show()
+    heat.write_image(f'./img/infect/vacinas_heat_{tit}_{c}0.png')
+    """ plt.figure(figsize=(12,7),dpi=500)
     y =[]
     x = []
     integral = []
@@ -314,7 +428,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189):
     #plt.legend()
     #plt.grid()
     
-    plt.show()
+    plt.show() """
     
 
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):

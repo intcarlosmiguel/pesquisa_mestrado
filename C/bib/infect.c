@@ -258,6 +258,9 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
     int i = 0;
     double rate = 0;
     for (i = 0; i < N; i++) prob_estagio[i] = genrand64_real1();
+
+    int ultimo = 0;
+
     while(E0!=0){
         double r = genrand64_real1();
         site = r*N;
@@ -278,6 +281,8 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
     double Delta;
     double new_rate;
     int original = site;
+
+    
     while (s != 0){
         //rate = 0;
         /* if(((int)ano == 60) || (ano == 0)){
@@ -320,7 +325,7 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
             rate += rates[vizinho];
         }
         igraph_vector_int_destroy(&vizinhos);
-        
+        //printf("%d\n",ultimo);
         /*rate = 0;
         for (i = 0; i < N; i++){
             rates[i] = calc_estagio(i, estagio,prob_estagio,&Grafo,vacinado,hospitalizacao,morte);
@@ -445,6 +450,21 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
         
 
     }
+    if(ano <= dias){
+        for (i = s; i < dias*50; i++){
+            if((f == 0.5) || (f == 1.0)|| (f == 0.0)){
+                infect_time[i][0] += (double)Suscetiveis/N;
+                infect_time[i][1] += (double)Expostos/N;
+                infect_time[i][2] += (double)Assintomaticos/N;
+                infect_time[i][3] += (double)Sintomaticos/N;
+                infect_time[i][4] += (double)Hospitalizados/N;
+                infect_time[i][5] += (double)Recuperados/N;
+                infect_time[i][6] += (double)Mortos/N;
+                quant[i]++;
+            }
+        }
+    }
+
     
     final[0] += (double) Nhospitalizados/N;
     final[1] += (double) Mortos/N;
@@ -461,7 +481,7 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
     igraph_destroy(&Grafo);
     free(foi_vacinado);
     //printf("\e[1;1H\e[2J");
-    //printf("%d %f\n",foi,ano);
+    //printf("%d\n",foi);
     //foi++;
 }
 
@@ -483,10 +503,12 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
     final[3] = 0;
 
     for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,final,f,vacina,redes);
+    //printf("Foi\n");
     if((f == 0.5) || (f == 1.0) || (f == 0.0)){
         for (i = 0; i < tempo; i++){
+            //printf("%d %f %f\n",i,quant[i],infect_time[i][0]);
             if(quant[i] == 0){
-                tempo = i+1;
+                tempo = i;
                 infect_time = (double**) realloc(infect_time,tempo*sizeof(double*));
                 break;
             }
@@ -495,8 +517,11 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
     }
     //for (i = 0; i < tempo; i++) infect_time[i][8] = pow(infect_time[i][8] - pow(infect_time[i][7],2),0.5);
     for(i = 0;i < 4;i++) final[i] /= redes;
-    char *filecheck = "./time/infect.txt";
-    if((f == 0)) generate_file(filecheck,infect_time,tempo,7,sizeof(infect_time[0][0]));
+    if((f == 0)){
+        char filecheck[800];
+        sprintf(filecheck,"./time/%d/infect_%.2f.txt",N,p);
+        generate_file(filecheck,infect_time,tempo,7,sizeof(infect_time[0][0]));
+    }
 
     if((f == 0.5) || (f == 1.0)){
         if(redes != 1){

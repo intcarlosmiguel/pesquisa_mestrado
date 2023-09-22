@@ -1,4 +1,44 @@
 gcc -I/home/miguel/Downloads/igraph-0.10.4/build/include -I/home/miguel/Downloads/igraph-0.10.4/include main.c bib/rede.c bib/calc.c bib/mtwister.c bib/infect.c bib/CM.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3
 
 
-./main 0 7189 1 0 100 0
+for i in {1..100}; do
+    ./main $i 2028 1000 7 0 $i &
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear 
+for i in {1..100}; do
+    ./main $i 2028 1000 7 50 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 1000 7 100 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 1000 8 0 $i &
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear 
+for i in {1..100}; do
+    ./main $i 2028 1000 8 50 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 1000 8 100 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
