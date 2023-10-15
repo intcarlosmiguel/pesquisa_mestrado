@@ -2,43 +2,107 @@ gcc -I/home/miguel/Downloads/igraph-0.10.4/build/include -I/home/miguel/Download
 
 
 for i in {1..100}; do
-    ./main $i 2028 1000 7 0 $i &
+    ./main $i 2028 800 5 0 $i &
     if (($i % 10 == 0)); then
         wait
     fi
 done
 clear 
 for i in {1..100}; do
-    ./main $i 2028 1000 7 50 $i & 
+    ./main $i 2028 800 5 50 $i & 
     if (($i % 10 == 0)); then
         wait
     fi
 done
 clear
 for i in {1..100}; do
-    ./main $i 2028 1000 7 100 $i & 
+    ./main $i 2028 800 5 100 $i & 
     if (($i % 10 == 0)); then
         wait
     fi
 done
 clear
 for i in {1..100}; do
-    ./main $i 2028 1000 8 0 $i &
+    ./main $i 2028 800 6 0 $i &
     if (($i % 10 == 0)); then
         wait
     fi
 done
 clear 
 for i in {1..100}; do
-    ./main $i 2028 1000 8 50 $i & 
+    ./main $i 2028 800 6 50 $i & 
     if (($i % 10 == 0)); then
         wait
     fi
 done
 clear
 for i in {1..100}; do
-    ./main $i 2028 1000 8 100 $i & 
+    ./main $i 2028 800 6 100 $i & 
     if (($i % 10 == 0)); then
         wait
     fi
 done
+clear
+for i in {1..100}; do
+    ./main $i 2028 800 7 0 $i &
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear 
+for i in {1..100}; do
+    ./main $i 2028 800 7 50 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 800 7 100 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 800 8 0 $i &
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear 
+for i in {1..100}; do
+    ./main $i 2028 800 8 50 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 800 8 100 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 800 9 0 $i &
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear 
+for i in {1..100}; do
+    ./main $i 2028 800 9 50 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear
+for i in {1..100}; do
+    ./main $i 2028 800 9 100 $i & 
+    if (($i % 10 == 0)); then
+        wait
+    fi
+done
+clear

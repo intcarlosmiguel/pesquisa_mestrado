@@ -500,7 +500,7 @@ def generate_distribution_byfaixas(contagem,faixas):
     C = []
     S = []
     eixos = ([0,0],[0,1],[1,0],[1,1],[2,0])
-    fig, axs = plt.subplots(3, 2, figsize=(12, 17))
+    fig, axs = plt.subplots(3, 2, figsize=(10, 15))
     for faixa,eix in zip(range(5),eixos):
         g = graus[faixas == faixa]
         x = np.arange(59+1)
@@ -531,17 +531,24 @@ def generate_distribution_byfaixas(contagem,faixas):
                 max_ = max
         y =y[x<max_]
         x = x[x<max_]
+        if(faixa+1 >= 4):
+            x[(x < 25) & (x >15)] = np.mean(x[(x < 25) & (x >15)])
+            y[(x < 25) & (x >15)] = np.mean(y[(x < 25) & (x >15)])
+            x[x > 25] = np.mean(x[x>25])
+            y[x > 25] = np.mean(y[x>25])
         angular, beta,r2 = LM(x,np.log(y),-1)
         C.append(beta)
         A.append(angular)
 
-        axs[eix[0],eix[1]].scatter(x,np.log(y),alpha = 0.8)
+        axs[eix[0],eix[1]].scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.)
         axs[eix[0],eix[1]].plot(x,x*angular + beta,c = 'red',label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,angular,beta))
         axs[eix[0],eix[1]].set_title(f"Faixa {faixa+1}")
         axs[eix[0],eix[1]].set_xlabel(f"Número de Ligações")
         axs[eix[0],eix[1]].set_ylabel(f"log(P)")
         axs[eix[0],eix[1]].grid()
         axs[eix[0],eix[1]].legend()
+    #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+    plt.tight_layout()
     axs[2, 1].axis('off')
     #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
     axs[2, 0].set_position([0.25, 0.05, 0.5, 0.25])

@@ -528,34 +528,34 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
             char filename[800];
             switch (vacina){
                 case 0:
-                    sprintf(filename,"./time/%d/infect_idade_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_idade_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 1:
-                    sprintf(filename,"./time/%d/infect_grau_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_grau_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 2:
-                    sprintf(filename,"./time/%d/infect_close_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_close_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 3:
-                    sprintf(filename,"./time/%d/infect_harmonic_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_harmonic_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 4:
-                    sprintf(filename,"./time/%d/infect_betwenness_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_betwenness_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 5:
-                    sprintf(filename,"./time/%d/infect_eigenvector_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_eigenvector_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 6:
-                    sprintf(filename,"./time/%d/infect_eccentricity_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_eccentricity_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 7:
-                    sprintf(filename,"./time/%d/infect_clustering_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_clustering_%.2f_%.2f.txt",N,p,f);
                     break;
                 case 8:
-                    sprintf(filename,"./time/%d/infect_kshell_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_kshell_%.2f_%.2f.txt",N,p,f);
                     break;
                 default:
-                    sprintf(filename,"./time/%d/infect_random_%.2f_%.2f.txt",N,p,f);
+                    sprintf(filename,"./output/time/%d/infect_random_%.2f_%.2f.txt",N,p,f);
                     break;
             }
             generate_file(filename,infect_time,tempo,7,sizeof(double));
@@ -567,34 +567,34 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
         char filename[800];
         switch (vacina){
             case 0:
-                sprintf(filename,"./vacina/%d/infect_vacina_idade_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_idade_%.2f.txt",N,p);
                 break;
             case 1:
-                sprintf(filename,"./vacina/%d/infect_vacina_grau_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_grau_%.2f.txt",N,p);
                 break;
             case 2:
-                sprintf(filename,"./vacina/%d/infect_vacina_close_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_close_%.2f.txt",N,p);
                 break;
             case 3:
-                sprintf(filename,"./vacina/%d/infect_vacina_harmonic_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_harmonic_%.2f.txt",N,p);
                 break;
             case 4:
-                sprintf(filename,"./vacina/%d/infect_vacina_betweenness_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_betweenness_%.2f.txt",N,p);
                 break;
             case 5:
-                sprintf(filename,"./vacina/%d/infect_vacina_eigenvector_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_eigenvector_%.2f.txt",N,p);
                 break;
             case 6:
-                sprintf(filename,"./vacina/%d/infect_vacina_eccentricity_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_eccentricity_%.2f.txt",N,p);
                 break;
             case 7:
-                sprintf(filename,"./vacina/%d/infect_vacina_clustering_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_clustering_%.2f.txt",N,p);
                 break;
             case 8:
-                sprintf(filename,"./vacina/%d/infect_vacina_kshell_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_kshell_%.2f.txt",N,p);
                 break;
             default:
-                sprintf(filename,"./vacina/%d/infect_vacina_random_%.2f.txt",N,p);
+                sprintf(filename,"./output/vacina/%d/infect_vacina_random_%.2f.txt",N,p);
                 break;
         }
         file = fopen(filename,"a");

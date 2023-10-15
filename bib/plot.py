@@ -3,10 +3,17 @@ import numpy as np
 import math
 import plotly.graph_objs as go
 from bib.cleaning import *
-from scipy import stats
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 import matplotlib as mpl
+from scipy.stats import chi2_contingency,ks_2samp
+
+import plotly.express as px
+
+import pandas as pd
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+
 font = {'family': 'monospace',
             'size': 16,
             }
@@ -270,79 +277,97 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.savefig("./img/map.jpg")
     plt.show()
 
-
 def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
-    infect_vacinado = [i for i in os.listdir(f'./C/vacina/{N}') if(f"{c}0" in i)]
+    infect_vacinado = [i for i in os.listdir(f'./C/output/vacina/{N}') if(f"{c}0" in i)]
     prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
     nomes = [i.split("_")[-2] for i in infect_vacinado]
     vac = []
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/vacina/{N}/{i}')
+        x = np.loadtxt(f'./C/output/vacina/{N}/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
     integral = []
     fig = go.Figure()
     arquivo = {
-        "k":"CK",
-        "eigenvector":"CE",
+        "kshell":"CK",
+        "eigenvector":"CA",
         "clustering":"CC",
         "idade":"CI",
         "grau":"CG",
         "harmonic":"CH",
         "random":"CR",
-        "close":"CCO",
-        "eccentricity":"CEC",
+        "close":"CP",
+        "eccentricity":"CE",
         "betweenness":"CB"
     }
+
+    colors = px.colors.qualitative.Prism
+
+    cores = {}
+
+    for i,j in zip(list(arquivo.keys()),colors):
+        cores[i] = j
     df = {}
+    M = []
+    ylabel = []
     for infect,file,p in zip(vac,infect_vacinado,prob):
         integral.append(np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2]))))
-        if(erro == 0):
-            #plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,marker =mark[p])
-            fig.add_trace(
-                go.Scatter(
-                    x=infect[0], 
-                    y=infect[1 if(plot ==0) else 2], 
-                    mode='markers', 
-                    name=arquivo[file.split("_")[2]],
-                    marker=dict(
-                        size = 5,
-                    )
+        y = infect[1 if(plot ==0) else 2]
+        fig.add_trace(
+            go.Scatter(
+                x=infect[0][np.argsort(infect[0])], 
+                y=y[np.argsort(infect[0])], 
+                mode='markers', 
+                name=arquivo[file.split("_")[2]],
+                marker=dict(
+                    size = 5,
+                    color = cores[file.split("_")[2]]
+                ),
+                error_y=dict(
+                    type='data',  # Ajuste para 'percent' se desejar barras de erro em percentagem
+                    array=infect[3 if(plot ==0) else 4]/np.sqrt(200),
+                    visible = erro == 1
                 )
             )
-            #print(file.split("_")[2],len(infect[1 if(plot ==0) else 2]))
-            df[arquivo[file.split("_")[2]]] = infect[1 if(plot ==0) else 2]
-        elif(erro == 1):
-            pass
-            #plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file.split("_")[2],alpha = 0.5)
+        )
+        M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
+        ylabel.append(arquivo[file.split("_")[2]])
+        df[arquivo[file.split("_")[2]]] = infect[1 if(plot ==0) else 2]
     
     tit = 'Hospitalizados' if(plot ==0) else 'Mortos'
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
         height=800,  # Altura do gráfico em pixels
-        xaxis=dict(title='Tempo'),
+        xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=15)),
         #xaxis=dict(),
-        yaxis=dict(title='Número de Hospitalizados'if(plot ==0) else 'Número de Mortos'),
-        template = "seaborn"
+        yaxis=dict(title='Fração de Hospitalizados'if(plot ==0) else 'Fração de Mortos',tickfont=dict(size=15)),
+        template = "seaborn",
+        paper_bgcolor='rgba(0,0,0,0)',
     )
+    s = 20
+    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
-    fig.write_image(f'./img/infect/vacinas_{tit}_{c}0.png')
+    if(erro == 0):
+        fig.write_image(f'./img/infect/vacinas_{tit}_{c}0.png')
+    else:
+        fig.write_image(f'./img/infect/vacinas_{tit}_{c}0_erro.png')
     #print(integral)
     #plt.figure(figsize=(15,7),dpi=500)
     arquivo = {
-        "shell":"CK",
-        "eigenvector":"CE",
+        "kshell":"CK",
+        "eigenvector":"CA",
         "clustering":"CC",
         "idade":"CI",
         "grau":"CG",
         "harmonic":"CH",
         "random":"CR",
-        "close":"CCO",
-        "eccentricity":"CEC",
+        "close":"CP",
+        "eccentricity":"CE",
         "betweenness":"CB"
     }
+
     integral = np.array(integral)
     arr = np.argsort(integral)
 
@@ -356,14 +381,15 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
         )
     )
     bar.update_layout(
+        width=800,  # Largura do gráfico em pixels
+        height=600,  # Altura do gráfico em pixels
         xaxis=dict(title='Estratégia'),
         yaxis=dict(title='Integral'),
         template = "seaborn"
     )
 
-    bar.show()
+    #bar.show()
     bar.write_image(f'./img/infect/vacinas_bar_{tit}_{c}0.png')
-    #plt.bar(np.array(nomes)[arr][:10],integral[arr][:10])
 
     df = pd.DataFrame(df)
     matriz_correlacao = df.corr().T
@@ -393,44 +419,16 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
     )
     
     # Mostrar o heatmap
-    heat.show()
-    heat.write_image(f'./img/infect/vacinas_heat_{tit}_{c}0.png')
-    """ plt.figure(figsize=(12,7),dpi=500)
-    y =[]
-    x = []
-    integral = []
-    mark = {
-        0.0:"D",
-        0.5:"o",
-        1.0:'8',
-    }
-    for infect,file,p in zip(vac,infect_vacinado,prob):
-        integral.append(np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2]))))
-        if(erro == 0):
-            
-            plt.scatter(infect[0],infect[1 if(plot ==0) else 2],label = file,marker =mark[p])
-        elif(erro == 1):
-            plt.errorbar(infect[0],infect[1 if(plot ==0) else 2],yerr = infect[3 if(plot ==0) else 4]/math.sqrt(500), markersize=5,errorevery = 1,elinewidth= 1 ,linewidth = 0, capsize=1.5,marker = 'D',label = file.split("_")[2],alpha = 0.5)
-    plt.legend()
-    plt.ylabel('Número de Hospitalizados'if(plot ==0) else 'Número de Mortos')
-    plt.xlabel('Fração de Vacinados')
-    plt.savefig('./img/infect/hospitalizado_fracao.jpg' if(plot ==0) else './img/infect/mortos_fracao.jpg')
-    plt.show()
+    heat_map(
+        np.array(M),
+        np.arange(1,101)[np.arange(1,101)%10 == 0]/100,
+        ylabel,
+        f'/infect/vacinas_heat_{tit}_{c}0.png',
+        'Fração de Vacinados',
+        'Estratégias',
+        4,
+    )
     
-    plt.figure(figsize=(15,7),dpi=500)
-    integral = np.array(integral)
-    arr = np.argsort(integral)
-    plt.bar(np.array(nomes)[arr][:10],integral[arr][:10])
-    y = np.array(y)
-    x = np.array(x)
-    
-    plt.plot()
-    #plt.legend()
-    #plt.grid()
-    
-    plt.show() """
-    
-
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
 
     infect_shape = [i for i in os.listdir("./C/output/infect/") if(('shape' in i) & ('txt' in i))]
@@ -490,7 +488,6 @@ def infect_distribution():
     plt.xlim(0,60)
     plt.savefig('./img/infect/grau_tempo.jpg')
     plt.show()
-
 
 def time():
     
@@ -682,3 +679,255 @@ def plot_idades(a):
     plt.title("Histograma de Idades")
     plt.grid()
     plt.show()
+
+def heat_map(
+        Matrix,
+        xlabel,
+        ylabel,
+        name,
+        xname = 'Faixa etária',
+        yname = 'Faixa etária',
+        round_ = 3,
+        percentage = False,
+    ):
+    fig = go.Figure(data=go.Heatmap(z=Matrix,colorscale = px.colors.sequential.Cividis_r))
+    fontsize = 15
+    for i in range(Matrix.shape[0]):
+        for j in range(Matrix.shape[1]):
+            fig.add_annotation(
+                text=str(np.round(Matrix[i][j]*100,round_)) + "%" if(percentage) else str(np.round(Matrix[i][j],round_)),
+                x=j,
+                y=i,
+                xref='x',
+                yref='y',
+                showarrow=False,
+                font=dict(color="black" if(Matrix[i][j] < 0.72*np.max(Matrix)) else 'white')
+            )
+    fig.update_layout(
+        height = 700,
+        width = 700,
+        xaxis=dict(
+            title=xname,
+            tickvals = np.arange(Matrix.shape[1]),
+            ticktext = xlabel,
+            tickfont=dict(size=fontsize)
+        ),
+        yaxis=dict(
+            title=yname,
+            tickvals = np.arange(Matrix.shape[0]),
+            ticktext = ylabel,
+            tickfont=dict(size=fontsize)
+        ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(
+            #family="Courier New, monospace",
+            size=fontsize,
+            #color="RebeccaPurple"
+        ),
+    )
+    s = 20
+    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
+    fig.show()
+    if(len(name) != 0):
+        fig.write_image(f"./img/{name}.png")
+
+
+def creates_plot(data,coluna1,coluna2,tr1,tr2,fig,row,col,showlegend =True,cor = px.colors.qualitative.T10):
+    df = data[[coluna1,coluna2]]
+    df = df.dropna()
+    phy = df[coluna2].unique()
+    dados = {
+        coluna2 : [],
+    }
+    
+    for i in tr2:
+        dados[i] = []
+
+    for i in phy:
+        x,y = np.unique(df[df[coluna2] == i][coluna1],return_counts=True)
+        dados[coluna2].append(tr1[i])
+        y = y/np.sum(y)
+        for k in range(len(tr2)):
+            dados[tr2[k]].append(y[k])
+    
+    dados = pd.DataFrame(dados)
+    chi2_stat, p_val, dof, expected = chi2_contingency(dados.values[:,1:])
+    # Exibe os resultados
+    #print("Estatística qui-quadrado:", chi2_stat)
+    #print("Valor p:", p_val)
+    #print("Graus de liberdade:", dof)
+    #print("Frequências esperadas:")
+    #print(expected)
+    for i in range(1, len(dados.columns)):
+        fig.add_trace(
+            go.Bar(
+                x=dados[coluna2][np.argsort(dados.iloc[:, i])],
+                y=dados.iloc[:, i][np.argsort(dados.iloc[:, i])],
+                name=dados.columns[i],
+                showlegend=showlegend,
+                marker=dict(color=cor[i-1]),
+                legendgroup = row+col*2,
+            ),
+            
+            row = row,
+            col = col,
+        )
+
+    return fig
+
+
+def create_multi_bar(polymod):
+    fig = make_subplots(rows=2, cols=2)
+    tr1 = {
+        1:'< 5 minutos',
+        2:'Entre 5 e 15 minutos',
+        3:'Entre 15 minutos e 1 hora',
+        4:'Entre 1 e 4 horas',
+        5:'> 4 horas'
+    }
+    tr2 = ['Com contato físico','Sem contato físico']
+    fig = creates_plot(polymod,'phys_contact','duration_multi',tr1,tr2,fig,1,1)
+    tr1 = {
+        1:'Diário',
+        2:'Semanalmente',
+        3:'Mensalmente',
+        4:'1 vez por ano',
+        5:'Primeira vez'
+    }
+    tr2 = ['Com contato físico','Sem contato físico']
+    fig = creates_plot(polymod,'phys_contact','frequency_multi',tr1,tr2,fig,1,2,False)
+
+    tr1 = {
+        1:'Diário',
+        2:'Semanalmente',
+        3:'Mensalmente',
+        4:'1 vez por ano',
+        5:'Primeira vez'
+    }
+
+    tr2 = [
+        '< 5 minutos',
+        'Entre 5 e 15 minutos',
+        'Entre 15 minutos e 1 hora',
+        'Entre 1 e 4 horas',
+        '> 4 horas'
+    ]
+
+    fig = creates_plot(polymod,'duration_multi','frequency_multi',tr1,tr2,fig,2,1,True,px.colors.qualitative.Prism)
+
+    cor = px.colors.qualitative.T10
+    df = polymod[['phys_contact','cnt_home','cnt_work','cnt_school','cnt_transport','cnt_leisure','cnt_otherplace']].dropna()
+    dados = {
+        'locais' : [
+            'Casa',
+            'Trabalho',
+            "Escola",
+            "Transporte",
+            "Lazer",
+            'Outros Locais'
+        ],
+        'Com contato físico': [],
+        "Sem contato físico": [],
+    }
+    for coluna in df.columns[1:]:
+        x,y = np.unique(df['phys_contact'].values[df[coluna].astype(bool).values],return_counts=True)
+        y = y/np.sum(y)
+        dados['Com contato físico'].append(y[0])
+        dados['Sem contato físico'].append(y[1])
+    dados = pd.DataFrame(dados)
+    for i in range(1, len(dados.columns)):
+            
+        fig.add_trace(
+            go.Bar(
+                x=dados['locais'][np.argsort(dados.iloc[:, i])],
+                y=dados.iloc[:, i][np.argsort(dados.iloc[:, i])],
+                name=dados.columns[i],
+                showlegend=False,
+                marker=dict(color=cor[i-1]),
+                legendgroup = 2+2*2,
+            ),
+            
+            row = 2,
+            col = 2,
+        )
+
+    fig.update_layout(
+        width = 1000,
+        height = 800,
+        barmode='stack',
+        template = 'seaborn',
+        #legend_tracegroupgap=390
+    )
+
+    fig.show()
+    fig.write_image("./img/graficos.png")
+
+
+def compara(modelo_k,polymod):
+    contagem = pd.crosstab(polymod['id'], polymod['Contato_idadeFaixas']).values
+    faixas = polymod.drop_duplicates(subset='id')['IdadeFaixas'].values
+
+    fig = make_subplots(rows=5, cols=1, subplot_titles= [f'Faixa {i+1}' for i in range(5)])
+    color = px.colors.qualitative.Dark24
+    for i in range(5):
+        k = np.sum(contagem,axis = 1)[faixas == i]
+        model_k = modelo_k.T[0][modelo_k.T[1] == i]
+        x,y = np.unique(k,return_counts=True)
+        x_,y_ = np.unique(model_k,return_counts=True)
+        y = y/np.sum(y)
+        y_ = y_/np.sum(y_)
+        
+        fig.add_trace(go.Bar(
+                x=x,
+                y=y,
+                showlegend = True if(i == 0) else False,
+                #mode='markers', 
+                marker=dict(color=color[0]),
+                name = 'Dados',
+            ),
+            row=i+1,
+            col=1,
+        )
+
+        fig.add_trace(go.Bar(
+                x=x,
+                y=y_,
+                showlegend = True if(i == 0) else False,
+                #mode='markers', 
+                marker=dict(color=color[1]),
+                name = 'Modelo',
+            ),
+            row=i+1,
+            col=1,
+            
+        )
+        fig.update_xaxes(
+            tickfont=dict(size=15),
+            row=i+1,
+            col=1,
+            range=[0, 40]
+        )
+        statistic, p_value = ks_2samp(k, model_k)
+
+        # Interpretando o resultado
+        alpha = 0.05  # Nível de significância
+        if p_value > alpha:
+            print("As amostras provavelmente vêm da mesma distribuição.")
+        else:
+            print("As amostras provavelmente vêm de distribuições diferentes.")
+    fig.update_layout(
+        width=600,  # Largura do gráfico em pixels
+        height=1000,  # Altura do gráfico em pixels
+        #xaxis=dict(range=[0, 40],tickfont=dict(size=15)),
+        #xaxis=dict(),
+        #yaxis=dict(title='Fração',tickfont=dict(size=15)),
+        template = "seaborn",
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(
+            size=15,
+        ),
+    )
+    s = 22
+    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
+    fig.show()
+    fig.write_image("./img/comparacao.png")
