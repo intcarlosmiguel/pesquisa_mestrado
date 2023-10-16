@@ -16,16 +16,17 @@
 #include "bib/infect.h"
 
 int main(int argc,char *argv[ ]){
-    //generate_local_configuration_model(0.,100);
-    //generate_local_configuration_model(0.5,100);
-    //generate_local_configuration_model(1.,100);
+    //double prob = atof(argv[1]);
+    generate_local_configuration_model(0 ,1000,42);
+    generate_local_configuration_model(0.5,1000,4242);
+    generate_local_configuration_model(1.,1000,424242);
 
-    int seed = atoi(argv[1]);
+    /* int seed = atoi(argv[1]);
     int N = atoi(argv[2]);
     int redes = atoi(argv[3]);
     int vacina = atoi(argv[4]);
     int prob = atoi(argv[5]);
     int freq = atof(argv[6]);
-    generate_infect(N,(double)prob/100,seed, redes,(double) freq/100,vacina);
+    generate_infect(N,(double)prob/100,seed, redes,(double) freq/100,vacina); */
     
 }

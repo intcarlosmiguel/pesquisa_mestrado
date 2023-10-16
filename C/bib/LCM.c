@@ -432,8 +432,9 @@ igraph_t local_configuration_model(int N, double p,int seed){
             continue;
         }
         while(menor> vetor_soma(vetor,5)){
-            int ran = genrand64_real1()*5;
-            if(vetor[ran] != 0) vetor[ran]++;
+            double r = genrand64_real1();
+            for(i = 0; i < 5; i++) if(r < constant[faixas][i]) break;
+            if(vetor[i] != 0) vetor[i]++;
         }
         k = vetor_soma(vetor,5);
     
@@ -494,32 +495,52 @@ igraph_t local_configuration_model(int N, double p,int seed){
 }
 
 
-void calcula_propriedades(igraph_t *Grafo, double *resultados,double* prob,double* std_vector,double* k_means) {
+void calcula_propriedades(igraph_t *Grafo,double p, double *resultados,double* prob,double* std_vector,double* k_means) {
     igraph_vector_int_t v;
     double clustering;
     double l;
     double d;
     double* idades = (double *)calloc(5,sizeof(double));
     double* k_mean = (double *)calloc(5,sizeof(double));
+    
+    int i;
+
     int n = igraph_vcount(Grafo);
     igraph_vector_t faixas;
     igraph_vector_init(&faixas, n);
     igraph_vector_int_init(&v, n);
+
     igraph_degree(Grafo, &v, igraph_vss_all(), IGRAPH_IN, IGRAPH_NO_LOOPS);
     igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
     FILE *file;
-    file = fopen("./output/k_idades.txt","a");
-    for (int i = 0; i < n; i++){
+    char filecheck[800];
+    sprintf(filecheck,"./output/modelo/k_idades_%.2f.txt",p);
+    file = fopen(filecheck,"a");
+    FILE *arquivo;
+    sprintf(filecheck,"./output/modelo/matrix_%.2f.txt",p);
+    arquivo = fopen(filecheck,"a");
+    for (i = 0; i < n; i++){
+
         igraph_vector_int_t vizinhos;
         igraph_vector_int_init(&vizinhos, 0);
         igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
+        int* matrix = (int *)calloc(5,sizeof(int));
+        for (int j = 0; j < igraph_vector_int_size(&vizinhos); j++){
+            int vizinho = VECTOR(vizinhos)[j];
+            matrix[(int)VECTOR(faixas)[vizinho]]++;
+        }
+        fprintf(arquivo,"%d %d %d %d %d %d\n",(int)VECTOR(faixas)[i],matrix[0],matrix[1],matrix[2],matrix[3],matrix[4]);
+        free(matrix);
+
         fprintf(file,"%ld %d\n",igraph_vector_int_size(&vizinhos), (int)VECTOR(faixas)[i]);
         idades[(int)VECTOR(faixas)[i]]++;
         k_mean[(int)VECTOR(faixas)[i]] += VECTOR(v)[i];
+
         igraph_vector_int_destroy(&vizinhos);
     }
     fclose(file);
     igraph_vector_int_sort(&v);
+    fclose(arquivo);
     double N0 = 0;
     if(n%2 !=0) N0 = VECTOR(v)[(n-1)/2];
     else N0 = (VECTOR(v)[n/2] + VECTOR(v)[n/2+1])*0.5;
@@ -529,27 +550,16 @@ void calcula_propriedades(igraph_t *Grafo, double *resultados,double* prob,doubl
     double std = sqrt(media2 - pow(media,2));
     igraph_transitivity_avglocal_undirected(Grafo,&clustering,IGRAPH_TRANSITIVITY_ZERO);
     igraph_vector_int_destroy(&v);
-    k_mean[0] /= idades[0];
-    k_mean[1] /= idades[1];
-    k_mean[2] /= idades[2];
-    k_mean[3] /= idades[3];
-    k_mean[4] /= idades[4];
 
-    k_means[0] += k_mean[0];
-    k_means[1] += k_mean[1];
-    k_means[2] += k_mean[2];
-    k_means[3] += k_mean[3];
-    k_means[4] += k_mean[4];
-
-    prob[0] += idades[0]/n;
-    prob[1] += idades[1]/n;
-    prob[2] += idades[2]/n;
-    prob[3] += idades[3]/n;
-    prob[4] += idades[4]/n;
+    for ( i = 0; i < 5; i++){
+        k_mean[i] /= idades[i];
+        k_means[i] += k_mean[i];
+        prob[i] += idades[i]/n;
+    }
     
     igraph_average_path_length(Grafo, &l, NULL, IGRAPH_UNDIRECTED, 1);
     igraph_diameter(Grafo, &d, 0, 0, 0, 0, IGRAPH_UNDIRECTED, 1);
-    //printf("%f %f %f %f %f %f\n",media,N0,std,clustering,l,d);
+
     resultados[0] += media;
     resultados[1] += N0;
     resultados[2] += std;
@@ -562,33 +572,36 @@ void calcula_propriedades(igraph_t *Grafo, double *resultados,double* prob,doubl
     std_vector[3] += pow(clustering,2);
     std_vector[4] += pow(l,2);
     std_vector[5] += pow(d,2);
-    //printf("%f %f %f %f %f\n",k_mean[0],k_mean[1],k_mean[2],k_mean[3],k_mean[4]);
     free(idades);
     igraph_vector_destroy(&faixas);
 }
 
 
-void generate_local_configuration_model(double p, int redes){
+void generate_local_configuration_model(double p, int redes,int seed){
 
     int N = 2029;
     int i;
-    double* resultados = (double *)malloc(6*sizeof(double));
-    double* std = (double *)malloc(6*sizeof(double));
-    double* prob = (double *)malloc(5*sizeof(double));
+
+    double* resultados = (double *)calloc(6,sizeof(double));
+    double* std = (double *)calloc(6,sizeof(double));
+    double* prob = (double *)calloc(5,sizeof(double));
     double* k_mean = (double *)calloc(5,sizeof(double));
+    double clustering;
     for (i = 0; i < redes; i++){
 
         if(redes!=1) printf("\e[1;1H\e[2J");
 
         igraph_t G;
-        G = local_configuration_model(N,p,42+i);
-        
-        if(redes!=1) calcula_propriedades(&G,resultados,prob,std,k_mean);
+        G = local_configuration_model(N,p,seed+i);
+        //igraph_transitivity_avglocal_undirected(&G,&clustering,IGRAPH_TRANSITIVITY_ZERO);
+        //resultados[3] += clustering;
+        //std[3] += pow(clustering,2);
+        if(redes!=1) calcula_propriedades(&G,p,resultados,prob,std,k_mean);
         printf("%d\n",i+1);
-        //if(T == 1) create_network(G,p);
         igraph_destroy(&G);
         
     }
+   
     for (i = 0; i < 6; i++){
         resultados[i] /= redes;
         std[i] /= redes;
@@ -598,17 +611,25 @@ void generate_local_configuration_model(double p, int redes){
         prob[i] /= redes;
         k_mean[i] /= redes;
     }
-
+    
     if(redes > 1){
         FILE *file;
-        file = fopen("./output/resultados.txt","w");
+        char filecheck[800];
+        sprintf(filecheck,"./output/modelo/resultados.txt");
+        file = fopen(filecheck,"a");
+        fprintf(file,"================%.3f================\n",p);
         fprintf(file,"%f %f %f %f %f\n",k_mean[0],k_mean[1],k_mean[2],k_mean[3],k_mean[4]);
         fprintf(file,"%f %f %f %f %f\n",prob[0],prob[1],prob[2],prob[3],prob[4]);
         fprintf(file,"%f(%.2f) %f(%.2f) %f(%.2f) %f(%.2f) %f(%.2f) %f(%.2f) \n",resultados[0],std[0],resultados[1],std[1],resultados[2],std[2],resultados[3],std[3],resultados[4],std[4],resultados[5],std[5]);
         fclose(file);
+
+        /* FILE *arquivo;
+        arquivo = fopen("./output/modelo/clustering.txt","a");
+        fprintf(arquivo,"%f %f %f\n",p,resultados[3],std[3]);
+        fclose(arquivo); */
     }
-    
     free(resultados);
     free(std);
     free(prob);
+    printf("Terminou\n");
 }

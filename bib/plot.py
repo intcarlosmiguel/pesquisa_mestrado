@@ -417,13 +417,15 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
         #template = "seaborn"
         annotations = annotations
     )
-    
+    M = np.array(M)
+    ylabel = np.array(ylabel)
+    arr = np.argsort(integral)[::-1]
     # Mostrar o heatmap
     heat_map(
-        np.array(M),
+        M[arr],
         np.arange(1,101)[np.arange(1,101)%10 == 0]/100,
-        ylabel,
-        f'/infect/vacinas_heat_{tit}_{c}0.png',
+        ylabel[arr],
+        f'/infect/vacinas_heat_{tit}_{c}0',
         'Fração de Vacinados',
         'Estratégias',
         4,
@@ -912,7 +914,7 @@ def compara(modelo_k,polymod):
         # Interpretando o resultado
         alpha = 0.05  # Nível de significância
         if p_value > alpha:
-            print("As amostras provavelmente vêm da mesma distribuição.")
+            print(f"As amostras provavelmente vêm da mesma distribuição {round(p_value,3)}.")
         else:
             print("As amostras provavelmente vêm de distribuições diferentes.")
     fig.update_layout(

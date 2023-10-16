@@ -378,7 +378,6 @@ void load_file(char* filename,void* array,int check){
 }
 
 void generate_multinomial(int n, int k, double *probabilities, int *outcomes) {
-    double remaining_prob = 1.0;
     int i,j;
 
     // Gera os k-1 primeiros valores
