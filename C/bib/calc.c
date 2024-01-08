@@ -100,70 +100,6 @@ void print_vetor(void* array,int N,int check){
         }
     }
 }
-
-void bubbleSort(int *arr, int n, void *ref,int check) {
-    switch (check){
-    case sizeof(int):
-        int temp;
-        int* ref2 = (int*) malloc(n*sizeof(int));
-        for (int i = 0; i < n; i++) ref2[i] = *(int *)(ref + i * sizeof(int)); 
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (ref2[j] > ref2[j + 1]) {
-                    temp = ref2[j];
-                    ref2[j] = ref2[j + 1];
-                    ref2[j + 1] = temp;
-                    temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
-            }
-        }
-        free(ref2);
-        break;
-    case sizeof(double):
-        double temp_;
-        double* ref2_ = (double*) malloc(n*sizeof(double));
-        for (int i = 0; i < n; i++) ref2_[i] = *(double *)(ref + i * sizeof(double)); 
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (ref2_[j] > ref2_[j + 1]) {
-                    temp_ = ref2_[j];
-                    ref2_[j] = ref2_[j + 1];
-                    ref2_[j + 1] = temp_;
-                    temp_ = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp_;
-                }
-            }
-        }
-        free(ref2_);
-        break;
-    default:
-        break;
-    }
-}
-
-void sortIntByRef(int *arr, void *ref, int n,int check) {
-    // cria vetor de índices
-    int idx[n];
-    for (int i = 0; i < n; i++) {
-        idx[i] = i;
-    }
-
-    // ordena o vetor de índices com base no vetor de referência
-    bubbleSort(arr, n, ref,check);
-
-    // reorganiza o vetor original com base no vetor de índices ordenado
-    int sortedArr[n];
-    for (int i = 0; i < n; i++) {
-        sortedArr[i] = arr[idx[i]];
-    }
-    for (int i = 0; i < n; i++) {
-        arr[i] = sortedArr[i];
-    }
-}
-
 int* bubble_sort(int* array,int N){
     
     for (int i = 0 ; i < ( N - 1 ); i++){
@@ -395,6 +331,28 @@ int generalized_geometry(double lambda,double A){
     if(n <0) return generalized_geometry(lambda,A);
     return (int) n;
 }
+
+int* arange(int inicio, int fim, int passo){
+    int N = (int)(fim - inicio)/passo+1;
+    int* array = calloc(N,sizeof(int));
+    for (int i = 0; i < N; i++) array[i] = inicio +passo*i;
+    return array;
+}
+
+double** double_get_array(char* ptr){
+    int linhas = size_txt(ptr);
+    FILE* file;
+    file = fopen(ptr,"r");
+    double** array = (double**) malloc(sizeof(double*)*linhas);
+
+    for(int i = 0; i < linhas; i++) {
+        array[i] = (double*) malloc(sizeof(double)*5);
+        if(fscanf(file,"%lf\t%lf\t%lf\t%lf\t%lf\n",&array[i][0],&array[i][1],&array[i][2],&array[i][3],&array[i][4]));
+    }
+    fclose(file);
+    return array;
+}
+
 
 int empiric_distribution(double* distribution){
     double r = genrand64_real1();

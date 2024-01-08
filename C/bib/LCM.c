@@ -28,18 +28,6 @@ double distance(double* point1,double* point2,int N){
     return distance2;
 }
 
-double** double_get_array(int N,char* ptr){
-    FILE* file;
-    file = fopen(ptr,"r");
-    double** degree = (double**) malloc(sizeof(double*)*N);
-
-    for(int i = 0; i < N; i++) {
-        degree[i] = (double*) malloc(sizeof(double)*5);
-        if(fscanf(file,"%lf\t%lf\t%lf\t%lf\t%lf\n",&degree[i][0],&degree[i][1],&degree[i][2],&degree[i][3],&degree[i][4]));
-    }
-    fclose(file);
-    return degree;
-}
 
 int** get_array(int N,char* ptr){
     FILE* file;
@@ -265,7 +253,7 @@ struct Retorno generate_degree(int N,int seed){
     init_genrand64(seed);
 
     char file_name[200] = "./dados/multi_probability.txt";
-    double** constant = double_get_array(5,file_name);
+    double** constant = double_get_array(file_name);
     double** distribution = distribution_faixas();
 
     int* n_faixa = calloc(5,sizeof(int));
@@ -315,11 +303,9 @@ struct Retorno generate_degree(int N,int seed){
         while(k == 0)k = empiric_distribution(distribution[Return.faixa[i]]);
 
         grau[i] = k;
-
-        generate_multinomial(k, 5, constant[Return.faixa[i]], Return.degree[i]);
-
     }
-
+    bubbleSort_by(Return.faixa,grau,N);
+    for (i = 0; i < N; i++) generate_multinomial(grau[i], 5, constant[Return.faixa[i]], Return.degree[i]);
     //Return.degree = M_bubbleSort(Return.degree,N,5);
     //bubbleSort_by(Return.faixa, grau, N);
 
@@ -389,9 +375,10 @@ igraph_t local_configuration_model(int N, double p,int seed){
             n++;
         }
     }
+    printf("Ligações faltantes: %d\n",ligacoes_total);
     
     char file_names[200] = "./dados/multi_probability.txt";
-    double** constant = double_get_array(5,file_names);
+    double** constant = double_get_array(file_names);
     double** distribution = distribution_faixas();
     double* p_faixas = malloc(5*sizeof(double));
     double r;

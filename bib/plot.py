@@ -329,7 +329,8 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
                     type='data',  # Ajuste para 'percent' se desejar barras de erro em percentagem
                     array=infect[3 if(plot ==0) else 4]/np.sqrt(200),
                     visible = erro == 1
-                )
+                ),
+                opacity = 1.0 if(arquivo[file.split("_")[2]] == "CR" or arquivo[file.split("_")[2]] == "CI" or arquivo[file.split("_")[2]] == "CC") else 0.3,
             )
         )
         M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
@@ -340,11 +341,16 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
         height=800,  # Altura do gráfico em pixels
-        xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=15)),
+        xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=20)),
         #xaxis=dict(),
-        yaxis=dict(title='Fração de Hospitalizados'if(plot ==0) else 'Fração de Mortos',tickfont=dict(size=15)),
+        yaxis=dict(title='Fração de Hospitalizados'if(plot ==0) else 'Fração de Mortos',tickfont=dict(size=20)),
         template = "seaborn",
-        paper_bgcolor='rgba(0,0,0,0)',
+        #paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(
+            #family="Courier New, monospace",
+            size=25,
+            #color="RebeccaPurple"
+        ),
     )
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
@@ -865,17 +871,17 @@ def create_multi_bar(polymod):
     fig.write_image("./img/graficos.png")
 
 
-def compara(modelo_k,polymod):
-    contagem = pd.crosstab(polymod['id'], polymod['Contato_idadeFaixas']).values
-    faixas = polymod.drop_duplicates(subset='id')['IdadeFaixas'].values
+def compara(modelo_k,contagem,faixas):
+    #contagem = pd.crosstab(polymod['id'], polymod['Contato_idadeFaixas']).values
+    #faixas = polymod.drop_duplicates(subset='id')['IdadeFaixas'].values
 
     fig = make_subplots(rows=5, cols=1, subplot_titles= [f'Faixa {i+1}' for i in range(5)])
     color = px.colors.qualitative.Dark24
     for i in range(5):
         k = np.sum(contagem,axis = 1)[faixas == i]
-        model_k = modelo_k.T[0][modelo_k.T[1] == i]
+        modelo = np.sum(modelo_k[:,1:],axis = 1)[modelo_k.T[0] == i]
         x,y = np.unique(k,return_counts=True)
-        x_,y_ = np.unique(model_k,return_counts=True)
+        x_,y_ = np.unique(modelo,return_counts=True)
         y = y/np.sum(y)
         y_ = y_/np.sum(y_)
         
@@ -892,7 +898,7 @@ def compara(modelo_k,polymod):
         )
 
         fig.add_trace(go.Bar(
-                x=x,
+                x=x_,
                 y=y_,
                 showlegend = True if(i == 0) else False,
                 #mode='markers', 
@@ -909,7 +915,7 @@ def compara(modelo_k,polymod):
             col=1,
             range=[0, 40]
         )
-        statistic, p_value = ks_2samp(k, model_k)
+        statistic, p_value = ks_2samp(k, modelo)
 
         # Interpretando o resultado
         alpha = 0.05  # Nível de significância

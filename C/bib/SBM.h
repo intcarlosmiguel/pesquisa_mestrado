@@ -3,6 +3,6 @@
 
 struct Graph;
 void generate_SBM_p_model(int T,int model,double p);
-struct Graph SBM_p(int N,int seed);
+igraph_t SBM_p(int N,int seed,double p,bool weight,double* avg);
 
 #endif

@@ -10,16 +10,18 @@
 #include "bib/mtwister.h"
 #include "bib/calc.h"
 #include "bib/rede.h"
-#include "bib/CM.h"
+//#include "bib/CM.h"
 #include "bib/SBM.h"
 #include "bib/LCM.h"
 #include "bib/infect.h"
 
 int main(int argc,char *argv[ ]){
+    //SBM_p(7189,7,0.0);
+    //for(int i =0; i< 100; i++)SBM_p(7189,i,0.0);
     //double prob = atof(argv[1]);
-    generate_local_configuration_model(0 ,1000,42);
-    generate_local_configuration_model(0.5,1000,4242);
-    generate_local_configuration_model(1.,1000,424242);
+    //generate_local_configuration_model(0 ,1,42);
+    //generate_local_configuration_model(0.5,1000,4242);
+    //generate_local_configuration_model(1.,1000,424242);
 
     /* int seed = atoi(argv[1]);
     int N = atoi(argv[2]);

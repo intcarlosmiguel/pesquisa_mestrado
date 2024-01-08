@@ -499,9 +499,10 @@ def generate_distribution_byfaixas(contagem,faixas):
     B = [np.mean(B[faixas == i,:],axis = 0) for i in range(5)]
     C = []
     S = []
-    eixos = ([0,0],[0,1],[1,0],[1,1],[2,0])
-    fig, axs = plt.subplots(3, 2, figsize=(10, 15))
+    eixos = ([0,2],[0,1],[1,0],[1,1],[0,0])
+    fig, axs = plt.subplots(2, 3, figsize=(25, 20), gridspec_kw={'width_ratios': [1.5, 1.5,3]})
     for faixa,eix in zip(range(5),eixos):
+        fig = go.Figure()
         g = graus[faixas == faixa]
         x = np.arange(59+1)
         y = np.zeros(len(x))
@@ -531,27 +532,73 @@ def generate_distribution_byfaixas(contagem,faixas):
                 max_ = max
         y =y[x<max_]
         x = x[x<max_]
-        if(faixa+1 >= 4):
+        """ if(faixa+1 >= 4):
             x[(x < 25) & (x >15)] = np.mean(x[(x < 25) & (x >15)])
             y[(x < 25) & (x >15)] = np.mean(y[(x < 25) & (x >15)])
             x[x > 25] = np.mean(x[x>25])
-            y[x > 25] = np.mean(y[x>25])
+            y[x > 25] = np.mean(y[x>25]) """
         angular, beta,r2 = LM(x,np.log(y),-1)
         C.append(beta)
         A.append(angular)
-
-        axs[eix[0],eix[1]].scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.)
+        fig.add_trace(
+            go.Scatter(
+                x=x, 
+                y=np.log(y), 
+                mode='markers', 
+                name="Dados",
+                opacity = 0.8,
+                marker=dict(
+                    size = 15,
+                ),
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=x, 
+                y=x*angular + beta, 
+                mode='lines', 
+                name="Regressão",
+                marker=dict(
+                    size = 15,
+                ),
+                line=dict(width=5)
+            )
+        )
+        fig.update_layout(
+            width=700,  # Largura do gráfico em pixels
+            height=600,  # Altura do gráfico em pixels
+            xaxis=dict(title='Grau',tickfont=dict(size=18)),
+            
+            #xaxis=dict(),
+            title = f'Faixa {faixa+1}',
+            yaxis=dict(title='Probabilidade',tickfont=dict(size=18)),
+            template = "seaborn",
+            showlegend = True if(faixa == 0) else False,
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(
+                #family="Courier New, monospace",
+                size=18,
+                #color="RebeccaPurple"
+            ),
+        )
+        s = 50
+        fig.update_layout(margin=dict(l=20, r=20, t=s, b=20))
+        fig.show()
+        fig.write_image(f"./img/contatos_faixa_{faixa+1}.png")
+        """ axs[eix[0],eix[1]].scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.)
         axs[eix[0],eix[1]].plot(x,x*angular + beta,c = 'red',label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,angular,beta))
-        axs[eix[0],eix[1]].set_title(f"Faixa {faixa+1}")
-        axs[eix[0],eix[1]].set_xlabel(f"Número de Ligações")
-        axs[eix[0],eix[1]].set_ylabel(f"log(P)")
-        axs[eix[0],eix[1]].grid()
-        axs[eix[0],eix[1]].legend()
+        axs[eix[0],eix[1]].set_title(f"Faixa {faixa+1}", fontsize=16)
+        axs[eix[0],eix[1]].set_xlabel(f"Número de Ligações", fontsize=16)
+        axs[eix[0],eix[1]].set_ylabel(f"log(P)", fontsize=16)
+        axs[eix[0],eix[1]].grid() """
+        #axs[eix[0],eix[1]].legend()    
     #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
     plt.tight_layout()
-    axs[2, 1].axis('off')
+    axs[1, 2].axis('off')
+    position = axs[0,2].get_position()
+    axs[0,2].set_position([position.x0,0.,position.width,1.])
     #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
-    axs[2, 0].set_position([0.25, 0.05, 0.5, 0.25])
+
     plt.savefig(f"./img/contatos_faixa.png")
     plt.show()
 
