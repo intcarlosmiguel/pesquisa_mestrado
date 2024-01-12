@@ -37,38 +37,6 @@ bool fileExists(const char *filename) {
     return false;
 }
 
-bool* vacinacao_probability(uint8_t* estagio,double* prob_estagio,int* faixas, struct Graph G,bool* vacinado,double* hospitalizacao,double* morte,double* sintomatico, int Suscetiveis, int Recuperados, double f){
-
-    uint16_t Vac = f*(Suscetiveis + Recuperados);
-
-    double* probability = (double*) malloc(G.Nodes*sizeof(double));
-    int* sitio = (int*) malloc(G.Nodes*sizeof(int));
-
-    uint16_t i;
-    double soma = 0;
-
-    for (i = 0; i < G.Nodes; i++){
-        probability[i] = 0;
-        for (int j = 0; j < G.viz[i][0]; j++) probability[i] += sintomatico[faixas[G.viz[i][j+1]]]*hospitalizacao[faixas[G.viz[i][j+1]]]/**morte[faixas[G.viz[i][j+1]]]*/;
-        probability[i] *= (1 - sintomatico[faixas[i]]);
-        //probability[i] += sintomatico[faixas[i]]*morte[faixas[i]]*hospitalizacao[faixas[i]];
-        sitio[i] = i;
-    }
-
-    sortIntByRef(sitio,probability,G.Nodes,sizeof(probability[0]));
-    for (i = 0; i < G.Nodes; i++)
-    for (i = G.Nodes-1; i >=0 ; i--){
-        if(Vac == 0) break;
-        if((estagio[sitio[i]] == 0) || (estagio[sitio[i]] == 5)){
-            vacinado[sitio[i]] = true;
-            Vac--;
-        }
-    }
-
-    free(probability);
-    free(sitio);
-    return vacinado;
-}
 
 igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* hospitalizacao,double* sintomatico){
     uint16_t i;

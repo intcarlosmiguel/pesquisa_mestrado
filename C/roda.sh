@@ -1,2 +1,2 @@
-gcc -I/home/thiago/igraph/igraph-0.10.8/build/include -I/home/thiago/igraph/igraph-0.10.8/include main.c bib/rede.c bib/calc.c bib/mtwister.c bib/infect.c bib/CM.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3
+gcc -I/home/miguel/igraph/build/include -I/home/miguel/igraph/include main.c bib/rede.c bib/calc.c bib/mtwister.c bib/infect.c bib/CM.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3
 ./main
