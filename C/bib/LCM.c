@@ -247,85 +247,6 @@ struct Graph local_add_edge(struct Graph G,int** degree,int* faixa,int* shuff, i
     return G;
 }
 
-struct Retorno generate_degree(int N,int seed){
-    struct Retorno Return;
-
-    init_genrand64(seed);
-
-    char file_name[200] = "./dados/multi_probability.txt";
-    double** constant = double_get_array(file_name);
-    double** distribution = distribution_faixas();
-
-    int* n_faixa = calloc(5,sizeof(int));
-
-    Return.degree = (int**) malloc(N*sizeof(int*));
-    int* grau = (int*) malloc(N*sizeof(int));
-    double* p_faixas = malloc(5*sizeof(double));
-    int i = 0,j = 0;
-    double r;
-
-    p_faixas[0] = 0.34393182;
-    p_faixas[1] =  0.14065873;
-    p_faixas[2] = 0.31957894;
-    p_faixas[3] = 0.15781574;
-    p_faixas[4] = 0.03801476;
-    for ( j = 0; j < 5; j++) for (i = 1; i < 5; i++) constant[j][i] += constant[j][i-1];
-    for (i = 1; i < 5; i++)p_faixas[i] += p_faixas[i-1];
-    
-
-    Return.faixa = calloc(N,sizeof(int));
-
-    for (i = 0; i < N; i++){
-        j = 0;
-        r = genrand64_real1();
-        while(r > p_faixas[j]) j++;
-        n_faixa[j]++;
-    }
-    //for (i = 0; i < 4; i++) n_faixa[i+1] += n_faixa[i]; 
-
-    j = 0;
-    int s = n_faixa[0];
-
-    for (i = 0; i < N; i++){
-        if(i==s) {j++;s+= n_faixa[j];}
-        Return.faixa[i] = j;
-    }
-
-    int k = 0;
-    double x = 0;
-
-    for (i = 0; i < N; i++){
-
-        k = 0;
-
-        Return.degree[i] = (int*) calloc(5,sizeof(int));
-
-        while(k == 0)k = empiric_distribution(distribution[Return.faixa[i]]);
-
-        grau[i] = k;
-    }
-    bubbleSort_by(Return.faixa,grau,N);
-    for (i = 0; i < N; i++) generate_multinomial(grau[i], 5, constant[Return.faixa[i]], Return.degree[i]);
-    //Return.degree = M_bubbleSort(Return.degree,N,5);
-    //bubbleSort_by(Return.faixa, grau, N);
-
-    for(i = 0;i < 5;i++){
-        //media_grau[i] /= n_faixa[i];
-        free(constant[i]);
-        free(distribution[i]);
-    }
-
-    //print_vetor(media_grau,5,sizeof(double));
-
-    free(constant);
-    free(distribution);
-    free(p_faixas);
-    //free(media_grau);
-    free(n_faixa);
-    free(grau);
-    return Return;
-}
-
 void append_vizinhos(struct Graph *G,int site,int vizinho){
     G->viz[site][0]++;
     G->viz[vizinho][0]++;
@@ -361,7 +282,7 @@ igraph_t local_configuration_model(int N, double p,int seed){
     int* n_faixas = (int *) calloc(N, sizeof(int));
     int** site_per_faixas = (int**) malloc(5*sizeof(int*));
 
-    char file_name[200] = "./dados/multi_probability_density.txt";
+    char file_name[200] = "./dados/multi_probability.txt";
     double* p_faixas = (double *) calloc(5, sizeof(double));
     double** distribution = distribution_faixas();
     double** constant = double_get_array(file_name);
@@ -385,12 +306,6 @@ igraph_t local_configuration_model(int N, double p,int seed){
     p_faixas[2] = 0.302137;
     p_faixas[3] = 0.206757;
     p_faixas[4] = 0.070380;
-    // TESTE //
-    p_faixas[0] = 0.1;
-    p_faixas[1] = 0.1;
-    p_faixas[2] = 0.3;
-    p_faixas[3] = 0.2;
-    p_faixas[4] = 0.3;
 
     for ( j = 0; j < 5; j++){
         site_per_faixas[j] = (int*) malloc(0*sizeof(int));
@@ -413,40 +328,41 @@ igraph_t local_configuration_model(int N, double p,int seed){
 
         degree[i] = (int*) calloc(5,sizeof(int));
 
-        while(k == 0)k = 100;//empiric_distribution(distribution[faixas[i]]);
+        while(k == 0)k = empiric_distribution(distribution[faixas[i]]);
         grau[i] = k;
     }
-    bubbleSort_by(faixas,grau,N);
-    
+    mergeSort(grau,faixas,0,N-1);
     for (i = 0; i < N; i++) generate_multinomial(grau[i], 5, constant[faixas[i]], degree[i]);
     for (i = 0; i < 5; i++) free(distribution[i]);
     
 
     igraph_vector_int_t edges;
     igraph_vector_int_init(&edges, 0);
-    for (i = 0; i < N; i++){
-        for (j = 0; j < 5; j++){
+    int site;
+    int faixa;
+    for (site = 0; site < N; site++){
+        for (faixa = 0; faixa < 5; faixa++){
             seed++;
-            if(degree[i][j] == 0) continue;
-            site_per_faixas[j] = randomize(site_per_faixas[j], n_faixas[j],seed);
-            for ( k = 0; k < n_faixas[j]; k++){
-                if(degree[i][j] == 0) break;
-                int vizinho = site_per_faixas[j][k];
+            if(degree[site][faixa] == 0) continue;
+            site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
+            for ( i = 0; i < n_faixas[faixa]; i++){
+                if(degree[site][faixa] == 0) break;
+                int vizinho = site_per_faixas[faixa][i];
 
-                bool rep = check_repetidos(&G,i,vizinho);
+                bool rep = check_repetidos(&G,site,vizinho);
 
-                int faixa1 = faixas[i];
+                int faixa1 = faixas[site];
 
-                if((rep) || (degree[vizinho][faixa1] == 0) || (i == vizinho)) continue;
+                if((rep) || (degree[vizinho][faixa1] == 0) || (site == vizinho)) continue;
                 
                 G.edges += 1;
 
-                degree[i][j]--;
+                degree[site][faixa]--;
                 degree[vizinho][faixa1]--;
                 
-                append_vizinhos(&G,i,vizinho);
+                append_vizinhos(&G,site,vizinho);
 
-                igraph_vector_int_push_back(&edges, i);
+                igraph_vector_int_push_back(&edges, site);
                 igraph_vector_int_push_back(&edges, vizinho);
 
             }
@@ -464,7 +380,7 @@ igraph_t local_configuration_model(int N, double p,int seed){
     int ligacoes_total = 0;
 
     for (i = 0; i < G.Nodes; i++) ligacoes_total += somatorio(degree,i,5);
-    printf("Ligações faltantes: %d, %d\n",ligacoes_total,G.edges);
+    printf("Ligações faltantes: %f\n",(double)ligacoes_total/G.edges);
 
     igraph_t Grafo;
     igraph_set_attribute_table(&igraph_cattribute_table);
@@ -474,7 +390,7 @@ igraph_t local_configuration_model(int N, double p,int seed){
     igraph_vector_init(&faixa_, G.Nodes);
 
     FILE *arquivo;
-    arquivo = fopen("./conexoes.txt","w");
+    arquivo = fopen("./testdist.txt","w");
     for (i = 0; i < N; i++){
         int* resultado = calloc(5,sizeof(int));
         for (j = 0; j < G.viz[i][0]; j++) resultado[faixas[G.viz[i][j+1]]]++;
@@ -589,7 +505,7 @@ void calcula_propriedades(igraph_t *Grafo,double p, double *resultados,double* p
 
 void generate_local_configuration_model(double p, int redes,int seed){
 
-    int N = 7189;
+    int N = 50000;
     int i;
 
     double* resultados = (double *)calloc(6,sizeof(double));
