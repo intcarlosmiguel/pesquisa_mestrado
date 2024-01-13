@@ -1,6 +1,6 @@
 #ifndef CALC_H
 #define CALC_H
-
+#include <igraph.h>
 int fatorial(int n,int p);
 int* get_faixas(int N,char* str);
 int check_existence(int** outro, int N,int site, int vizinho);
@@ -32,6 +32,6 @@ int empiric_distribution(double* distribution);
 void bubbleSort_by(int* v, int* v2, int n);
 double** double_get_array(char* ptr);
 int* arange(int inicio, int fim, int passo);
-void mergeSort(int *arr, int *brr, int l, int r);
+void mergeSort(int *arr, igraph_vector_t* brr, int l, int r);
 void print_side_by_side(int* a,int*b,int N);
 #endif

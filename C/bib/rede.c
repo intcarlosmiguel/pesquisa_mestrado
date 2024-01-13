@@ -5,6 +5,7 @@
 #include "mtwister.h"
 #include "calc.h"
 #include <math.h>
+#include <igraph.h>
 
 struct Graph{
     int **viz;

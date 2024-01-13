@@ -63,6 +63,7 @@
         "cinttypes": "c",
         "mtwister.h": "c",
         "cm.h": "c",
-        "sbm.h": "c"
+        "sbm.h": "c",
+        "igraph.h": "c"
     }
 }

@@ -3,6 +3,7 @@
 #include "mtwister.h"
 #include <string.h>
 #include <math.h>
+#include <igraph.h>
 
 #define M_PI 3.14159265358979323846
 
@@ -383,7 +384,7 @@ void bubbleSort_by(int* v, int* v2, int n) {
 }
 
 // Função para mesclar dois subvetores de arr[] e reordenar o vetor brr[] de acordo
-void merge(int *arr, int *brr, int l, int m, int r) {
+void merge(int *arr, igraph_vector_t *brr, int l, int m, int r) {
     int i, j, k;
     int n1 = m - l + 1;
     int n2 = r - m;
@@ -397,11 +398,11 @@ void merge(int *arr, int *brr, int l, int m, int r) {
     // Copia os dados para os vetores temporários L[], R[], bL[] e bR[]
     for (i = 0; i < n1; i++) {
         L[i] = arr[l + i];
-        bL[i] = brr[l + i];
+        bL[i] = VECTOR(*brr)[l + i];
     }
     for (j = 0; j < n2; j++) {
         R[j] = arr[m + 1 + j];
-        bR[j] = brr[m + 1 + j];
+        bR[j] = VECTOR(*brr)[m + 1 + j];
     }
 
     // Mescla os vetores temporários de volta para arr[l..r] e brr[l..r]
@@ -411,11 +412,11 @@ void merge(int *arr, int *brr, int l, int m, int r) {
     while (i < n1 && j < n2) {
         if (L[i] >= R[j]) {
             arr[k] = L[i];
-            brr[k] = bL[i];
+            VECTOR(*brr)[k] = bL[i];
             i++;
         } else {
             arr[k] = R[j];
-            brr[k] = bR[j];
+            VECTOR(*brr)[k] = bR[j];
             j++;
         }
         k++;
@@ -424,7 +425,7 @@ void merge(int *arr, int *brr, int l, int m, int r) {
     // Copia os elementos restantes de L[] e bL[], se houver
     while (i < n1) {
         arr[k] = L[i];
-        brr[k] = bL[i];
+        VECTOR(*brr)[k] = bL[i];
         i++;
         k++;
     }
@@ -432,7 +433,7 @@ void merge(int *arr, int *brr, int l, int m, int r) {
     // Copia os elementos restantes de R[] e bR[], se houver
     while (j < n2) {
         arr[k] = R[j];
-        brr[k] = bR[j];
+        VECTOR(*brr)[k] = bR[j];
         j++;
         k++;
     }
@@ -444,7 +445,7 @@ void merge(int *arr, int *brr, int l, int m, int r) {
 }
 
 // Função principal que implementa o MergeSort
-void mergeSort(int *arr, int *brr, int l, int r) {
+void mergeSort(int *arr, igraph_vector_t* brr, int l, int r) {
     if (l < r) {
         int m = l + (r - l) / 2;
 

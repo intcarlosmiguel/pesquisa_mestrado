@@ -289,11 +289,9 @@ double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo
     }
 }
 
-void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,double* final,double f,int vacina,int redes,bool weight){
+void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,double* final,double f,int vacina,int redes,bool weight){
     double avg_degree;
-    igraph_t Grafo = SBM_p( N0, p,weight,seed,&avg_degree);
-    int N = igraph_vcount(&Grafo);
-
+    igraph_t Grafo = local_configuration_model( N, p,seed,weight,&avg_degree);
     int N_vacinas = f*N;
 
     uint16_t Suscetiveis = N - E0;
@@ -506,7 +504,7 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
                 break;
         }
         prob_estagio[i] = genrand64_real1();
-        if(ano > t) {s++;t += 0.02;}
+        if(ano > t) {s++;t += 0.5;}
         if(t >= dias) break;
         if(redes == 1)printf("%f %d %d %d %d %d %d %d %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
         if((f == 0.5) || (f == 1.0)|| (f == 0.0)){
@@ -524,7 +522,7 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
 
     }
     if(ano <= dias){
-        for (i = s-1; i < dias*50; i++){
+        for (i = s-1; i < dias*2; i++){
             infect_time[i][0] += (double)Suscetiveis/N;
             infect_time[i][1] += (double)Expostos/N;
             infect_time[i][2] += (double)Assintomaticos/N;
@@ -558,7 +556,7 @@ void infect(int E0,int N0,double p,int seed,double** infect_time,double* quant,d
 
 void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina,bool weight){
     
-    int tempo = dias*50;
+    int tempo = dias*2;
     uint16_t i,j;
 
     infect_time = (double**) malloc(tempo*sizeof(double*));
@@ -566,6 +564,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
     for (int i = 0; i < tempo; i++) infect_time[i] = (double*) calloc(7,sizeof(double));
     double* final = (double*) calloc(4,sizeof(double));
     for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,final,f,vacina,redes,weight);
+    
     for (i = 0; i < tempo; i++){
         if(quant[i] == 0){
             tempo = i;
@@ -574,6 +573,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
         }
         for (int j = 0; j < 7; j++) infect_time[i][j] /= quant[i];
     }
+    
     for(i = 0;i < 4;i++) final[i] /= redes;
     if((f == 0)){
         char filecheck[800];
