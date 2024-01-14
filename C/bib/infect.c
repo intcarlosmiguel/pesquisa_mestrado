@@ -14,6 +14,10 @@
 #include "rede.h"
 #include "LCM.h"
 #include "SBM.h"
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
 const double beta1 = (double)0.5;
 const double beta2 = (double)0.41;
 const double sigma = (double)1/5.1;
@@ -106,14 +110,14 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_qsort_ind(&eccentricity,&centralidade, IGRAPH_ASCENDING);
             igraph_vector_destroy(&eccentricity);
             break;
-        case 7:
+        case 7: // Clsutering
             igraph_vector_t clustering;
             igraph_vector_init(&clustering, N);
             igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
             igraph_vector_qsort_ind(&clustering,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&clustering);
             break;
-        case 8:{
+        case 8:{ // Kshell
             igraph_vector_int_t k_shell;
             igraph_vector_int_init(&k_shell, N);
             igraph_coreness(Grafo, &k_shell, IGRAPH_ALL);
@@ -121,7 +125,7 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_int_destroy(&k_shell);
             break;
         }
-        case 9:{
+        case 9:{ // Grau morte
             igraph_vector_t faixas;
             igraph_vector_init(&faixas, 0);
             igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
@@ -554,11 +558,31 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
     //foi++;
 }
 
+void create_folder(int N){
+    char dirName[200];
+    sprintf(dirName,"./output/time/%d/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/ponderado/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/nponderado/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/ponderado/p/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/nponderado/p/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/vacina/%d/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/vacina/%d/ponderado/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/vacina/%d/nponderado/",N);
+    mkdir(dirName, 0700);
+}
+
 void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina,bool weight){
     
     int tempo = dias*2;
     uint16_t i,j;
-
+    create_folder(N);
     infect_time = (double**) malloc(tempo*sizeof(double*));
     quant = (double*) calloc(tempo,sizeof(double));
     for (int i = 0; i < tempo; i++) infect_time[i] = (double*) calloc(7,sizeof(double));
