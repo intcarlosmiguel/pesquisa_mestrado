@@ -293,7 +293,7 @@ double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo
     }
 }
 
-void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,double* final,double f,int vacina,int redes,bool weight){
+void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,double* final,double f,int vacina,int redes,bool weight, int cut_rede){
     double avg_degree;
     igraph_t Grafo = local_configuration_model( N, p,seed,weight,&avg_degree);
     int N_vacinas = f*N;
@@ -510,7 +510,7 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
         prob_estagio[i] = genrand64_real1();
         if(ano > t) {s++;t += 0.5;}
         if(t >= dias) break;
-        if(redes == 1)printf("%f %d %d %d %d %d %d %d %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
+        if(redes == cut_rede)printf("%f %d %d %d %d %d %d %d %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
         if((f == 0.5) || (f == 1.0)|| (f == 0.0)){
             infect_time[s - 1][0] += (double)Suscetiveis/N;
             infect_time[s - 1][1] += (double)Expostos/N;
@@ -525,7 +525,9 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
         
 
     }
+    if(redes == cut_rede)printf("S = %d\n",s);
     if(ano <= dias){
+        if(redes == cut_rede)printf("%d %f %f\n",s,infect_time[s-1][6],infect_time[s-2][6]*N);
         for (i = s-1; i < dias*2; i++){
             infect_time[i][0] += (double)Suscetiveis/N;
             infect_time[i][1] += (double)Expostos/N;
@@ -537,6 +539,7 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
             quant[i]++;
         }
     }
+
 
     
     final[0] += (double) Nhospitalizados/N;
@@ -581,33 +584,41 @@ void create_folder(int N){
 void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina,bool weight){
     
     int tempo = dias*2;
+    int cut_rede = 1;
     uint16_t i,j;
     create_folder(N);
+
     infect_time = (double**) malloc(tempo*sizeof(double*));
     quant = (double*) calloc(tempo,sizeof(double));
+
     for (int i = 0; i < tempo; i++) infect_time[i] = (double*) calloc(7,sizeof(double));
+
     double* final = (double*) calloc(4,sizeof(double));
-    for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,final,f,vacina,redes,weight);
+
+    for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,final,f,vacina,redes,weight,cut_rede);
+    if(redes == cut_rede) printf("Saiu\n");
     
     for (i = 0; i < tempo; i++){
-        if(quant[i] == 0){
-            tempo = i;
-            infect_time = (double**) realloc(infect_time,tempo*sizeof(double*));
-            break;
+        if(redes == cut_rede){
+            print_vetor(infect_time[i],7,sizeof(double));
+            printf("%f\n",quant[i]);
         }
         for (int j = 0; j < 7; j++) infect_time[i][j] /= quant[i];
+        if(redes == cut_rede) print_vetor(infect_time[i],7,sizeof(double));
     }
     
     for(i = 0;i < 4;i++) final[i] /= redes;
     if((f == 0)){
-        char filecheck[800];
-        if(weight) sprintf(filecheck,"./output/time/%d/ponderado/p/infect_%.2f.txt",N,p);
-        else sprintf(filecheck,"./output/time/%d/nponderado/p/infect_%.2f.txt",N,p);
-        generate_file(filecheck,infect_time,tempo,7,sizeof(infect_time[0][0]));
+        if(redes > cut_rede){
+            char filecheck[800];
+            if(weight) sprintf(filecheck,"./output/time/%d/ponderado/p/infect_%.2f.txt",N,p);
+            else sprintf(filecheck,"./output/time/%d/nponderado/p/infect_%.2f.txt",N,p);
+            generate_file(filecheck,infect_time,tempo,7,sizeof(infect_time[0][0]));
+        }
     }
 
     if((f == 0.5) || (f == 1.0)){
-        if(redes != 1){
+        if(redes > cut_rede){
             char filename[800];
             switch (vacina){
                 case 0:
@@ -675,7 +686,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
         }
     }
     int s = f*100;
-    if ((redes != 1) && (f !=0)){
+    if ((redes > cut_rede) && (f !=0)){
         FILE *file;
         char filename[800];
         switch (vacina){
@@ -748,6 +759,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
                 if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probmortepassin_%.2f.txt",N,p);
                 else sprintf(filename,"./output/vacina/%d/nponderado/probmortepassin_%.2f.txt",N,p);
                 if(s%10 == 0)printf("Probmortepassin ");
+                break;
             default:
                 if(weight) sprintf(filename,"./output/vacina/%d/ponderado/random_%.2f.txt",N,p);
                 else sprintf(filename,"./output/vacina/%d/nponderado/random_%.2f.txt",N,p);

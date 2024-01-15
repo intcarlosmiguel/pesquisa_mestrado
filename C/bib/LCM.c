@@ -363,6 +363,8 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     int site;
     int faixa;
     double duracao = -1;
+    int vizinho;
+    int faixa1;
     for (site = 0; site < N; site++){
         for (faixa = 0; faixa < 5; faixa++){
             seed++;
@@ -370,13 +372,14 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
             site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
             for ( i = 0; i < n_faixas[faixa]; i++){
                 if(degree[site][faixa] == 0) break;
-                int vizinho = site_per_faixas[faixa][i];
+
+                vizinho = site_per_faixas[faixa][i];
+                faixa1 = VECTOR(faixas)[site];
+
+                if((degree[vizinho][faixa1] == 0) || (site == vizinho)) continue;
 
                 bool rep = check_repetidos(&G,site,vizinho);
-
-                int faixa1 = VECTOR(faixas)[site];
-
-                if((rep) || (degree[vizinho][faixa1] == 0) || (site == vizinho)) continue;
+                if(rep) continue;
                 
                 degree[site][faixa]--;
                 degree[vizinho][faixa1]--;

@@ -278,14 +278,14 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.show()
 
 def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
-    infect_vacinado = [i for i in os.listdir(f'./C/output/vacina/{N}') if(f"{c}0" in i)]
+    infect_vacinado = [i for i in os.listdir(f'./C/output/vacina/{N}/nponderado/')]
     prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
     nomes = [i.split("_")[-2] for i in infect_vacinado]
     vac = []
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/output/vacina/{N}/{i}')
+        x = np.loadtxt(f'./C/output/vacina/{N}/nponderado/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
     integral = []
@@ -300,15 +300,13 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
         "random":"CR",
         "close":"CP",
         "eccentricity":"CE",
-        "betweenness":"CB"
+        "betweenness":"CB",
+        "graumorte":"GM",
+        "probmortepassin":"PMA",
+        "probhospassin":"PHA",
+        "probhosp":"PH",
+        "probmorte":"PM",
     }
-
-    colors = px.colors.qualitative.Prism
-
-    cores = {}
-
-    for i,j in zip(list(arquivo.keys()),colors):
-        cores[i] = j
     df = {}
     M = []
     ylabel = []
@@ -320,22 +318,22 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
                 x=infect[0][np.argsort(infect[0])], 
                 y=y[np.argsort(infect[0])], 
                 mode='markers', 
-                name=arquivo[file.split("_")[2]],
+                name=arquivo[file.split("_")[0]],
                 marker=dict(
                     size = 5,
-                    color = cores[file.split("_")[2]]
+                    #color = cores[file.split("_")[2]]
                 ),
                 error_y=dict(
                     type='data',  # Ajuste para 'percent' se desejar barras de erro em percentagem
                     array=infect[3 if(plot ==0) else 4]/np.sqrt(200),
                     visible = erro == 1
                 ),
-                opacity = 1.0 if(arquivo[file.split("_")[2]] == "CR" or arquivo[file.split("_")[2]] == "CI" or arquivo[file.split("_")[2]] == "CC") else 0.3,
+                #opacity = 1.0 if(arquivo[file.split("_")[2]] == "CR" or arquivo[file.split("_")[2]] == "CI" or arquivo[file.split("_")[2]] == "CC") else 0.3,
             )
         )
-        M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
-        ylabel.append(arquivo[file.split("_")[2]])
-        df[arquivo[file.split("_")[2]]] = infect[1 if(plot ==0) else 2]
+        #M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
+        ylabel.append(arquivo[file.split("_")[0]])
+        df[arquivo[file.split("_")[0]]] = infect[1 if(plot ==0) else 2]
     
     tit = 'Hospitalizados' if(plot ==0) else 'Mortos'
     fig.update_layout(
@@ -355,7 +353,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
-    if(erro == 0):
+    """ if(erro == 0):
         fig.write_image(f'./img/infect/vacinas_{tit}_{c}0.png')
     else:
         fig.write_image(f'./img/infect/vacinas_{tit}_{c}0_erro.png')
@@ -435,7 +433,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
         'Fração de Vacinados',
         'Estratégias',
         4,
-    )
+    ) """
     
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
 
