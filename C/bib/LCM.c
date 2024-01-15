@@ -247,13 +247,13 @@ struct Graph local_add_edge(struct Graph G,int** degree,int* faixa,int* shuff, i
     return G;
 }
 
-void append_vizinhos(struct Graph *G,int site,int vizinho){
+void append_vizinhos(struct Graph *G,int site,int vizinho,int plus){
     G->viz[site][0]++;
     G->viz[vizinho][0]++;
     G->viz[site] = (int*) realloc(G->viz[site],(G->viz[site][0]+1)*sizeof(int));
     G->viz[vizinho] = (int*) realloc(G->viz[vizinho],(G->viz[vizinho][0]+1)*sizeof(int));
-    G->viz[site][G->viz[site][0]] = vizinho;
-    G->viz[vizinho][G->viz[vizinho][0]] = site;
+    G->viz[site][G->viz[site][0]] = plus*vizinho;
+    G->viz[vizinho][G->viz[vizinho][0]] = plus*site;
 }
 
 bool check_repetidos(struct Graph *G,int i,int vizinho){
@@ -264,8 +264,11 @@ bool check_repetidos(struct Graph *G,int i,int vizinho){
 void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
     int ligacoes_total = 0;
     int i,j;
-    for (i = 0; i < G->Nodes; i++) ligacoes_total += somatorio(degree,i,5);
-    printf("Ligações faltantes: %f\n",(double)ligacoes_total/G->edges);
+    for (i = 0; i < G->Nodes; i++){
+        //print_vetor(degree[i],5,sizeof(int));
+        ligacoes_total += somatorio(degree,i,5);
+    }
+    printf("Ligações faltantes: %d %f\n",ligacoes_total,G->edges);
 
     
     FILE *arquivo;
@@ -278,6 +281,47 @@ void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
     }
     fclose(arquivo);
 }
+
+struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos){
+    int i,vizinho,faixa1;
+    double duracao = -1;
+    bool rep;
+    faixa1 = (int) VECTOR(*faixas)[site];
+    for ( i = 0; i < n_faixas[faixa]; i++){
+        if(degree[site][faixa] == 0) break;
+        if(genrand64_real1() <= p){
+            vizinho = site_per_faixas[faixa][i];
+            
+            if((degree[vizinho][faixa1] == 0) || (site == vizinho)) continue;
+
+            rep = check_repetidos(G,site,vizinho);
+            if(rep) continue;
+            
+            degree[site][faixa]--;
+            degree[vizinho][faixa1]--;
+            
+            append_vizinhos(G,site,vizinho,1);
+
+            igraph_vector_int_push_back(edges, site);
+            igraph_vector_int_push_back(edges, vizinho);
+            if(weight){
+                
+                while(duracao < 0) duracao = normalRand(mean[faixa1][faixa],std[faixa1][faixa]);
+                igraph_vector_push_back(pesos, duracao/1440);
+                G->edges += duracao/1440;
+            }
+            else G->edges += 1;
+            duracao = -1;
+        }
+        else{
+            rep = check_repetidos(G,site,vizinho);
+            if(rep) continue;
+            append_vizinhos(G,site,vizinho,-1);
+        }
+    }
+    return *G;
+}
+
 
 igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *avg){
 
@@ -329,9 +373,9 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
         site_per_faixas[j] = (int*) malloc(0*sizeof(int));
         for (i = 1; i < 5; i++){
             constant[j][i] += constant[j][i-1];
-            p_faixas[i] += p_faixas[i-1];
         }
     }
+    for (i = 1; i < 5; i++) p_faixas[i] += p_faixas[i-1];
     for (i = 0; i < N; i++){
         j = 0;
         r = genrand64_real1();
@@ -370,34 +414,40 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
             seed++;
             if(degree[site][faixa] == 0) continue;
             site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
-            for ( i = 0; i < n_faixas[faixa]; i++){
-                if(degree[site][faixa] == 0) break;
-
-                vizinho = site_per_faixas[faixa][i];
-                faixa1 = VECTOR(faixas)[site];
-
-                if((degree[vizinho][faixa1] == 0) || (site == vizinho)) continue;
-
-                bool rep = check_repetidos(&G,site,vizinho);
-                if(rep) continue;
+            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos);
+        }
+        if(p > 0){
+            int **vizinhos = (int**) malloc(5*sizeof(int*));
+            int *q_vizinhos = (int*) calloc(5,sizeof(int));
+            for (i = 0; i < 5; i++) vizinhos[i] = (int*) malloc(0*sizeof(int));
+            int n = 0;
+            for (i = 0; i < G.viz[site][0]; i++){
                 
-                degree[site][faixa]--;
-                degree[vizinho][faixa1]--;
-                
-                append_vizinhos(&G,site,vizinho);
-
-                igraph_vector_int_push_back(&edges, site);
-                igraph_vector_int_push_back(&edges, vizinho);
-                if(weight){
-                    
-                    while(duracao < 0) duracao = normalRand(mean[faixa1][j],std[faixa1][j]);
-                    igraph_vector_push_back(&pesos, duracao/1440);
-                    G.edges += duracao/1440;
+                vizinho = G.viz[site][i+1];
+                if(vizinho < 0) continue;
+                if(somatorio(degree,vizinho,5) !=0){
+                    faixa1 = (int)VECTOR(faixas)[vizinho];
+                    q_vizinhos[faixa1]++;
+                    vizinhos[faixa1] = realloc(vizinhos[faixa1],q_vizinhos[faixa1]*sizeof(int));
+                    vizinhos[faixa1][q_vizinhos[faixa1] - 1] = i;
+                    n++;
                 }
-                else G.edges += 1;
-                duracao = -1;
             }
-            
+            if(n > 1){
+                for (int viz = 0; viz < G.viz[site][0]; viz++){
+                    vizinho = G.viz[site][viz+1];
+                    if(vizinho < 0) continue;
+                    for (faixa = 0; faixa < 5; faixa++){
+                        seed++;
+                        if(degree[vizinho][faixa] == 0) continue;
+                        vizinhos[faixa] = randomize(vizinhos[faixa], q_vizinhos[faixa],seed);
+                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos);
+                    }
+                }
+            }
+            for(i = 0; i < 5; i++) free(vizinhos[i]);
+            free(vizinhos);
+            free(q_vizinhos);
         }
         /* for (j = 0; j < N; j++) shuff[j] = j;
         swap(&shuff[i],&shuff[N-1]);
@@ -537,7 +587,7 @@ void generate_local_configuration_model(double p, int redes,int seed){
         if(redes!=1) printf("\e[1;1H\e[2J");
 
         igraph_t G;
-        G = local_configuration_model(N,p,seed+i,true,&a);
+        G = local_configuration_model(N,p,seed+i,false,&a);
         //igraph_transitivity_avglocal_undirected(&G,&clustering,IGRAPH_TRANSITIVITY_ZERO);
         //resultados[3] += clustering;
         //std[3] += pow(clustering,2);
