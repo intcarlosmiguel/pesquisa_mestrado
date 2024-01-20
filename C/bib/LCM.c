@@ -285,17 +285,17 @@ void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
 struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos){
     int i,vizinho,faixa1;
     double duracao = -1;
-    bool rep;
     faixa1 = (int) VECTOR(*faixas)[site];
     for ( i = 0; i < n_faixas[faixa]; i++){
         if(degree[site][faixa] == 0) break;
+        vizinho = site_per_faixas[faixa][i];
+        if(site == vizinho) continue;
         if(genrand64_real1() <= p){
-            vizinho = site_per_faixas[faixa][i];
             
-            if((degree[vizinho][faixa1] == 0) || (site == vizinho)) continue;
+            
+            if(degree[vizinho][faixa1] == 0) continue;
 
-            rep = check_repetidos(G,site,vizinho);
-            if(rep) continue;
+            if(check_repetidos(G,site,vizinho)) continue;
             
             degree[site][faixa]--;
             degree[vizinho][faixa1]--;
@@ -314,8 +314,7 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
             duracao = -1;
         }
         else{
-            rep = check_repetidos(G,site,vizinho);
-            if(rep) continue;
+            if(check_repetidos(G,site,-vizinho)) continue;
             append_vizinhos(G,site,vizinho,-1);
         }
     }
@@ -474,13 +473,17 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     free(G.viz);
     free(degree);
     free(p_faixas);
-    
+    free(grau);
     for(i = 0;i < 5;i++){
         free(constant[i]);
         free(site_per_faixas[i]);
+        free(mean[i]);
+        free(std[i]);
     }
     free(site_per_faixas);
     free(constant);
+    free(mean);
+    free(std);
     free(n_faixas);
     free(distribution);
     igraph_vector_int_destroy(&edges);

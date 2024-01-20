@@ -66,7 +66,7 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_int_destroy(&degrees);
             break;
         }
-        case 2:
+        case 2:{
             
             igraph_vector_t closeness;
             igraph_vector_int_t reachable_count;
@@ -81,21 +81,24 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_int_destroy(&reachable_count);
             
             break;
-        case 3: // Vacinação por Harmo
+        }
+        case 3:{ // Vacinação por Harmo
             igraph_vector_t Harmonic;
             igraph_vector_init(&Harmonic, N);
             igraph_harmonic_centrality(Grafo,&Harmonic,igraph_vss_all(),IGRAPH_ALL,NULL,0);
             igraph_vector_qsort_ind(&Harmonic,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&Harmonic);
             break;
-        case 4:
+        }
+        case 4:{
             igraph_vector_t Betweenness;
             igraph_vector_init(&Betweenness, N);
             igraph_betweenness(Grafo, &Betweenness, igraph_vss_all(), IGRAPH_UNDIRECTED, NULL);
             igraph_vector_qsort_ind(&Betweenness,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&Betweenness);
             break;
-        case 5:
+        }
+        case 5:{
             igraph_vector_t eigenvector;
             igraph_real_t autovalor;
             igraph_vector_init(&eigenvector, 0);
@@ -103,20 +106,23 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_qsort_ind(&eigenvector,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&eigenvector);
             break;
-        case 6:
+        }
+        case 6:{
             igraph_vector_t eccentricity;
             igraph_vector_init(&eccentricity, N);
             igraph_eccentricity(Grafo,&eccentricity,igraph_vss_all(),IGRAPH_ALL);
             igraph_vector_qsort_ind(&eccentricity,&centralidade, IGRAPH_ASCENDING);
             igraph_vector_destroy(&eccentricity);
             break;
-        case 7: // Clsutering
+        }
+        case 7:{ // Clsutering
             igraph_vector_t clustering;
             igraph_vector_init(&clustering, N);
             igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
             igraph_vector_qsort_ind(&clustering,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&clustering);
             break;
+        }
         case 8:{ // Kshell
             igraph_vector_int_t k_shell;
             igraph_vector_int_init(&k_shell, N);
@@ -204,6 +210,7 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_destroy(&prob);
             break;
         }
+
         case 13:{
             igraph_vector_t prob;
             igraph_vector_init(&prob, N);
@@ -293,7 +300,7 @@ double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo
     }
 }
 
-void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,double* final,double f,int vacina,int redes,bool weight, int cut_rede){
+void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,double f,int vacina,int redes,bool weight, int cut_rede){
     double avg_degree;
     igraph_t Grafo = local_configuration_model( N, p,seed,weight,&avg_degree);
     int N_vacinas = f*N;
@@ -509,43 +516,39 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
         }
         prob_estagio[i] = genrand64_real1();
         if(ano > t) {s++;t += 0.5;}
-        if(t >= dias) break;
-        if(redes == cut_rede)printf("%f %d %d %d %d %d %d %d %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
-        if((f == 0.5) || (f == 1.0)|| (f == 0.0)){
-            infect_time[s - 1][0] += (double)Suscetiveis/N;
-            infect_time[s - 1][1] += (double)Expostos/N;
-            infect_time[s - 1][2] += (double)Assintomaticos/N;
-            infect_time[s - 1][3] += (double)Sintomaticos/N;
-            infect_time[s - 1][4] += (double)Hospitalizados/N;
-            infect_time[s - 1][5] += (double)Recuperados/N;
-            infect_time[s - 1][6] += (double)Mortos/N;
-            quant[s -1]++;
-        }
+        if(t >= dias+1) break;
+        //if(redes <= cut_rede)printf("%f %d %d %d %d %d %d %d %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
+        infect_time[s - 1][0] += (double) Suscetiveis/N;
+        infect_time[s - 1][1] += (double) Expostos/N;
+        infect_time[s - 1][2] += (double) Assintomaticos/N;
+        infect_time[s - 1][3] += (double) Sintomaticos/N;
+        infect_time[s - 1][4] += (double) Hospitalizados/N;
+        infect_time[s - 1][5] += (double) Recuperados/N;
+        infect_time[s - 1][6] += (double) Mortos/N;
+        infect_time[s - 1][7] += (double) Nhospitalizados/N;
+        infect_time[s - 1][8] += (double) Mortos*Mortos/(N*N);
+        infect_time[s - 1][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
+        quant[s -1]++;
         if((Expostos == Assintomaticos) && (Assintomaticos == Sintomaticos) && (Sintomaticos ==Hospitalizados) && (Hospitalizados == 0)) break;
         
 
     }
-    if(redes == cut_rede)printf("S = %d\n",s);
+    //if(redes <= cut_rede)printf("S = %d\n",s);
     if(ano <= dias){
-        if(redes == cut_rede)printf("%d %f %f\n",s,infect_time[s-1][6],infect_time[s-2][6]*N);
         for (i = s-1; i < dias*2; i++){
-            infect_time[i][0] += (double)Suscetiveis/N;
-            infect_time[i][1] += (double)Expostos/N;
-            infect_time[i][2] += (double)Assintomaticos/N;
-            infect_time[i][3] += (double)Sintomaticos/N;
-            infect_time[i][4] += (double)Hospitalizados/N;
-            infect_time[i][5] += (double)Recuperados/N;
-            infect_time[i][6] += (double)Mortos/N;
+            infect_time[i][0] += (double) Suscetiveis/N;
+            infect_time[i][1] += (double) Expostos/N;
+            infect_time[i][2] += (double) Assintomaticos/N;
+            infect_time[i][3] += (double) Sintomaticos/N;
+            infect_time[i][4] += (double) Hospitalizados/N;
+            infect_time[i][5] += (double) Recuperados/N;
+            infect_time[i][6] += (double) Mortos/N;
+            infect_time[i][7] += (double) Nhospitalizados/N;
+            infect_time[i][8] += (double) Mortos*Mortos/(N*N);
+            infect_time[i][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
             quant[i]++;
         }
     }
-
-
-    
-    final[0] += (double) Nhospitalizados/N;
-    final[1] += (double) Mortos/N;
-    final[2] += (double) Nhospitalizados*Nhospitalizados/(N*N);
-    final[3] += (double) Mortos*Mortos/(N*N);
     free(prob_estagio);
     free(morte);
     free(hospitalizacao);
@@ -584,40 +587,37 @@ void create_folder(int N){
 void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina,bool weight){
     
     int tempo = dias*2;
-    int cut_rede = 1;
+    int cut_rede = 5;
     uint16_t i,j;
+    int q_resultados = 10;
     create_folder(N);
 
     infect_time = (double**) malloc(tempo*sizeof(double*));
     quant = (double*) calloc(tempo,sizeof(double));
 
-    for (int i = 0; i < tempo; i++) infect_time[i] = (double*) calloc(7,sizeof(double));
-
-    double* final = (double*) calloc(4,sizeof(double));
-
-    for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,final,f,vacina,redes,weight,cut_rede);
-    if(redes == cut_rede) printf("Saiu\n");
+    for (int i = 0; i < tempo; i++) infect_time[i] = (double*) calloc(q_resultados,sizeof(double));
+    for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,f,vacina,redes,weight,cut_rede);
     
     for (i = 0; i < tempo; i++){
-        if(redes == cut_rede){
-            print_vetor(infect_time[i],7,sizeof(double));
+        if(redes <= cut_rede){
+            print_vetor(infect_time[i],q_resultados,sizeof(double));
             printf("%f\n",quant[i]);
         }
-        for (int j = 0; j < 7; j++) infect_time[i][j] /= quant[i];
-        if(redes == cut_rede) print_vetor(infect_time[i],7,sizeof(double));
+        for (int j = 0; j < q_resultados; j++) infect_time[i][j] /= quant[i];
+        if(redes <= cut_rede) print_vetor(infect_time[i],q_resultados,sizeof(double));
+        if(redes <= cut_rede) printf(" =============================================== \n");
     }
     
-    for(i = 0;i < 4;i++) final[i] /= redes;
     if((f == 0)){
         if(redes > cut_rede){
             char filecheck[800];
             if(weight) sprintf(filecheck,"./output/time/%d/ponderado/p/infect_%.2f.txt",N,p);
             else sprintf(filecheck,"./output/time/%d/nponderado/p/infect_%.2f.txt",N,p);
-            generate_file(filecheck,infect_time,tempo,7,sizeof(infect_time[0][0]));
+            generate_file(filecheck,infect_time,tempo,q_resultados,sizeof(infect_time[0][0]));
         }
     }
 
-    if((f == 0.5) || (f == 1.0)){
+    if((f == 0.75) ||(f == 0.25) ||(f == 0.5) || (f == 1.0)){
         if(redes > cut_rede){
             char filename[800];
             switch (vacina){
@@ -682,7 +682,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
                     else sprintf(filename,"./output/time/%d/nponderado/random_%.2f_%.2f.txt",N,p,f);
                     break;
             }
-            generate_file(filename,infect_time,tempo,7,sizeof(double));
+            generate_file(filename,infect_time,tempo,q_resultados,sizeof(double));
         }
     }
     int s = f*100;
@@ -767,14 +767,14 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
                 break;
         }
         file = fopen(filename,"a");
-        fprintf(file,"%f %f %f %f %f\n",f, final[0], final[1],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
+        fprintf(file,"%f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5));
         fclose(file);
     }
-    else printf("%.2f %f %f %f %f\n",f, final[0], final[1],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
+    else printf("%.2f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5));
+    //else printf("%.2f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
 
     for (i = 0; i < tempo; i++) free(infect_time[i]);
     free(infect_time);
-    free(final);
     free(quant);
     //if (redes != 1) printf("\e[1;1H\e[2J");
     

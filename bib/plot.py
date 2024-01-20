@@ -278,14 +278,14 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.show()
 
 def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
-    infect_vacinado = [i for i in os.listdir(f'./C/output/vacina/{N}/nponderado/')]
+    infect_vacinado = [i for i in os.listdir(f'./C/output/vacina/{N}/ponderado/')]
     prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
     nomes = [i.split("_")[-2] for i in infect_vacinado]
     vac = []
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/output/vacina/{N}/nponderado/{i}')
+        x = np.loadtxt(f'./C/output/vacina/{N}/ponderado/{i}')
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
     integral = []
@@ -311,7 +311,10 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
     M = []
     ylabel = []
     for infect,file,p in zip(vac,infect_vacinado,prob):
-        integral.append(np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2]))))
+        integral.append([
+            file.split("_")[0],
+            np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2])))
+        ])
         y = infect[1 if(plot ==0) else 2]
         fig.add_trace(
             go.Scatter(
@@ -353,6 +356,13 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
+    integral = np.array(integral)
+    file = integral.T[0]
+    integral = integral.T[1]
+    a = np.argsort(integral)
+
+    print(file[a])
+
     """ if(erro == 0):
         fig.write_image(f'./img/infect/vacinas_{tit}_{c}0.png')
     else:
