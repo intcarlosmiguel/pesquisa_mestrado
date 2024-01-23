@@ -277,15 +277,15 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.savefig("./img/map.jpg")
     plt.show()
 
-def generate_vacinado(plot = 0,erro = 0,N = 7189,c = 0.0):
-    infect_vacinado = [i for i in os.listdir(f'./C/output/vacina/{N}/ponderado/')]
+def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
+    infect_vacinado = [i for i in os.listdir(f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/")]
     prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
     nomes = [i.split("_")[-2] for i in infect_vacinado]
     vac = []
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
     for i in infect_vacinado:
-        x = np.loadtxt(f'./C/output/vacina/{N}/ponderado/{i}')
+        x = np.loadtxt(f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{i}")
         x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
         vac.append(x)
     integral = []
