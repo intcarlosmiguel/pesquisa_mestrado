@@ -363,10 +363,11 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
 
     print(file[a])
 
-    """ if(erro == 0):
-        fig.write_image(f'./img/infect/vacinas_{tit}_{c}0.png')
+    if(erro == 0):
+        fig.write_image(f"./img/infect/vacinas_{tit}_{c}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
     else:
-        fig.write_image(f'./img/infect/vacinas_{tit}_{c}0_erro.png')
+        fig.write_image(f"./img/infect/vacinas_{tit}_{c}_{'ponderado' if(ponderado) else 'nponderado'}_erro.png")
+    """"
     #print(integral)
     #plt.figure(figsize=(15,7),dpi=500)
     arquivo = {
@@ -947,3 +948,126 @@ def compara(modelo_k,contagem,faixas):
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
     fig.write_image("./img/comparacao.png")
+
+
+def infectados_plot(N,ponderado):
+    infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/infect_0.00.txt").T
+
+    dados = {
+        'Tempo': np.arange(len(infect[0]))/2,
+        'Suscetíveis': infect[0],
+        "Infectados": infect[2]+infect[3],
+        "Recuperados": infect[5]
+    }
+    fig = go.Figure()
+    dados = pd.DataFrame(dados)
+    for coluna in dados.columns[1:]:
+        fig.add_trace(
+            go.Scatter(
+                x=dados['Tempo'], 
+                y=dados[coluna][:-1], 
+                mode='markers', 
+                name=coluna,
+                marker=dict(
+                    size=5
+                )
+            )
+        )
+
+    fig.update_layout(
+        width=700,  # Largura do gráfico em pixels
+        height=600,  # Altura do gráfico em pixels
+        xaxis=dict(title='Tempo',tickfont=dict(size=15)),
+        #xaxis=dict(),
+        yaxis=dict(title='Fração',tickfont=dict(size=15)),
+        template = "seaborn",
+        #paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(
+            #family="Courier New, monospace",
+            size=15,
+            #color="RebeccaPurple"
+        ),
+    )
+    s = 20
+    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
+    fig.show()
+    fig.write_image(f"./img/infect/pre_vacina_{'ponderado' if(ponderado) else 'nponderado'}.png")
+    return infect
+
+def mortos_hosp_plot(ponderado,infect):
+    dados = {
+        'Tempo': np.arange(len(infect[0]))/2,
+        "Hospitalizados": infect[4],
+        "Mortos": infect[6]
+    }
+    fig = make_subplots(rows=1, cols=2, subplot_titles=('Hospitalizados', 'Mortos'))
+
+    fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Hospitalizados'][:-30], mode='markers', showlegend = False ), row=1, col=1)
+
+    # Adicionando a reta de regressão ao segundo subgráfico
+    fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines', showlegend = False), row=1, col=2)
+
+    # Layout dos subgráficos
+    fig.update_layout(
+        width=800,  # Largura do gráfico em pixels
+        height=400,  # Altura do gráfico em pixels
+        xaxis=dict(title='Tempo',tickfont=dict(size=15),range=[0,100]),
+        #xaxis=dict(),
+        yaxis=dict(title='Fração',tickfont=dict(size=15)),
+        template = "seaborn",
+        #paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(
+            #family="Courier New, monospace",
+            size=15,
+            #color="RebeccaPurple"
+        ),
+    )
+    fig.update_xaxes(title_text='Tempo', row=1, col=2)
+
+    s = 20
+    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
+    fig.show()
+    fig.write_image(f"./img/infect/pre_vacina_mortos_{'ponderado' if(ponderado)  else 'nponderado'}.png")
+
+def compara_ponderacao(N,n):
+    titulo = ['Suscetíveis','Expostos','Sintomáticos','Assintomáticos','Hospitalizados','Recuperados','Mortos','Total Hospitalziados']
+    infect_ponderado = np.loadtxt(f"./C/output/time/{N}/ponderado/p/infect_0.00.txt").T
+    infect_nponderado = np.loadtxt(f"./C/output/time/{N}/nponderado/p/infect_0.00.txt").T
+    tempo = np.arange(infect_ponderado.shape[1])/2
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+            x=tempo, 
+            y=infect_ponderado[n], 
+            mode='lines', 
+            name = 'Ponderado',
+        )
+    )
+
+    # Adicionando a reta de regressão ao segundo subgráfico
+    fig.add_trace(go.Scatter(
+            x=tempo, 
+            y=infect_nponderado[n], 
+            mode='lines', 
+            name = 'Não Ponderado',
+        )
+    )
+    s = 20
+    # Layout dos subgráficos
+    fig.update_layout(
+        width=800,  # Largura do gráfico em pixels
+        height=400,  # Altura do gráfico em pixels
+        xaxis=dict(title='Tempo',tickfont=dict(size=15),range=[0,100]),
+        #xaxis=dict(),
+        yaxis=dict(title='Fração',tickfont=dict(size=15)),
+        template = "seaborn",
+        #paper_bgcolor='rgba(0,0,0,0)',
+        title = titulo[n],
+        margin=dict(l=s, r=s, t=s+20, b=s),
+        font=dict(
+            #family="Courier New, monospace",
+            size=15,
+            #color="RebeccaPurple"
+        ),
+    )
+    
+    fig.show()
