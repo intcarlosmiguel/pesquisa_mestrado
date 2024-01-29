@@ -264,10 +264,14 @@ bool check_repetidos(struct Graph *G,int i,int vizinho){
 void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
     int ligacoes_total = 0;
     int i,j;
+    int** matriz = (int**) malloc(5*sizeof(int*));
+    for (i = 0; i < 5; i++) matriz[i] = (int*) calloc(5,sizeof(int));
     for (i = 0; i < G->Nodes; i++){
         //print_vetor(degree[i],5,sizeof(int));
+        for (j = 0; j < 5; j++) matriz[(int) VECTOR(*faixas)[i]][j] += degree[i][j];
         ligacoes_total += somatorio(degree,i,5);
     }
+    print_matrix(matriz,5,5);
     printf("Ligações faltantes: %d %f\n",ligacoes_total,G->edges);
 
     
@@ -576,7 +580,7 @@ void calcula_propriedades(igraph_t *Grafo,double p, double *resultados,double* p
 
 void generate_local_configuration_model(double p, int redes,int seed){
 
-    int N = 7189;
+    int N = 10000;
     int i;
     double a;
 

@@ -31,7 +31,7 @@ const double recupera = (double)1/40;
 double** infect_time;
 double* quant;
 int foi = 0;
-const uint16_t dias = 150;
+const uint16_t dias = 190;
 bool fileExists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file) {
@@ -312,6 +312,7 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
     uint16_t Hospitalizados = 0;
     uint16_t Recuperados = 0;
     uint16_t Mortos = 0;
+    uint16_t Infectados = 0;
     bool Vac = false;
     int site;
 
@@ -379,7 +380,7 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
     
     while (ano < dias){
 
-        if((ano>= 61) && (!Vac) && (f!= 0.0)){
+        if((ano>= 100) && (!Vac) && (f!= 0.0)){
             igraph_vector_int_t centralidade = centrality(&Grafo,vacina,morte,hospitalizacao,sintomatico);
             for (j = 0; j < N; j++){
                 int sitio_vacinado = VECTOR(centralidade)[j];
@@ -435,9 +436,11 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
                 if(prob_estagio[i]<sintomatico[(int) VAN(&Grafo, "faixa", i)]*(vacinado[i] ? 0.34693877551 : 1)){
                     estagio[i] = 'I';
                     Sintomaticos++;
+                    Infectados++;
                 }
                 else{
                     estagio[i] = 'A';
+                    Infectados++;
                     Assintomaticos++;
                     if((N_vacinas!=0) && (ano >= 61 )){
                         if(!foi_vacinado[i]){
@@ -528,6 +531,9 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
         infect_time[s - 1][7] += (double) Nhospitalizados/N;
         infect_time[s - 1][8] += (double) Mortos*Mortos/(N*N);
         infect_time[s - 1][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
+        infect_time[s - 1][10] += (double) Infectados/N;
+        infect_time[s - 1][11] += (double) Infectados*Infectados/(N*N);
+
         quant[s -1]++;
         if((Expostos == Assintomaticos) && (Assintomaticos == Sintomaticos) && (Sintomaticos ==Hospitalizados) && (Hospitalizados == 0)) break;
         
@@ -546,6 +552,8 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
             infect_time[i][7] += (double) Nhospitalizados/N;
             infect_time[i][8] += (double) Mortos*Mortos/(N*N);
             infect_time[i][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
+            infect_time[i][10] += (double) Infectados/N;
+            infect_time[i][11] += (double) Infectados*Infectados/(N*N);
             quant[i]++;
         }
     }
@@ -589,7 +597,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
     int tempo = dias*2;
     int cut_rede = 5;
     uint16_t i,j;
-    int q_resultados = 10;
+    int q_resultados = 12;
     create_folder(N);
 
     infect_time = (double**) malloc(tempo*sizeof(double*));
@@ -617,7 +625,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
         }
     }
 
-    if((f == 0.75) ||(f == 0.25) ||(f == 0.5) || (f == 1.0)){
+    if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0)){
         if(redes > cut_rede){
             char filename[800];
             switch (vacina){
@@ -767,7 +775,7 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
                 break;
         }
         file = fopen(filename,"a");
-        fprintf(file,"%f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5));
+        fprintf(file,"%f %f %f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6], infect_time[tempo-1][10],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5),pow(infect_time[tempo-1][11] - pow(infect_time[tempo-1][10],2),0.5));
         fclose(file);
     }
     else printf("%.2f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5));
