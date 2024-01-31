@@ -276,8 +276,8 @@ void generate_file(char* filename,void* array,int linhas,int colunas,int check){
     FILE *file;
     file = fopen(filename,"w");
     for (int i = 0; i < linhas; i++){
-        char print[100] = "";
-        char resultado[100] = "";
+        char print[400] = "";
+        char resultado[400] = "";
         for(int j = 0;j<colunas;j++){
             switch (check){
                 case sizeof(int)/* constant-expression */:
