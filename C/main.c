@@ -27,12 +27,12 @@ int main(int argc,char *argv[ ]){
     generate_local_configuration_model(1.,300,424242); */
 
     int seed = atoi(argv[1]);
-    int N = atoi(argv[2]);
+    double N = atof(argv[2]);
     int redes = atoi(argv[3]);
     int vacina = atoi(argv[4]);
-    int prob = atoi(argv[5]);
-    int freq = atof(argv[6]);
+    double prob = atof(argv[5])/100;
+    double fracao_vacinados = atof(argv[6])/100;
     bool weight = atoi(argv[7]);
-    generate_infect(N,(double)prob/100,seed, redes,(double) freq/100,vacina,weight);
+    generate_infect(N,prob,seed, redes,fracao_vacinados,vacina,weight);
     
 }

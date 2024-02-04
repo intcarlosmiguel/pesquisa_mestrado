@@ -310,16 +310,26 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
     df = {}
     M = []
     ylabel = []
+    titulo = [
+        'Fração de Hospitalizados',
+        'Fração de Mortos',
+        'Área de Infectados'
+    ]
     for infect,file,p in zip(vac,infect_vacinado,prob):
+
         integral.append([
             file.split("_")[0],
             np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2])))
         ])
-        y = infect[1 if(plot ==0) else 2]
+
+        y = infect[plot+1]
+        tempo = infect[0]
+        y = y[np.argsort(tempo)]
+        tempo = tempo[np.argsort(tempo)]
         fig.add_trace(
             go.Scatter(
-                x=infect[0][np.argsort(infect[0])], 
-                y=y[np.argsort(infect[0])], 
+                x=tempo, 
+                y=y, 
                 mode='markers', 
                 name=arquivo[file.split("_")[0]],
                 marker=dict(
@@ -344,7 +354,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
         height=800,  # Altura do gráfico em pixels
         xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=20)),
         #xaxis=dict(),
-        yaxis=dict(title='Fração de Hospitalizados'if(plot ==0) else 'Fração de Mortos',tickfont=dict(size=20)),
+        yaxis=dict(title=titulo[plot],tickfont=dict(size=20)),
         template = "seaborn",
         #paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
@@ -1070,4 +1080,144 @@ def compara_ponderacao(N,n):
         ),
     )
     
+    fig.show()
+def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
+
+    files =  [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}") if('txt' in i)]
+    df = np.array([[file.split('_')[1],file.split('_')[2][:-4],file.split('_')[0]] for file in files])
+
+    df = pd.DataFrame({'Estratégia': df.T[2], 'Clustering': df.T[0].astype(float), 'Vacinação': df.T[1].astype(float)})
+    xlabel =  {
+        0:"Suscetíveis",
+        1:"Expostos",
+        2:"Assintomátiocs",
+        3:"Sintomáticos",
+        4:"Hospitalizados",
+        5:"Recuperados",
+        6:"Mortos"
+    }
+    
+    translate = {
+        "kshell":"CK",
+        "eigenvector":"CA",
+        "clustering":"CC",
+        "idade":"CI",
+        "grau":"CG",
+        "harmonic":"CH",
+        "random":"CR",
+        "close":"CP",
+        "eccentricity":"CE",
+        "betwenness":"CB",
+        "graumorte":"GM",
+        "probmortepassin":"PMA",
+        "probhospassin":"PHA",
+        "probhosp":"PH",
+        "probmorte":"PM",
+    }
+
+    c = 0.
+
+    colors = px.colors.qualitative.Prism
+
+    cores = {}
+
+    for i,j in zip(list(translate.keys()),colors):
+        cores[i] = j
+
+    M = []
+    fig = go.Figure()
+    ylabel = []
+    Area = []
+    df = df[df['Vacinação'] == vacinacao]
+    for file in df[(df["Clustering"] == c)].values:
+        y = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}.txt").T[n]
+        if(n == 2):
+            y += np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}.txt").T[3]
+        tempo = np.arange(len(y))/2
+        M.append(y[(tempo <=140) & (tempo >= 60) & (tempo%10 == 0)])
+        #print(i[-8:],np.mean(y[tempo > 200]),np.std(y[tempo > 200]))
+        #plt.scatter(tempo,y,label = f"{file[0]}",s=0.5)
+        ylabel.append(translate[file[0]])
+        Area.append([file[0],np.dot(tempo[:-1][60:],y[:-1][60:])])
+        fig.add_trace(
+            go.Scatter(
+                x=tempo, 
+                y=y[:-1],
+                mode='markers', 
+                name=translate[file[0]],
+                marker=dict(
+                    size = 5,
+                    #color = cores[file[0]]
+                )
+            )
+        )
+    sem_vacina = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/p/infect_0.00.txt").T[n]
+    if(n == 2):
+        sem_vacina += np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/p/infect_0.00.txt").T[3]
+    tempo = np.arange(len(sem_vacina))/2
+    fig.add_trace(
+        go.Scatter(
+            x=tempo, 
+            y=sem_vacina[:-1], 
+            mode='markers', 
+            name="Sem Vacina",
+            marker=dict(
+                size = 5,
+                color = '#636EFA'
+            )
+        )
+    )
+    fig.update_layout(
+        width=700,  # Largura do gráfico em pixels
+        height=700,  # Altura do gráfico em pixels
+        xaxis=dict(title='Tempo (dias)',tickfont=dict(size=15),range = [60,190]),
+        #yaxis = dict(range = [0,0.01]),
+        title  = 'Ponderado' if(ponderado)  else 'Não Ponderado',
+        #paper_bgcolor='rgba(0,0,0,0)',
+        #yaxis=dict(title='Fração', range = [0,0.08],tickfont=dict(size=15)),
+        template = "seaborn"
+    )
+    s = 20
+    fig.update_layout(margin=dict(l=s, r=s, t=s+10, b=s))
+    fig.show()
+    fig.write_image(f"./img/infect/infectados_vacina_{round(c,2)}_{'ponderado' if(ponderado)  else 'nponderado'}.png")
+    """ M = np.array(M)
+    arr = np.argsort(np.min(M,axis = 1))
+    ylabel = np.array(ylabel)
+    heat_map(
+        M[arr[::-1]],
+        tempo[(tempo <=140) & (tempo >= 60) & (tempo%10 == 0)],
+        ylabel[arr[::-1]],
+        f'/infect/heat_infectados_vacina_{c}',
+        'Tempo (dias)',
+        'Estatégias',
+    ) """
+    Area = np.array(Area)
+    file = Area.T[0]
+    Area = Area.T[1].astype(float)
+    a = np.argsort(Area)
+
+    fig = make_subplots(rows=1, cols=1)
+
+    # Create a Bar trace with your data
+    trace = go.Bar(x=file[a], y=Area[a] )
+
+    # Add the trace to the figure
+    fig.add_trace(trace)
+
+    # Customize the layout
+    fig.update_layout(
+        width=900,  # Largura do gráfico em pixels
+        height=700,  # Altura do gráfico em pixels
+        xaxis=dict(title='Estratégias',tickfont=dict(size=20)),
+        yaxis=dict(title='Area',tickfont=dict(size=20)),
+        #title  = 'Ponderado' if(ponderado)  else 'Não Ponderado',
+        #xaxis=dict(),
+        #paper_bgcolor='rgba(0,0,0,0)',
+        #yaxis=dict(title='Fração', range = [0,0.08],tickfont=dict(size=15)),
+        template = "seaborn",
+        margin=dict(l=s, r=s, t=s+10, b=s)
+    )
+
+    # Display the chart
     fig.show()

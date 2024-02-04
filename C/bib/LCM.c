@@ -513,35 +513,35 @@ void calcula_propriedades(igraph_t *Grafo,double p, double *resultados,double* p
 
     igraph_degree(Grafo, &v, igraph_vss_all(), IGRAPH_IN, IGRAPH_NO_LOOPS);
     igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-    FILE *file;
-    char filecheck[800];
-    sprintf(filecheck,"./output/modelo/k_idades_%.2f.txt",p);
-    file = fopen(filecheck,"a");
-    FILE *arquivo;
-    sprintf(filecheck,"./output/modelo/matrix_%.2f.txt",p);
-    arquivo = fopen(filecheck,"a");
+    //FILE *file;
+    //char filecheck[800];
+    //sprintf(filecheck,"./output/modelo/k_idades_%.2f.txt",p);
+    //file = fopen(filecheck,"a");
+    //FILE *arquivo;
+    //sprintf(filecheck,"./output/modelo/matrix_%.2f.txt",p);
+    //arquivo = fopen(filecheck,"a");
     for (i = 0; i < n; i++){
 
         igraph_vector_int_t vizinhos;
         igraph_vector_int_init(&vizinhos, 0);
         igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-        int* matrix = (int *)calloc(5,sizeof(int));
+        /* int* matrix = (int *)calloc(5,sizeof(int));
         for (int j = 0; j < igraph_vector_int_size(&vizinhos); j++){
             int vizinho = VECTOR(vizinhos)[j];
             matrix[(int)VECTOR(faixas)[vizinho]]++;
-        }
-        fprintf(arquivo,"%d %d %d %d %d %d\n",(int)VECTOR(faixas)[i],matrix[0],matrix[1],matrix[2],matrix[3],matrix[4]);
-        free(matrix);
+        } */
+        //fprintf(arquivo,"%d %d %d %d %d %d\n",(int)VECTOR(faixas)[i],matrix[0],matrix[1],matrix[2],matrix[3],matrix[4]);
+        //free(matrix);
 
-        fprintf(file,"%ld %d\n",igraph_vector_int_size(&vizinhos), (int)VECTOR(faixas)[i]);
+        //fprintf(file,"%ld %d\n",igraph_vector_int_size(&vizinhos), (int)VECTOR(faixas)[i]);
         idades[(int)VECTOR(faixas)[i]]++;
         k_mean[(int)VECTOR(faixas)[i]] += VECTOR(v)[i];
 
         igraph_vector_int_destroy(&vizinhos);
     }
-    fclose(file);
+    //fclose(file);
     igraph_vector_int_sort(&v);
-    fclose(arquivo);
+    //fclose(arquivo);
     double N0 = 0;
     if(n%2 !=0) N0 = VECTOR(v)[(n-1)/2];
     else N0 = (VECTOR(v)[n/2] + VECTOR(v)[n/2+1])*0.5;

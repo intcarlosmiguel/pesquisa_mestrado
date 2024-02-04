@@ -28,10 +28,16 @@ const double gamma_I = (double)1/7;
 const double gamma_H = (double)1/12.095497827980246;
 const double delta = (double)1/13.681339751546528;
 const double recupera = (double)1/40;
+
 double** infect_time;
 double* quant;
 int foi = 0;
 const uint16_t dias = 190;
+const uint16_t dia_infecao = 100;
+const uint16_t tempo_total = dias*2;
+int q_resultados = 12;
+int certo = 0;
+
 bool fileExists(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file) {
@@ -300,29 +306,31 @@ double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo
     }
 }
 
-void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,double f,int vacina,int redes,bool weight, int cut_rede){
+void infect(int E0,double N,double p,int* seed,double** infect_time,double* quant,double f,int vacina,int redes,bool weight, int cut_rede,uint16_t* simulacoes){
     double avg_degree;
-    igraph_t Grafo = local_configuration_model( N, p,seed,weight,&avg_degree);
+    igraph_t Grafo = local_configuration_model( N, p,*seed,weight,&avg_degree);
     int N_vacinas = f*N;
 
-    uint16_t Suscetiveis = N - E0;
-    uint16_t Expostos = E0;
-    uint16_t Assintomaticos = 0;
-    uint16_t Sintomaticos = 0;
-    uint16_t Hospitalizados = 0;
-    uint16_t Recuperados = 0;
-    uint16_t Mortos = 0;
-    uint16_t Infectados = 0;
+    double Suscetiveis = N - E0;
+    double Expostos = E0;
+    double Assintomaticos = 0;
+    double Sintomaticos = 0;
+    double Hospitalizados = 0;
+    double Recuperados = 0;
+    double Mortos = 0;
+    double Infectados = 0;
     bool Vac = false;
     int site;
 
     double* prob_estagio = (double*) malloc(N*sizeof(double));
+    double** simultation_time = (double**) malloc(tempo_total*sizeof(double*));
+    
     double* rates = (double*) calloc(N,sizeof(double));
     char* estagio = malloc(N*sizeof(char));
     bool* vacinado = calloc(N,sizeof(bool));
     bool* foi_vacinado = calloc(N,sizeof(bool));
 
-    init_genrand64(seed);
+    init_genrand64(*seed);
 
     double* sintomatico = (double*) malloc(5*sizeof(double));
     double* hospitalizacao = (double*) malloc(5*sizeof(double));
@@ -348,6 +356,7 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
 
     int i = 0;
     double rate = 0;
+    for (i = 0; i < tempo_total; i++) simultation_time[i] = (double*) calloc(q_resultados,sizeof(double));
     for (i = 0; i < N; i++){
         prob_estagio[i] = genrand64_real1();
         estagio[i] = 'S';
@@ -377,10 +386,9 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
     double new_rate;
     int original = site;
 
-    
     while (ano < dias){
 
-        if((ano>= 100) && (!Vac) && (f!= 0.0)){
+        if((ano>= dia_infecao) && (!Vac) && (f!= 0.0)){
             igraph_vector_int_t centralidade = centrality(&Grafo,vacina,morte,hospitalizacao,sintomatico);
             for (j = 0; j < N; j++){
                 int sitio_vacinado = VECTOR(centralidade)[j];
@@ -520,42 +528,24 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
         prob_estagio[i] = genrand64_real1();
         if(ano > t) {s++;t += 0.5;}
         if(t >= dias+1) break;
-        //if(redes <= cut_rede)printf("%f %d %d %d %d %d %d %d %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
-        infect_time[s - 1][0] += (double) Suscetiveis/N;
-        infect_time[s - 1][1] += (double) Expostos/N;
-        infect_time[s - 1][2] += (double) Assintomaticos/N;
-        infect_time[s - 1][3] += (double) Sintomaticos/N;
-        infect_time[s - 1][4] += (double) Hospitalizados/N;
-        infect_time[s - 1][5] += (double) Recuperados/N;
-        infect_time[s - 1][6] += (double) Mortos/N;
-        infect_time[s - 1][7] += (double) Nhospitalizados/N;
-        infect_time[s - 1][8] += (double) Mortos*Mortos/(N*N);
-        infect_time[s - 1][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
-        infect_time[s - 1][10] += (double) Infectados/N;
-        infect_time[s - 1][11] += (double) Infectados*Infectados/(N*N);
+        //if(redes <= cut_rede)printf("%f %f %f %f %f %f %f %f %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
+        simultation_time[s - 1][0] += Suscetiveis/N;
+        simultation_time[s - 1][1] += Expostos/N;
+        simultation_time[s - 1][2] += Assintomaticos/N;
+        simultation_time[s - 1][3] += Sintomaticos/N;
+        simultation_time[s - 1][4] += Hospitalizados/N;
+        simultation_time[s - 1][5] += Recuperados/N;
+        simultation_time[s - 1][6] += Mortos/N;
+        simultation_time[s - 1][7] += Nhospitalizados/N;
+        simultation_time[s - 1][8] += Mortos*Mortos/(N*N);
+        simultation_time[s - 1][9] += Nhospitalizados*Nhospitalizados/(N*N);
+        simultation_time[s - 1][10] += Infectados/N;
+        simultation_time[s - 1][11] += Infectados*Infectados/(N*N);
 
         quant[s -1]++;
         if((Expostos == Assintomaticos) && (Assintomaticos == Sintomaticos) && (Sintomaticos ==Hospitalizados) && (Hospitalizados == 0)) break;
         
 
-    }
-    //if(redes <= cut_rede)printf("S = %d\n",s);
-    if(ano <= dias){
-        for (i = s-1; i < dias*2; i++){
-            infect_time[i][0] += (double) Suscetiveis/N;
-            infect_time[i][1] += (double) Expostos/N;
-            infect_time[i][2] += (double) Assintomaticos/N;
-            infect_time[i][3] += (double) Sintomaticos/N;
-            infect_time[i][4] += (double) Hospitalizados/N;
-            infect_time[i][5] += (double) Recuperados/N;
-            infect_time[i][6] += (double) Mortos/N;
-            infect_time[i][7] += (double) Nhospitalizados/N;
-            infect_time[i][8] += (double) Mortos*Mortos/(N*N);
-            infect_time[i][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
-            infect_time[i][10] += (double) Infectados/N;
-            infect_time[i][11] += (double) Infectados*Infectados/(N*N);
-            quant[i]++;
-        }
     }
     free(prob_estagio);
     free(morte);
@@ -567,9 +557,17 @@ void infect(int E0,int N,double p,int seed,double** infect_time,double* quant,do
     free(rates);
     igraph_destroy(&Grafo);
     free(foi_vacinado);
-    //printf("\e[1;1H\e[2J");
-    //printf("%d\n",foi);
-    //foi++;
+    if(ano > dia_infecao+1){
+        for (i = 0; i < tempo_total; i++)for ( j = 0; j < q_resultados; j++) infect_time[i][j] += simultation_time[i][j];
+        *simulacoes += 1;
+        //certo++;
+        //printf("%d %f %d\n",certo,f,*simulacoes);
+        
+    }
+    *seed += 1;
+    for (i = 0; i < tempo_total; i++) free(simultation_time[i]);
+    free(simultation_time);
+    
 }
 
 void create_folder(int N){
@@ -592,24 +590,27 @@ void create_folder(int N){
     mkdir(dirName, 0700);
 }
 
-void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina,bool weight){
+void generate_infect(double N,double p,int seed, int redes,double f,int vacina,bool weight){
     
-    int tempo = dias*2;
+    
     int cut_rede = 5;
-    uint16_t i,j;
-    int q_resultados = 12;
-    create_folder(N);
-
-    infect_time = (double**) malloc(tempo*sizeof(double*));
-    quant = (double*) calloc(tempo,sizeof(double));
-
-    for (int i = 0; i < tempo; i++) infect_time[i] = (double*) calloc(q_resultados,sizeof(double));
-    for (j = 0; j < redes; j++) infect(1,N,p,seed+j ,infect_time,quant,f,vacina,redes,weight,cut_rede);
     
-    for (i = 0; i < tempo; i++){
+    uint16_t i,j;
+    create_folder((int)N);
+    
+    infect_time = (double**) malloc(tempo_total*sizeof(double*));
+    for (i = 0; i < tempo_total; i++) infect_time[i] = (double*) calloc(q_resultados,sizeof(double));
+    
+    quant = (double*) calloc(tempo_total,sizeof(double));
+    
+    uint16_t simulacoes = 0;
+    
+    while(simulacoes != redes)infect(1,N,p,&seed,infect_time,quant,f,vacina,redes,weight,cut_rede,&simulacoes);
+    
+    for (i = 0; i < tempo_total; i++){
         if(redes <= cut_rede){
             print_vetor(infect_time[i],q_resultados,sizeof(double));
-            printf("%f\n",quant[i]);
+            printf("Q: %f\n",quant[i]);
         }
         for (int j = 0; j < q_resultados; j++) infect_time[i][j] /= quant[i];
         if(redes <= cut_rede) print_vetor(infect_time[i],q_resultados,sizeof(double));
@@ -619,9 +620,9 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
     if((f == 0)){
         if(redes > cut_rede){
             char filecheck[800];
-            if(weight) sprintf(filecheck,"./output/time/%d/ponderado/p/infect_%.2f.txt",N,p);
-            else sprintf(filecheck,"./output/time/%d/nponderado/p/infect_%.2f.txt",N,p);
-            generate_file(filecheck,infect_time,tempo,q_resultados,sizeof(infect_time[0][0]));
+            if(weight) sprintf(filecheck,"./output/time/%d/ponderado/p/infect_%.2f.txt",(int)N,p);
+            else sprintf(filecheck,"./output/time/%d/nponderado/p/infect_%.2f.txt",(int)N,p);
+            generate_file(filecheck,infect_time,tempo_total,q_resultados,sizeof(infect_time[0][0]));
         }
     }
 
@@ -630,67 +631,67 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
             char filename[800];
             switch (vacina){
                 case 0:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/idade_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/idade_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/idade_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/idade_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 1:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/grau_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/grau_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/grau_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/grau_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 2:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/close_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/close_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/close_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/close_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 3:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/harmonic_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/harmonic_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/harmonic_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/harmonic_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 4:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/betwenness_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/betwenness_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/betwenness_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/betwenness_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 5:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/eigenvector_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/eigenvector_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/eigenvector_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/eigenvector_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 6:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/eccentricity_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/eccentricity_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/eccentricity_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/eccentricity_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 7:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/clustering_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/clustering_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/clustering_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/clustering_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 8:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/kshell_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/kshell_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/kshell_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/kshell_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 9:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/graumorte_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/graumorte_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/graumorte_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/graumorte_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 10:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probhosp_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/probhosp_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probhosp_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/probhosp_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 11:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probmorte_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/probmorte_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probmorte_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/probmorte_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 12:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probhospassin_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/probhospassin_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probhospassin_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/probhospassin_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 case 13:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probmortepassin_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/probmortepassin_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/probmortepassin_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/probmortepassin_%.2f_%.2f.txt",(int)N,p,f);
                     break;
                 default:
-                    if(weight) sprintf(filename,"./output/time/%d/ponderado/random_%.2f_%.2f.txt",N,p,f);
-                    else sprintf(filename,"./output/time/%d/nponderado/random_%.2f_%.2f.txt",N,p,f);
+                    if(weight) sprintf(filename,"./output/time/%d/ponderado/random_%.2f_%.2f.txt",(int)N,p,f);
+                    else sprintf(filename,"./output/time/%d/nponderado/random_%.2f_%.2f.txt",(int)N,p,f);
                     break;
             }
-            generate_file(filename,infect_time,tempo,q_resultados,sizeof(double));
+            generate_file(filename,infect_time,tempo_total,q_resultados,sizeof(double));
         }
     }
     int s = f*100;
@@ -699,89 +700,89 @@ void generate_infect(uint16_t N,double p,int seed, int redes,double f,int vacina
         char filename[800];
         switch (vacina){
             case 0:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/idade_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/idade_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/idade_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/idade_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Idade ");
                 break;
             case 1:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/grau_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/grau_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/grau_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/grau_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Grau ");
                 break;
             case 2:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/close_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/close_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/close_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/close_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Closeness ");
                 break;
             case 3:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/harmonic_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/harmonic_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/harmonic_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/harmonic_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Harmonic ");
                 break;
             case 4:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/betweenness_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/betweenness_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/betweenness_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/betweenness_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Betweenness ");
                 break;
             case 5:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/eigenvector_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/eigenvector_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/eigenvector_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/eigenvector_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Eigenvector ");
                 break;
             case 6:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/eccentricity_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/eccentricity_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/eccentricity_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/eccentricity_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Eccentricity ");
                 break;
             case 7:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/clustering_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/clustering_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/clustering_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/clustering_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Clustering ");
                 break;
             case 8:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/kshell_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/kshell_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/kshell_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/kshell_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Kshell ");
                 break;
             case 9:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/graumorte_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/graumorte_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/graumorte_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/graumorte_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Graumorte ");
                 break;
             case 10:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probhosp_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/probhosp_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probhosp_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/probhosp_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Probhosp ");
                 break;
             case 11:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probmorte_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/probmorte_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probmorte_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/probmorte_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Probmorte ");
                 break;
             case 12:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probhospassin_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/probhospassin_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probhospassin_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/probhospassin_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Probhospassin ");
                 break;
             case 13:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probmortepassin_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/probmortepassin_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/probmortepassin_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/probmortepassin_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Probmortepassin ");
                 break;
             default:
-                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/random_%.2f.txt",N,p);
-                else sprintf(filename,"./output/vacina/%d/nponderado/random_%.2f.txt",N,p);
+                if(weight) sprintf(filename,"./output/vacina/%d/ponderado/random_%.2f.txt",(int)N,p);
+                else sprintf(filename,"./output/vacina/%d/nponderado/random_%.2f.txt",(int)N,p);
                 if(s%10 == 0)printf("Aleatório ");
                 break;
         }
         file = fopen(filename,"a");
-        fprintf(file,"%f %f %f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6], infect_time[tempo-1][10],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5),pow(infect_time[tempo-1][11] - pow(infect_time[tempo-1][10],2),0.5));
+        fprintf(file,"%f %f %f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6], infect_time[tempo_total-1][10],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),pow(infect_time[tempo_total-1][11] - pow(infect_time[tempo_total-1][10],2),0.5));
         fclose(file);
     }
-    else printf("%.2f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(infect_time[tempo-1][9] - pow(infect_time[tempo-1][7],2),0.5), pow(infect_time[tempo-1][8] - pow(infect_time[tempo-1][6],2),0.5));
-    //else printf("%.2f %f %f %f %f\n",f, infect_time[tempo-1][7], infect_time[tempo-1][6],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
+    else printf("%.2f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5));
+    //else printf("%.2f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
 
-    for (i = 0; i < tempo; i++) free(infect_time[i]);
+    for (i = 0; i < tempo_total; i++) free(infect_time[i]);
     free(infect_time);
     free(quant);
     //if (redes != 1) printf("\e[1;1H\e[2J");
