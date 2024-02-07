@@ -9,7 +9,7 @@
 
 #include "bib/mtwister.h"
 #include "bib/calc.h"
-#include "bib/rede.h"
+//#include "bib/rede.h"
 //#include "bib/CM.h"
 #include "bib/SBM.h"
 #include "bib/LCM.h"

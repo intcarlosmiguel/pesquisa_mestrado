@@ -9,7 +9,7 @@
 
 #include "mtwister.h"
 #include "calc.h"
-#include "rede.h"
+//#include "rede.h"
 #include <igraph.h>
 struct Graph{
     int **viz;

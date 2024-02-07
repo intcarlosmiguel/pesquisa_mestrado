@@ -5,6 +5,9 @@
 #include <math.h>
 #include <igraph.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #define M_PI 3.14159265358979323846
 
 double media(double* x,int N){
@@ -458,4 +461,25 @@ void mergeSort(int *arr, igraph_vector_t* brr, int l, int r) {
 void print_side_by_side(int* a,int*b,int N){
     for (int  i = 0; i < N; i++) printf("%d %d %d\n",a[i],b[i],i);
     
+}
+
+
+void create_folder(int N){
+    char dirName[200];
+    sprintf(dirName,"./output/time/%d/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/ponderado/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/nponderado/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/ponderado/p/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/time/%d/nponderado/p/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/vacina/%d/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/vacina/%d/ponderado/",N);
+    mkdir(dirName, 0700);
+    sprintf(dirName,"./output/vacina/%d/nponderado/",N);
+    mkdir(dirName, 0700);
 }

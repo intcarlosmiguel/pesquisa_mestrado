@@ -983,7 +983,7 @@ def infectados_plot(N,ponderado):
                 )
             )
         )
-
+    print(infect[0][200]+infect[5][200]+infect[3][200])
     fig.update_layout(
         width=700,  # Largura do gráfico em pixels
         height=600,  # Altura do gráfico em pixels
@@ -1090,7 +1090,7 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
     xlabel =  {
         0:"Suscetíveis",
         1:"Expostos",
-        2:"Assintomátiocs",
+        2:"Assintomáticos",
         3:"Sintomáticos",
         4:"Hospitalizados",
         5:"Recuperados",
@@ -1170,8 +1170,8 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
     fig.update_layout(
         width=700,  # Largura do gráfico em pixels
         height=700,  # Altura do gráfico em pixels
-        xaxis=dict(title='Tempo (dias)',tickfont=dict(size=15),range = [60,190]),
-        #yaxis = dict(range = [0,0.01]),
+        xaxis=dict(title='Tempo (dias)',tickfont=dict(size=15),range = [90,190]),
+        yaxis = dict(range = [0,0.1]),
         title  = 'Ponderado' if(ponderado)  else 'Não Ponderado',
         #paper_bgcolor='rgba(0,0,0,0)',
         #yaxis=dict(title='Fração', range = [0,0.08],tickfont=dict(size=15)),
