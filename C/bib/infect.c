@@ -27,7 +27,6 @@ const double delta = (double)1/13.681339751546528;
 const double recupera = (double)1/40;
 
 double** infect_time;
-double* quant;
 int foi = 0;
 const uint16_t dias = 190;
 const uint16_t dia_infecao = 100;
@@ -45,205 +44,7 @@ bool fileExists(const char *filename) {
 }
 
 
-igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* hospitalizacao,double* sintomatico){
-    uint16_t i;
-    int N = igraph_vcount(Grafo);
-    igraph_vector_int_t centralidade;
-    igraph_vector_int_init(&centralidade, N);
-    switch (check){
-        
-        case 0:{ // Vacinação por idade
-            
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-            igraph_vector_qsort_ind(&faixas,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            break;
-        }
-        case 1:{ // Vacinação por grau
-            igraph_vector_int_t degrees;
-            igraph_vector_int_init(&degrees, 0);
-            igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
-            igraph_vector_int_qsort_ind(&degrees,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_int_destroy(&degrees);
-            break;
-        }
-        case 2:{
-            
-            igraph_vector_t closeness;
-            igraph_vector_int_t reachable_count;
-            igraph_bool_t all_reachable;
 
-            igraph_vector_int_init(&reachable_count, 0);
-            igraph_vector_init(&closeness, N);
-
-            igraph_closeness(Grafo, &closeness, &reachable_count, &all_reachable, igraph_vss_all(), IGRAPH_ALL, NULL, 1);
-            igraph_vector_qsort_ind(&closeness,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&closeness);
-            igraph_vector_int_destroy(&reachable_count);
-            
-            break;
-        }
-        case 3:{ // Vacinação por Harmo
-            igraph_vector_t Harmonic;
-            igraph_vector_init(&Harmonic, N);
-            igraph_harmonic_centrality(Grafo,&Harmonic,igraph_vss_all(),IGRAPH_ALL,NULL,0);
-            igraph_vector_qsort_ind(&Harmonic,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Harmonic);
-            break;
-        }
-        case 4:{
-            igraph_vector_t Betweenness;
-            igraph_vector_init(&Betweenness, N);
-            igraph_betweenness(Grafo, &Betweenness, igraph_vss_all(), IGRAPH_UNDIRECTED, NULL);
-            igraph_vector_qsort_ind(&Betweenness,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Betweenness);
-            break;
-        }
-        case 5:{
-            igraph_vector_t eigenvector;
-            igraph_vector_init(&eigenvector, 0);
-            igraph_eigenvector_centrality(Grafo,&eigenvector,0,IGRAPH_UNDIRECTED,1,NULL,NULL);
-            igraph_vector_qsort_ind(&eigenvector,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&eigenvector);
-            break;
-        }
-        case 6:{
-            igraph_vector_t eccentricity;
-            igraph_vector_init(&eccentricity, N);
-            igraph_eccentricity(Grafo,&eccentricity,igraph_vss_all(),IGRAPH_ALL);
-            igraph_vector_qsort_ind(&eccentricity,&centralidade, IGRAPH_ASCENDING);
-            igraph_vector_destroy(&eccentricity);
-            break;
-        }
-        case 7:{ // Clsutering
-            igraph_vector_t clustering;
-            igraph_vector_init(&clustering, N);
-            igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
-            igraph_vector_qsort_ind(&clustering,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&clustering);
-            break;
-        }
-        case 8:{ // Kshell
-            igraph_vector_int_t k_shell;
-            igraph_vector_int_init(&k_shell, N);
-            igraph_coreness(Grafo, &k_shell, IGRAPH_ALL);
-            igraph_vector_int_qsort_ind(&k_shell,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_int_destroy(&k_shell);
-            break;
-        }
-        case 9:{ // Grau morte
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            igraph_vector_int_t degrees;
-            igraph_vector_int_init(&degrees, 0);
-            igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
-
-            for ( i= 0; i < N; i++) VECTOR(faixas)[i] = (double) VECTOR(degrees)[i]*morte[ (int) VECTOR(faixas)[i]];
-            
-            igraph_vector_int_destroy(&degrees);
-            
-
-            igraph_vector_qsort_ind(&faixas,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            break;
-        }
-        case 10:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-        case 11:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*morte[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-        case 12:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                VECTOR(prob)[i] *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-
-        case 13:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*morte[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                VECTOR(prob)[i] *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-        default:{// Aleatório
-            igraph_vector_int_init_range(&centralidade,0,N);
-            igraph_vector_int_shuffle(&centralidade);
-            break;
-        }
-    }
-    return centralidade;
-    
-    //return vacinado;
-}
 
 double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo,bool* vacinado,double* hospitalizacao,double* morte,double* avg,bool weight){
 
@@ -323,10 +124,13 @@ double* atualiza_estagio(double* rates,int site,double* rate,char* estagio,doubl
     return rates;
 }
 
-void infect(int E0,double N,double p,int* seed,double** infect_time,double* quant,double f,int vacina,int redes,bool weight, int cut_rede){
+void infect(int E0,double N,double p,int* seed,double** infect_time,double f,int vacina,int redes,bool weight, int cut_rede){
     double avg_degree;
-    igraph_t Grafo = local_configuration_model( N, p,*seed,weight,&avg_degree);
+    igraph_vector_int_t centralidade;
     int N_vacinas = f*N;
+    igraph_t Grafo = local_configuration_model( N, p,*seed,weight,&avg_degree,&centralidade,vacina,(N_vacinas > 0)? true: false);
+    
+    
 
     double Suscetiveis = N - E0;
     double Expostos = E0;
@@ -398,9 +202,7 @@ void infect(int E0,double N,double p,int* seed,double** infect_time,double* quan
     double new_rate;
     site = -1;
     while (ano < dias){
-        if((ano>= dia_infecao) && (!Vac) && (f!= 0.0)){
-            igraph_vector_int_t centralidade = centrality(&Grafo,vacina,morte,hospitalizacao,sintomatico);
-            
+        if((ano>= dia_infecao) && (!Vac) && (f!= 0.0)){            
             for (j = 0; j < N; j++){
                 int sitio_vacinado = VECTOR(centralidade)[j];
                 if((estagio[sitio_vacinado] == 'S') || (estagio[sitio_vacinado] == 'R') || (estagio[sitio_vacinado] == 'A')){
@@ -525,23 +327,24 @@ void infect(int E0,double N,double p,int* seed,double** infect_time,double* quan
                 break;
         }
         prob_estagio[i] = genrand64_real1();
-        if(ano > t) {s++;t += 0.5;}
+        if(ano > t){
+            s++;
+            t += 0.5;
+            infect_time[s - 1][0] += Suscetiveis/N;
+            infect_time[s - 1][1] += Expostos/N;
+            infect_time[s - 1][2] += Assintomaticos/N;
+            infect_time[s - 1][3] += Sintomaticos/N;
+            infect_time[s - 1][4] += Hospitalizados/N;
+            infect_time[s - 1][5] += Recuperados/N;
+            infect_time[s - 1][6] += Mortos/N;
+            infect_time[s - 1][7] += Nhospitalizados/N;
+            infect_time[s - 1][8] += Mortos*Mortos/(N*N);
+            infect_time[s - 1][9] += Nhospitalizados*Nhospitalizados/(N*N);
+            infect_time[s - 1][10] += Infectados/N;
+            infect_time[s - 1][11] += Infectados*Infectados/(N*N);
+            //if(redes <= cut_rede)printf("%f %f %f %f %f %f %f %f %d\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s);
+        }
         if(t >= dias+1) break;
-        //if(redes <= cut_rede)printf("%f %f %f %f %f %f %f %f %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s, quant[s]);
-        infect_time[s - 1][0] += Suscetiveis/N;
-        infect_time[s - 1][1] += Expostos/N;
-        infect_time[s - 1][2] += Assintomaticos/N;
-        infect_time[s - 1][3] += Sintomaticos/N;
-        infect_time[s - 1][4] += Hospitalizados/N;
-        infect_time[s - 1][5] += Recuperados/N;
-        infect_time[s - 1][6] += Mortos/N;
-        infect_time[s - 1][7] += Nhospitalizados/N;
-        infect_time[s - 1][8] += Mortos*Mortos/(N*N);
-        infect_time[s - 1][9] += Nhospitalizados*Nhospitalizados/(N*N);
-        infect_time[s - 1][10] += Infectados/N;
-        infect_time[s - 1][11] += Infectados*Infectados/(N*N);
-
-        quant[s -1]++;
         if((Expostos == Assintomaticos) && (Assintomaticos == Sintomaticos) && (Sintomaticos ==Hospitalizados) && (Hospitalizados == 0)) break;
         
 
@@ -568,7 +371,6 @@ void infect(int E0,double N,double p,int* seed,double** infect_time,double* quan
             infect_time[i][9] += (double) Nhospitalizados*Nhospitalizados/(N*N);
             infect_time[i][10] += (double) Infectados/N;
             infect_time[i][11] += (double) Infectados*Infectados/(N*N);
-            quant[i]++;
         }
     }
 
@@ -589,18 +391,15 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
     create_folder((int)N);
     
     infect_time = (double**) malloc(tempo_total*sizeof(double*));
-    for (i = 0; i < tempo_total; i++) infect_time[i] = (double*) calloc(q_resultados,sizeof(double));
-    
-    quant = (double*) calloc(tempo_total,sizeof(double));
-        
-    for (i = 0; i < redes; i++) infect(10,N,p,&seed,infect_time,quant,f,vacina,redes,weight,cut_rede);
+    for (i = 0; i < tempo_total; i++) infect_time[i] = (double*) calloc(q_resultados,sizeof(double));        
+    for (i = 0; i < redes; i++) infect(10,N,p,&seed,infect_time,f,vacina,redes,weight,cut_rede);
     
     for (i = 0; i < tempo_total; i++){
         if(redes <= cut_rede){
             //print_vetor(infect_time[i],q_resultados,sizeof(double));
             //printf("%f\n",quant[i]);
         }
-        for (int j = 0; j < q_resultados; j++) infect_time[i][j] /= quant[i];
+        for (int j = 0; j < q_resultados; j++) infect_time[i][j] /= redes;
         //if(redes <= cut_rede) print_vetor(infect_time[i],q_resultados,sizeof(double));
         //if(redes <= cut_rede) printf(" =============================================== \n");
     }
@@ -638,7 +437,6 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
 
     for (i = 0; i < tempo_total; i++) free(infect_time[i]);
     free(infect_time);
-    free(quant);
     //if (redes != 1) printf("\e[1;1H\e[2J");
     
     if(s%10 == 0)printf("Terminou: %f %f\n",f,p);

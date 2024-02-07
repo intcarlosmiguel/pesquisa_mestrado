@@ -6,7 +6,7 @@ struct Graph{
     int edges;
 };
 void generate_local_configuration_model(double p, int T,int seed);
-igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *avg);
+igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *avg,igraph_vector_int_t* centralidade,int check,bool calcula);
 
 
 #endif

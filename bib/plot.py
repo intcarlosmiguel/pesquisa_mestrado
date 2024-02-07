@@ -317,15 +317,16 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
     ]
     for infect,file,p in zip(vac,infect_vacinado,prob):
 
-        integral.append([
-            file.split("_")[0],
-            np.dot(infect[1 if(plot ==0) else 2], 0.01*np.ones(len(infect[1 if(plot ==0) else 2])))
-        ])
+        
 
         y = infect[plot+1]
         tempo = infect[0]
         y = y[np.argsort(tempo)]
         tempo = tempo[np.argsort(tempo)]
+        integral.append([
+            file.split("_")[0],
+            np.dot(y, 0.01*np.ones(len(y)))
+        ])
         fig.add_trace(
             go.Scatter(
                 x=tempo, 
@@ -1130,9 +1131,9 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
     Area = []
     df = df[df['Vacinação'] == vacinacao]
     for file in df[(df["Clustering"] == c)].values:
-        y = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}.txt").T[n]
+        y = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}0.txt").T[n]
         if(n == 2):
-            y += np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}.txt").T[3]
+            y += np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}0.txt").T[3]
         tempo = np.arange(len(y))/2
         M.append(y[(tempo <=140) & (tempo >= 60) & (tempo%10 == 0)])
         #print(i[-8:],np.mean(y[tempo > 200]),np.std(y[tempo > 200]))
@@ -1171,7 +1172,7 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
         width=700,  # Largura do gráfico em pixels
         height=700,  # Altura do gráfico em pixels
         xaxis=dict(title='Tempo (dias)',tickfont=dict(size=15),range = [90,190]),
-        yaxis = dict(range = [0,0.1]),
+        yaxis = dict(range = [0,0.1 if(n!=6) else 0.01]),
         title  = 'Ponderado' if(ponderado)  else 'Não Ponderado',
         #paper_bgcolor='rgba(0,0,0,0)',
         #yaxis=dict(title='Fração', range = [0,0.08],tickfont=dict(size=15)),
