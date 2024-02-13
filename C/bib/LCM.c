@@ -273,7 +273,7 @@ void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
         ligacoes_total += somatorio(degree,i,5);
     }
     print_matrix(matriz,5,5);
-    printf("Ligações faltantes: %d %f\n",ligacoes_total,G->edges);
+    printf("Ligações faltantes: %d %f\n",ligacoes_total,(double)ligacoes_total/G->edges);
 
     
     FILE *arquivo;
@@ -825,7 +825,6 @@ void generate_local_configuration_model(double p, int redes,int seed){
         printf("%d\n",i+1);
         igraph_destroy(&G);
     }
-   
     for (i = 0; i < 6; i++){
         resultados[i] /= redes;
         std[i] /= redes;
@@ -835,7 +834,6 @@ void generate_local_configuration_model(double p, int redes,int seed){
         prob[i] /= redes;
         k_mean[i] /= redes;
     }
-    
     if(redes > 1){
         FILE *file;
         char filecheck[800];
@@ -855,6 +853,6 @@ void generate_local_configuration_model(double p, int redes,int seed){
     free(resultados);
     free(std);
     free(prob);
-    igraph_vector_int_destroy(&centralidade);
+    //igraph_vector_int_destroy(&centralidade);
     printf("Terminou\n");
 }

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+
 import plotly.graph_objs as go
 from bib.cleaning import *
 from sklearn.linear_model import LinearRegression
@@ -277,17 +278,12 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.savefig("./img/map.jpg")
     plt.show()
 
-def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
-    infect_vacinado = [i for i in os.listdir(f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/")]
-    prob = [float(i.split("_")[-1][:4]) for i in infect_vacinado]
-    nomes = [i.split("_")[-2] for i in infect_vacinado]
-    vac = []
+def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 0.0):
+    cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
+    df = np.array([[i.split("_")[0],float(i.split("_")[1].split(".")[0]),cmd+i] for i in os.listdir(cmd)])
+    df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
-    for i in infect_vacinado:
-        x = np.loadtxt(f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{i}")
-        x = np.array([i for i in x if(sum(np.isnan(i)) == 0)]).T
-        vac.append(x)
     integral = []
     fig = go.Figure()
     arquivo = {
@@ -307,32 +303,32 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
         "probhosp":"PH",
         "probmorte":"PM",
     }
-    df = {}
-    M = []
     ylabel = []
     titulo = [
         'Fração de Hospitalizados',
         'Fração de Mortos',
         'Área de Infectados'
     ]
-    for infect,file,p in zip(vac,infect_vacinado,prob):
+    df = df[df['Clustering'] == clustering]
+    for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
 
-        
-
+        infect = np.loadtxt(file).T
         y = infect[plot+1]
         tempo = infect[0]
         y = y[np.argsort(tempo)]
         tempo = tempo[np.argsort(tempo)]
+
         integral.append([
-            file.split("_")[0],
+            arquivo[estrategy],
             np.dot(y, 0.01*np.ones(len(y)))
         ])
+
         fig.add_trace(
             go.Scatter(
                 x=tempo, 
                 y=y, 
                 mode='markers', 
-                name=arquivo[file.split("_")[0]],
+                name=arquivo[estrategy],
                 marker=dict(
                     size = 5,
                     #color = cores[file.split("_")[2]]
@@ -346,8 +342,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
             )
         )
         #M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
-        ylabel.append(arquivo[file.split("_")[0]])
-        df[arquivo[file.split("_")[0]]] = infect[1 if(plot ==0) else 2]
+        ylabel.append(arquivo[estrategy])
     
     tit = 'Hospitalizados' if(plot ==0) else 'Mortos'
     fig.update_layout(
@@ -375,9 +370,9 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,c = 0.0):
     print(file[a])
 
     if(erro == 0):
-        fig.write_image(f"./img/infect/vacinas_{tit}_{c}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
+        fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
     else:
-        fig.write_image(f"./img/infect/vacinas_{tit}_{c}_{'ponderado' if(ponderado) else 'nponderado'}_erro.png")
+        fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}_erro.png")
     """"
     #print(integral)
     #plt.figure(figsize=(15,7),dpi=500)
@@ -984,7 +979,7 @@ def infectados_plot(N,ponderado):
                 )
             )
         )
-    print(infect[0][200]+infect[5][200]+infect[3][200])
+    #print(infect[0][200]+infect[5][200]+infect[3][200])
     fig.update_layout(
         width=700,  # Largura do gráfico em pixels
         height=600,  # Altura do gráfico em pixels
@@ -1082,21 +1077,20 @@ def compara_ponderacao(N,n):
     )
     
     fig.show()
-def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
+def vacina_infect(
+        N = 7189,
+        ponderado = True,
+        vacinacao = 0.5, 
+        n = 6,
+        clustering = 0.0,
+    ):
+    cmd = f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
 
-    files =  [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}") if('txt' in i)]
-    df = np.array([[file.split('_')[1],file.split('_')[2][:-4],file.split('_')[0]] for file in files])
+    files =  [i for i in os.listdir(cmd) if('txt' in i)]
 
-    df = pd.DataFrame({'Estratégia': df.T[2], 'Clustering': df.T[0].astype(float), 'Vacinação': df.T[1].astype(float)})
-    xlabel =  {
-        0:"Suscetíveis",
-        1:"Expostos",
-        2:"Assintomáticos",
-        3:"Sintomáticos",
-        4:"Hospitalizados",
-        5:"Recuperados",
-        6:"Mortos"
-    }
+    df = np.array([[file.split('_')[1],file.split('_')[2][:-4],file.split('_')[0],cmd+file] for file in files])
+
+    df = pd.DataFrame({'Estratégia': df.T[2], 'Clustering': df.T[0].astype(float), 'Vacinação': df.T[1].astype(float),'Files':df.T[-1]})
     
     translate = {
         "kshell":"CK",
@@ -1116,8 +1110,6 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
         "probmorte":"PM",
     }
 
-    c = 0.
-
     colors = px.colors.qualitative.Prism
 
     cores = {}
@@ -1130,16 +1122,13 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
     ylabel = []
     Area = []
     df = df[df['Vacinação'] == vacinacao]
-    for file in df[(df["Clustering"] == c)].values:
-        y = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}0.txt").T[n]
+    for file in df[(df["Clustering"] == clustering)].values:
+        y = np.loadtxt(file[-1]).T[n]
         if(n == 2):
-            y += np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/{file[0]}_{file[1]}0_{file[2]}0.txt").T[3]
+            y += np.loadtxt(file[-1]).T[3]
         tempo = np.arange(len(y))/2
-        M.append(y[(tempo <=140) & (tempo >= 60) & (tempo%10 == 0)])
-        #print(i[-8:],np.mean(y[tempo > 200]),np.std(y[tempo > 200]))
-        #plt.scatter(tempo,y,label = f"{file[0]}",s=0.5)
         ylabel.append(translate[file[0]])
-        Area.append([file[0],np.dot(tempo[:-1][60:],y[:-1][60:])])
+        Area.append([file[0],np.dot(tempo[:-1][100:],y[:-1][100:])])
         fig.add_trace(
             go.Scatter(
                 x=tempo, 
@@ -1152,9 +1141,9 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
                 )
             )
         )
-    sem_vacina = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/p/infect_0.00.txt").T[n]
+    sem_vacina = np.loadtxt(cmd + "p/infect_0.00.txt").T[n]
     if(n == 2):
-        sem_vacina += np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado) else 'nponderado'}/p/infect_0.00.txt").T[3]
+        sem_vacina += np.loadtxt(cmd + "p/infect_0.00.txt").T[3]
     tempo = np.arange(len(sem_vacina))/2
     fig.add_trace(
         go.Scatter(
@@ -1181,7 +1170,7 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s+10, b=s))
     fig.show()
-    fig.write_image(f"./img/infect/infectados_vacina_{round(c,2)}_{'ponderado' if(ponderado)  else 'nponderado'}.png")
+    fig.write_image(f"./img/infect/infectados_vacina_{round(clustering,2)}_{'ponderado' if(ponderado)  else 'nponderado'}.png")
     """ M = np.array(M)
     arr = np.argsort(np.min(M,axis = 1))
     ylabel = np.array(ylabel)
@@ -1222,3 +1211,46 @@ def vacina_infect(N = 7189,ponderado = True,vacinacao = 0.5, n = 6):
 
     # Display the chart
     fig.show()
+
+def compara_probability(N,ponderado):
+
+    files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/")]
+    fig = make_subplots(rows=1, cols=2, subplot_titles=('Hospitalizados', 'Mortos'))
+    cores = px.colors.qualitative.Dark24
+    for file,cor in zip(files,cores):
+        infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/{file}").T
+        dados = {
+            'Tempo': np.arange(len(infect[0]))/2,
+            #'Suscetíveis': infect[0],
+            "Hospitalizados": infect[2],
+            "Mortos": infect[6]
+        }
+        dados = pd.DataFrame(dados)
+        
+
+        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Hospitalizados'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=1)
+
+        # Adicionando a reta de regressão ao segundo subgráfico
+        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines',marker =dict(size = 2),showlegend=False,name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=2)
+
+    fig.update_layout(
+        width=1200,  # Largura do gráfico em pixels
+        height=600,  # Altura do gráfico em pixels
+        xaxis=dict(title='Tempo'),
+        #xaxis=dict(),
+        yaxis=dict(title='Fração'),
+        #paper_bgcolor='rgba(0,0,0,0)',
+        template = "seaborn",
+        font=dict(
+            #family="Courier New, monospace",
+            size=15,
+            #color="RebeccaPurple"
+        ),
+    )
+    fig.update_yaxes(title_text='Fração',tickfont=dict(size=15), row=1, col=1)
+    fig.update_xaxes(title_text='Tempo',tickfont=dict(size=15), row=1, col=2)
+    fig.update_xaxes(title_text='Tempo',tickfont=dict(size=15), row=1, col=2)
+    s = 20
+    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
+    fig.show()
+    #fig.write_image('./img/infect/pre_vacina_mortos_p.png')
