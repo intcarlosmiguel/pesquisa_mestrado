@@ -12,6 +12,7 @@
 #include "calc.h"
 //#include "rede.h"
 #include <igraph.h>
+#include "vacinas.h"
 struct Graph{
     int **viz;
     int Nodes;
@@ -330,7 +331,7 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
     return *G;
 }
 
-igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* hospitalizacao,double* sintomatico){
+igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* hospitalizacao,double* sintomatico,igraph_vector_t* pesos){
     uint16_t i;
     int N = igraph_vcount(Grafo);
     igraph_vector_int_t centralidade;
@@ -519,6 +520,45 @@ igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* h
             igraph_vector_destroy(&prob);
             break;
         }
+        case 14:{
+            igraph_vector_t closeness;
+            igraph_vector_int_t reachable_count;
+            igraph_bool_t all_reachable;
+
+            igraph_vector_int_init(&reachable_count, 0);
+            igraph_vector_init(&closeness, N);
+
+            igraph_closeness(Grafo, &closeness, &reachable_count, &all_reachable, igraph_vss_all(), IGRAPH_ALL, pesos, 1);
+            igraph_vector_qsort_ind(&closeness,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&closeness);
+            igraph_vector_int_destroy(&reachable_count);
+            
+            break;
+        }
+        case 15:{
+            igraph_vector_t Harmonic;
+            igraph_vector_init(&Harmonic, N);
+            igraph_harmonic_centrality(Grafo,&Harmonic,igraph_vss_all(),IGRAPH_ALL,pesos,0);
+            igraph_vector_qsort_ind(&Harmonic,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&Harmonic);
+            break;
+        }
+        case 16:{
+            igraph_vector_t Betweenness;
+            igraph_vector_init(&Betweenness, N);
+            igraph_betweenness(Grafo, &Betweenness, igraph_vss_all(), IGRAPH_UNDIRECTED, pesos);
+            igraph_vector_qsort_ind(&Betweenness,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&Betweenness);
+            break;
+        }
+        case 17:{
+            igraph_vector_t eigenvector;
+            igraph_vector_init(&eigenvector, 0);
+            igraph_eigenvector_centrality(Grafo,&eigenvector,0,IGRAPH_UNDIRECTED,1,pesos,NULL);
+            igraph_vector_qsort_ind(&eigenvector,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&eigenvector);
+            break;
+        }
         default:{// Aleatório
             igraph_vector_int_init_range(&centralidade,0,N);
             igraph_vector_int_shuffle(&centralidade);
@@ -699,6 +739,14 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     if(weight) SETEANV(&Grafo, "duracao", &pesos);
     *avg = (double)G.edges*2/(G.Nodes);
     
+    if(calcula){
+        if(check <10) *centralidade = traditional_centralities(&Grafo,check);
+        else{
+            if(check<15) *centralidade = propose_centralities(&Grafo,check,morte,hospitalizacao,sintomatico);
+            else *centralidade = weighted_traditional_centralities(&Grafo,check,&pesos);
+        }
+    }
+
     for (i = 0; i < G.Nodes; i++){
         free(G.viz[i]);
         free(degree[i]);
@@ -722,7 +770,7 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     igraph_vector_int_destroy(&edges);
     igraph_vector_destroy(&faixas);
 
-    if(calcula)*centralidade = centrality(&Grafo,check,morte,hospitalizacao,sintomatico);
+    
     return Grafo;
 }
 

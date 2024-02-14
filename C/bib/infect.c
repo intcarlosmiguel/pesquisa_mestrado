@@ -412,7 +412,7 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
             generate_file(filecheck,infect_time,tempo_total,q_resultados,sizeof(infect_time[0][0]));
         }
     }
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","graumorte","probhosp","probmorte","probhospassin","probmortepassin","random"};
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","graumorte","probhosp","probmorte","probhospassin","probmortepassin","weighted_close","weighted_harmonic","weighted_betwenness","weighted_eigenvector"};
     if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0)){
         if(redes > cut_rede){
             char filename[800];
@@ -432,7 +432,7 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
         fprintf(file,"%f %f %f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6], infect_time[tempo_total-1][10],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),pow(infect_time[tempo_total-1][11] - pow(infect_time[tempo_total-1][10],2),0.5));
         fclose(file);
     }
-    else printf("%.2f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5));
+    else printf("%.2f %f %f %f %f %s\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),file_vacina[vacina]);
     //else printf("%.2f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
 
     for (i = 0; i < tempo_total; i++) free(infect_time[i]);
