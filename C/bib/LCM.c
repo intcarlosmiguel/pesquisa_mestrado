@@ -23,6 +23,8 @@ struct Retorno{
     int** degree;
 };
 
+float lll = 0;
+
 double distance(double* point1,double* point2,int N){
     double distance2 = 0;
     for (int i = 0; i < N; i++) distance2 += pow(point1[i] - point2[i],2);
@@ -263,7 +265,7 @@ bool check_repetidos(struct Graph *G,int i,int vizinho){
     return false;
 }
 
-void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
+double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas,double p,igraph_t* Grafo){
     int ligacoes_total = 0;
     int i,j;
     int** matriz = (int**) malloc(5*sizeof(int*));
@@ -273,19 +275,32 @@ void generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas){
         for (j = 0; j < 5; j++) matriz[(int) VECTOR(*faixas)[i]][j] += degree[i][j];
         ligacoes_total += somatorio(degree,i,5);
     }
-    print_matrix(matriz,5,5);
-    printf("Ligações faltantes: %d %f\n",ligacoes_total,(double)ligacoes_total/G->edges);
 
-    
-    FILE *arquivo;
-    arquivo = fopen("./testdist.txt","w");
-    for (i = 0; i < G->Nodes; i++){
-        int* resultado = calloc(5,sizeof(int));
-        for (j = 0; j < G->viz[i][0]; j++) resultado[(int) VECTOR(*faixas)[G->viz[i][j+1]]]++;
-        fprintf(arquivo,"%d %d %d %d %d %d\n", (int) VECTOR(*faixas)[i],resultado[0],resultado[1],resultado[2],resultado[3],resultado[4]);
-        free(resultado);
+    for (i = 0; i < 5; i++) free(matriz[i]);
+    free(matriz);
+   
+    if((p == 0) || (p ==0.25) || (p ==0.5) || p == (1.0)){
+        FILE *arquivo;
+        char file[800];
+        sprintf(file,"./output/modelo/resultados_%.2f.txt",p);
+        arquivo = fopen(file,"a");
+        igraph_vector_t clustering;
+        igraph_vector_init(&clustering, G->Nodes);
+        igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
+        for (i = 0; i < G->Nodes; i++){
+            int* grau_ = calloc(5,sizeof(int));
+            for (j = 0; j < G->viz[i][0]; j++){
+                int vizinho = G->viz[i][j+1];
+                if(vizinho <0) continue;
+                grau_[(int) VECTOR(*faixas)[vizinho]]++;
+            }
+            fprintf(arquivo,"%d %d %d %d %d %d %f\n", (int) VECTOR(*faixas)[i],grau_[0],grau_[1],grau_[2],grau_[3],grau_[4],VECTOR(clustering)[i]);
+            free(grau_);
+        }
+        igraph_vector_destroy(&clustering);
+        fclose(arquivo);
     }
-    fclose(arquivo);
+    return ligacoes_total/G->edges;
 }
 
 struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos){
@@ -331,244 +346,7 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
     return *G;
 }
 
-igraph_vector_int_t centrality(igraph_t* Grafo,int check,double* morte,double* hospitalizacao,double* sintomatico,igraph_vector_t* pesos){
-    uint16_t i;
-    int N = igraph_vcount(Grafo);
-    igraph_vector_int_t centralidade;
-    igraph_vector_int_init(&centralidade, N);
-    switch (check){
-        
-        case 0:{ // Vacinação por idade
-            
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-            igraph_vector_qsort_ind(&faixas,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            break;
-        }
-        case 1:{ // Vacinação por grau
-            igraph_vector_int_t degrees;
-            igraph_vector_int_init(&degrees, 0);
-            igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
-            igraph_vector_int_qsort_ind(&degrees,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_int_destroy(&degrees);
-            break;
-        }
-        case 2:{
-            
-            igraph_vector_t closeness;
-            igraph_vector_int_t reachable_count;
-            igraph_bool_t all_reachable;
 
-            igraph_vector_int_init(&reachable_count, 0);
-            igraph_vector_init(&closeness, N);
-
-            igraph_closeness(Grafo, &closeness, &reachable_count, &all_reachable, igraph_vss_all(), IGRAPH_ALL, NULL, 1);
-            igraph_vector_qsort_ind(&closeness,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&closeness);
-            igraph_vector_int_destroy(&reachable_count);
-            
-            break;
-        }
-        case 3:{ // Vacinação por Harmo
-            igraph_vector_t Harmonic;
-            igraph_vector_init(&Harmonic, N);
-            igraph_harmonic_centrality(Grafo,&Harmonic,igraph_vss_all(),IGRAPH_ALL,NULL,0);
-            igraph_vector_qsort_ind(&Harmonic,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Harmonic);
-            break;
-        }
-        case 4:{
-            igraph_vector_t Betweenness;
-            igraph_vector_init(&Betweenness, N);
-            igraph_betweenness(Grafo, &Betweenness, igraph_vss_all(), IGRAPH_UNDIRECTED, NULL);
-            igraph_vector_qsort_ind(&Betweenness,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Betweenness);
-            break;
-        }
-        case 5:{
-            igraph_vector_t eigenvector;
-            igraph_vector_init(&eigenvector, 0);
-            igraph_eigenvector_centrality(Grafo,&eigenvector,0,IGRAPH_UNDIRECTED,1,NULL,NULL);
-            igraph_vector_qsort_ind(&eigenvector,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&eigenvector);
-            break;
-        }
-        case 6:{
-            igraph_vector_t eccentricity;
-            igraph_vector_init(&eccentricity, N);
-            igraph_eccentricity(Grafo,&eccentricity,igraph_vss_all(),IGRAPH_ALL);
-            igraph_vector_qsort_ind(&eccentricity,&centralidade, IGRAPH_ASCENDING);
-            igraph_vector_destroy(&eccentricity);
-            break;
-        }
-        case 7:{ // Clsutering
-            igraph_vector_t clustering;
-            igraph_vector_init(&clustering, N);
-            igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
-            igraph_vector_qsort_ind(&clustering,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&clustering);
-            break;
-        }
-        case 8:{ // Kshell
-            igraph_vector_int_t k_shell;
-            igraph_vector_int_init(&k_shell, N);
-            igraph_coreness(Grafo, &k_shell, IGRAPH_ALL);
-            igraph_vector_int_qsort_ind(&k_shell,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_int_destroy(&k_shell);
-            break;
-        }
-        case 9:{ // Grau morte
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            igraph_vector_int_t degrees;
-            igraph_vector_int_init(&degrees, 0);
-            igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
-
-            for ( i= 0; i < N; i++) VECTOR(faixas)[i] = (double) VECTOR(degrees)[i]*morte[ (int) VECTOR(faixas)[i]];
-            
-            igraph_vector_int_destroy(&degrees);
-            
-
-            igraph_vector_qsort_ind(&faixas,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            break;
-        }
-        case 10:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-        case 11:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*morte[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-        case 12:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                VECTOR(prob)[i] *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-
-        case 13:{
-            igraph_vector_t prob;
-            igraph_vector_init(&prob, N);
-
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            for ( i= 0; i < N; i++){
-                igraph_vector_int_t vizinhos;
-                igraph_vector_int_init(&vizinhos, 0);
-                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-                for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]]*morte[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                VECTOR(prob)[i] *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
-                igraph_vector_int_destroy(&vizinhos);
-            }
-            igraph_vector_qsort_ind(&prob,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&faixas);
-            igraph_vector_destroy(&prob);
-            break;
-        }
-        case 14:{
-            igraph_vector_t closeness;
-            igraph_vector_int_t reachable_count;
-            igraph_bool_t all_reachable;
-
-            igraph_vector_int_init(&reachable_count, 0);
-            igraph_vector_init(&closeness, N);
-
-            igraph_closeness(Grafo, &closeness, &reachable_count, &all_reachable, igraph_vss_all(), IGRAPH_ALL, pesos, 1);
-            igraph_vector_qsort_ind(&closeness,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&closeness);
-            igraph_vector_int_destroy(&reachable_count);
-            
-            break;
-        }
-        case 15:{
-            igraph_vector_t Harmonic;
-            igraph_vector_init(&Harmonic, N);
-            igraph_harmonic_centrality(Grafo,&Harmonic,igraph_vss_all(),IGRAPH_ALL,pesos,0);
-            igraph_vector_qsort_ind(&Harmonic,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Harmonic);
-            break;
-        }
-        case 16:{
-            igraph_vector_t Betweenness;
-            igraph_vector_init(&Betweenness, N);
-            igraph_betweenness(Grafo, &Betweenness, igraph_vss_all(), IGRAPH_UNDIRECTED, pesos);
-            igraph_vector_qsort_ind(&Betweenness,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Betweenness);
-            break;
-        }
-        case 17:{
-            igraph_vector_t eigenvector;
-            igraph_vector_init(&eigenvector, 0);
-            igraph_eigenvector_centrality(Grafo,&eigenvector,0,IGRAPH_UNDIRECTED,1,pesos,NULL);
-            igraph_vector_qsort_ind(&eigenvector,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&eigenvector);
-            break;
-        }
-        default:{// Aleatório
-            igraph_vector_int_init_range(&centralidade,0,N);
-            igraph_vector_int_shuffle(&centralidade);
-            break;
-        }
-    }
-    return centralidade;
-    
-    //return vacinado;
-}
 
 igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *avg,igraph_vector_int_t* centralidade,int check,bool calcula){
 
@@ -728,8 +506,6 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
         G = local_add_edge(G,degree,faixas,shuff,N-1,i,p,&edges); */
 
     }
-    
-    //generate_conections(&G,degree,&faixas);
 
     igraph_t Grafo;
     igraph_set_attribute_table(&igraph_cattribute_table);
@@ -738,12 +514,15 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     igraph_cattribute_VAN_setv(&Grafo,"faixa",&faixas);
     if(weight) SETEANV(&Grafo, "duracao", &pesos);
     *avg = (double)G.edges*2/(G.Nodes);
-    
+    lll += generate_conections(&G,degree,&faixas,p,&Grafo);
     if(calcula){
-        if(check <10) *centralidade = traditional_centralities(&Grafo,check);
+        if(check <11) *centralidade = traditional_centralities(&Grafo,check);
         else{
-            if(check<15) *centralidade = propose_centralities(&Grafo,check,morte,hospitalizacao,sintomatico);
-            else *centralidade = weighted_traditional_centralities(&Grafo,check,&pesos);
+            if(check<17) *centralidade = propose_centralities(&Grafo,check,morte,hospitalizacao,sintomatico);
+            else{
+                if(check < 21)*centralidade = weighted_traditional_centralities(&Grafo,check,&pesos);
+                else *centralidade = new_centralities(&Grafo,check,&pesos,&edges);
+            }
         }
     }
 
@@ -774,77 +553,96 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     return Grafo;
 }
 
+double calcular_correlacao(igraph_vector_t* vetor1, igraph_vector_t* vetor2) {
+    double soma1 = 0, soma2 = 0, soma1Q = 0, soma2Q = 0, prodSoma = 0;
+    int n = igraph_vector_size(vetor1);
 
-void calcula_propriedades(igraph_t *Grafo,double p, double *resultados,double* prob,double* std_vector,double* k_means) {
-    igraph_vector_int_t v;
-    double clustering;
-    double l;
-    double d;
-    double* idades = (double *)calloc(5,sizeof(double));
-    double* k_mean = (double *)calloc(5,sizeof(double));
-    
-    int i;
-
-    int n = igraph_vcount(Grafo);
-    igraph_vector_t faixas;
-    igraph_vector_init(&faixas, n);
-    igraph_vector_int_init(&v, n);
-
-    igraph_degree(Grafo, &v, igraph_vss_all(), IGRAPH_IN, IGRAPH_NO_LOOPS);
-    igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-    //FILE *file;
-    //char filecheck[800];
-    //sprintf(filecheck,"./output/modelo/k_idades_%.2f.txt",p);
-    //file = fopen(filecheck,"a");
-    //FILE *arquivo;
-    //sprintf(filecheck,"./output/modelo/matrix_%.2f.txt",p);
-    //arquivo = fopen(filecheck,"a");
-    for (i = 0; i < n; i++){
-
-        igraph_vector_int_t vizinhos;
-        igraph_vector_int_init(&vizinhos, 0);
-        igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-        idades[(int)VECTOR(faixas)[i]]++;
-        k_mean[(int)VECTOR(faixas)[i]] += VECTOR(v)[i];
-
-        igraph_vector_int_destroy(&vizinhos);
+    for (int i = 0; i < n; i++) {
+        soma1 += VECTOR(*vetor1)[i];
+        soma2 += VECTOR(*vetor2)[i];
+        soma1Q += pow(VECTOR(*vetor1)[i], 2);
+        soma2Q += pow(VECTOR(*vetor2)[i], 2);
+        prodSoma += VECTOR(*vetor1)[i] * VECTOR(*vetor2)[i];
     }
-    //fclose(file);
-    igraph_vector_int_sort(&v);
-    //fclose(arquivo);
-    double N0 = 0;
-    if(n%2 !=0) N0 = VECTOR(v)[(n-1)/2];
-    else N0 = (VECTOR(v)[n/2] + VECTOR(v)[n/2+1])*0.5;
-    double media = (double)igraph_vector_int_sum(&v)/n;
-    igraph_vector_int_mul(&v,&v);
-    double media2 = (double)igraph_vector_int_sum(&v)/n;
-    double std = sqrt(media2 - pow(media,2));
-    igraph_transitivity_avglocal_undirected(Grafo,&clustering,IGRAPH_TRANSITIVITY_ZERO);
-    igraph_vector_int_destroy(&v);
 
-    for ( i = 0; i < 5; i++){
-        k_mean[i] /= idades[i];
-        k_means[i] += k_mean[i];
-        prob[i] += idades[i]/n;
+    double numerador = prodSoma - (soma1 * soma2 / n);
+    double denominador = sqrt((soma1Q - pow(soma1, 2) / n) * (soma2Q - pow(soma2, 2) / n));
+
+    if (denominador == 0) {
+        return 0;  // Evita divisão por zero
+    } else {
+        return numerador / denominador;
     }
-    
-    igraph_average_path_length(Grafo, &l, NULL, IGRAPH_UNDIRECTED, 1);
-    igraph_diameter(Grafo, &d, 0, 0, 0, 0, IGRAPH_UNDIRECTED, 1);
+}
 
-    resultados[0] += media;
-    resultados[1] += N0;
+
+void calcula_propriedades(igraph_t *Grafo,double p,int N, double *resultados,double* std_vector) {
+
+    double caminho_medio;
+    double diametro;
+    double agrupamento_medio;
+    double agrupamento_total;
+    double correlation;
+
+    igraph_vector_int_t degrees;
+    igraph_vector_int_init(&degrees, N);
+    igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
+
+    igraph_vector_t clustering;
+    igraph_vector_init(&clustering, N);
+    igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
+
+    igraph_vector_t graus;
+    igraph_vector_init(&graus, N);
+    for (int i = 0; i < N; i++) VECTOR(graus)[i] = (double) VECTOR(degrees)[i];
+    
+    correlation = calcular_correlacao(&graus,&clustering);
+
+    double k_medio = (double) igraph_vector_sum(&graus)/N;
+
+    igraph_vector_add_constant(&graus,-k_medio);
+    igraph_vector_mul(&graus,&graus);
+    igraph_vector_scale(&graus,1/N);
+
+    double std = pow(igraph_vector_sum(&graus),0.5);
+
+    // Mediana dos graus
+    igraph_vector_sort(&graus);
+    double mediana = (N%2 == 0)? VECTOR(graus)[(N-1)/2] : (VECTOR(graus)[N/2] + VECTOR(graus)[N/2+1])*0.5;
+
+    // Calcula o menor caminho médio da Rede
+    igraph_average_path_length(Grafo, &caminho_medio, NULL, IGRAPH_UNDIRECTED, 1);
+
+    // Calcula o diâmetro da rede
+    igraph_diameter(Grafo, &diametro, 0, 0, 0, 0, IGRAPH_UNDIRECTED, 1);
+
+    // Calcula o agrupamento médio
+    igraph_transitivity_avglocal_undirected(Grafo,&agrupamento_medio,IGRAPH_TRANSITIVITY_ZERO);
+
+    // Calcula o agrupamento total
+    igraph_transitivity_undirected(Grafo,&agrupamento_total,IGRAPH_TRANSITIVITY_NAN);
+    resultados[0] += k_medio;
+    resultados[1] += mediana;
     resultados[2] += std;
-    resultados[3] += clustering;
-    resultados[4] += l;
-    resultados[5] += d;
-    std_vector[0] += pow(media,2);
-    std_vector[1] += pow(N0,2);
-    std_vector[2] += pow(std,2);
-    std_vector[3] += pow(clustering,2);
-    std_vector[4] += pow(l,2);
-    std_vector[5] += pow(d,2);
-    free(idades);
-    igraph_vector_destroy(&faixas);
+    resultados[3] += agrupamento_medio;
+    resultados[4] += agrupamento_total;
+    resultados[5] += correlation;
+    resultados[6] += caminho_medio;
+    resultados[7] += diametro;
+
+    std_vector[0] += k_medio*k_medio;
+    std_vector[1] += mediana*mediana;
+    std_vector[2] += std*std;
+    std_vector[3] += agrupamento_medio*agrupamento_medio;
+    std_vector[4] += agrupamento_total*agrupamento_total;
+    std_vector[5] += correlation*correlation;
+    std_vector[6] += caminho_medio*caminho_medio;
+    std_vector[7] += diametro*diametro;
+
+    igraph_vector_destroy(&graus);
+    igraph_vector_destroy(&clustering);
+    igraph_vector_int_destroy(&degrees);
+
 }
 
 
@@ -854,43 +652,37 @@ void generate_local_configuration_model(double p, int redes,int seed){
     int i;
     double a;
 
-    double* resultados = (double *)calloc(6,sizeof(double));
-    double* std = (double *)calloc(6,sizeof(double));
-    double* prob = (double *)calloc(5,sizeof(double));
-    double* k_mean = (double *)calloc(5,sizeof(double));
+    double* resultados = (double *)calloc(8,sizeof(double));
+    double* std = (double *)calloc(8,sizeof(double));
     double clustering;
     igraph_vector_int_t centralidade;
     for (i = 0; i < redes; i++){
 
-        if(redes!=1) printf("\e[1;1H\e[2J");
+        //if(redes!=1) printf("\e[1;1H\e[2J");
 
         igraph_t G;
         G = local_configuration_model(N,p,seed+i,false,&a,&centralidade,0,false);
-        //igraph_transitivity_avglocal_undirected(&G,&clustering,IGRAPH_TRANSITIVITY_ZERO);
-        //resultados[3] += clustering;
-        //std[3] += pow(clustering,2);
-        if(redes!=1) calcula_propriedades(&G,p,resultados,prob,std,k_mean);
-        printf("%d\n",i+1);
+        if(redes!=1) calcula_propriedades(&G,p,N,resultados,std);
         igraph_destroy(&G);
+       
     }
-    for (i = 0; i < 6; i++){
+    for (i = 0; i < 8; i++){
         resultados[i] /= redes;
         std[i] /= redes;
         std[i] = sqrt(std[i] - pow(resultados[i],2));
-    }
-    for (i = 0; i < 5; i++){
-        prob[i] /= redes;
-        k_mean[i] /= redes;
+        std[i] /= sqrt(redes);
     }
     if(redes > 1){
         FILE *file;
         char filecheck[800];
         sprintf(filecheck,"./output/modelo/resultados.txt");
         file = fopen(filecheck,"a");
-        fprintf(file,"================%.3f================\n",p);
-        fprintf(file,"%f %f %f %f %f\n",k_mean[0],k_mean[1],k_mean[2],k_mean[3],k_mean[4]);
-        fprintf(file,"%f %f %f %f %f\n",prob[0],prob[1],prob[2],prob[3],prob[4]);
-        fprintf(file,"%f(%.2f) %f(%.2f) %f(%.2f) %f(%.2f) %f(%.2f) %f(%.2f) \n",resultados[0],std[0],resultados[1],std[1],resultados[2],std[2],resultados[3],std[3],resultados[4],std[4],resultados[5],std[5]);
+        fprintf(file,"%.2f %f %f %f %f %f %f %f %f %f\n",p,resultados[0],resultados[1],resultados[2],resultados[3],resultados[4],resultados[5],resultados[6],resultados[7],lll/redes);
+        fclose(file);
+
+        sprintf(filecheck,"./output/modelo/std.txt");
+        file = fopen(filecheck,"a");
+        fprintf(file,"%.2f %f %f %f %f %f %f %f %f\n",p,std[0],std[1],std[2],std[3],std[4],std[5],std[6],std[7]);
         fclose(file);
 
         /* FILE *arquivo;
@@ -900,7 +692,6 @@ void generate_local_configuration_model(double p, int redes,int seed){
     }
     free(resultados);
     free(std);
-    free(prob);
     //igraph_vector_int_destroy(&centralidade);
     printf("Terminou\n");
 }

@@ -233,6 +233,7 @@ igraph_vector_int_t weighted_traditional_centralities(igraph_t* Grafo,int estrat
     }
     return centralidade;
 }
+
 igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector_t* pesos,igraph_vector_int_t* edges){
 
     uint16_t i;

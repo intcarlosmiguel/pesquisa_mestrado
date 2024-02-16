@@ -367,7 +367,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     integral = integral.T[1]
     a = np.argsort(integral)
 
-    print(file[a])
+    print(file[a][:10])
 
     if(erro == 0):
         fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
@@ -1222,13 +1222,13 @@ def compara_probability(N,ponderado):
         dados = {
             'Tempo': np.arange(len(infect[0]))/2,
             #'Suscetíveis': infect[0],
-            "Hospitalizados": infect[2],
+            "Expostos": infect[2],
             "Mortos": infect[6]
         }
         dados = pd.DataFrame(dados)
         
 
-        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Hospitalizados'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Expostos'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=1)
 
         # Adicionando a reta de regressão ao segundo subgráfico
         fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines',marker =dict(size = 2),showlegend=False,name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=2)
