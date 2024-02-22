@@ -101,13 +101,14 @@ igraph_vector_int_t traditional_centralities(igraph_t* Grafo,int estrategy){
             igraph_real_t value;
             igraph_real_t d = 0.85;  // Fator de amortecimento, tipicamente 0.85
             igraph_pagerank_algo_t algo = IGRAPH_PAGERANK_ALGO_PRPACK;  // Algoritmo PageRank a ser usado
-
+            
             igraph_vector_init(&pagerank, 0);
 
             // Calcula o PageRank
-            igraph_pagerank(Grafo, algo,&pagerank, &value,igraph_vss_all(), IGRAPH_DIRECTED,d,NULL,NULL );
+            igraph_pagerank(Grafo, algo,&pagerank, &value,igraph_vss_all(), 0,d,NULL,NULL );
             igraph_vector_qsort_ind(&pagerank,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&pagerank);
+            break;
         }
         default:{
             printf("Métrica tradicional não encontrada!\n");

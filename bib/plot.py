@@ -302,6 +302,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "probhospassin":"PHA",
         "probhosp":"PH",
         "probmorte":"PM",
+        "pagerank":"PR",
     }
     ylabel = []
     titulo = [
@@ -1108,6 +1109,7 @@ def vacina_infect(
         "probhospassin":"PHA",
         "probhosp":"PH",
         "probmorte":"PM",
+        "pagerank":"PG",
     }
 
     colors = px.colors.qualitative.Prism
@@ -1141,10 +1143,10 @@ def vacina_infect(
                 )
             )
         )
-    sem_vacina = np.loadtxt(cmd + "p/infect_0.00.txt").T[n]
-    if(n == 2):
-        sem_vacina += np.loadtxt(cmd + "p/infect_0.00.txt").T[3]
-    tempo = np.arange(len(sem_vacina))/2
+    #sem_vacina = np.loadtxt(cmd + "p/infect_0.00.txt").T[n]
+    #if(n == 2):
+    #    sem_vacina += np.loadtxt(cmd + "p/infect_0.00.txt").T[3]
+    """ tempo = np.arange(len(sem_vacina))/2
     fig.add_trace(
         go.Scatter(
             x=tempo, 
@@ -1156,7 +1158,7 @@ def vacina_infect(
                 color = '#636EFA'
             )
         )
-    )
+    ) """
     fig.update_layout(
         width=700,  # Largura do gráfico em pixels
         height=700,  # Altura do gráfico em pixels

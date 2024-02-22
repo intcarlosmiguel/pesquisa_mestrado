@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include <stdint.h>
+
 #include <stdbool.h>
 #include <igraph.h>
 
@@ -15,24 +15,7 @@
 #include "LCM.h"
 #include "SBM.h"
 
-const double beta1 = (double)0.5;
-const double beta2 = (double)0.41;
-const double sigma = (double)1/5.1;
-//double sigma;
-const double gamma_A = (double)1/7;
-const double phi = (double)1/6.937854956991619;
-const double gamma_I = (double)1/7;
-const double gamma_H = (double)1/12.095497827980246;
-const double delta = (double)1/13.681339751546528;
-const double recupera = (double)1/40;
-
-double** infect_time;
-int foi = 0;
-const uint16_t dias = 190;
-const uint16_t dia_infecao = 100;
-const uint16_t tempo_total = dias*2;
-int q_resultados = 12;
-int certo = 0;
+#include "define.h"
 
 bool fileExists(const char *filename) {
     FILE *file = fopen(filename, "r");
@@ -43,7 +26,40 @@ bool fileExists(const char *filename) {
     return false;
 }
 
+int find_root(int root,int*cluster,int N){
+    if(cluster[root] >= 0) root = cluster[root] = find_root(cluster[root],cluster,N);
+    return root;
+}
 
+int maior_cluster_infectados(igraph_t* Grafo,int N,char* estagio){
+    int* cluster = malloc(N*sizeof(int));
+    int maior_cluster = 0;
+    int i,j,root_site,vizinho,root_vizinho;
+    for (i = 0; i < N; i++)cluster[i] = -1;
+    for (i = 0; i < N; i++){
+        igraph_vector_int_t vizinhos;
+        igraph_vector_int_init(&vizinhos, 0);
+        igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
+        if((estagio[i] == 'E') || (estagio[i] == 'I')|| (estagio[i] == 'A')){ 
+            
+            root_site = find_root(i,cluster,N);
+            for (j = 0; j < igraph_vector_int_size(&vizinhos); j++){
+                vizinho = VECTOR(vizinhos)[j];
+                if((estagio[vizinho] == 'E') || (estagio[vizinho] == 'I')|| (estagio[vizinho] == 'A')){
+                    
+                    root_vizinho = find_root(vizinho,cluster,N);
+                    if(root_site != root_vizinho){
+                        cluster[vizinho] = root_site;
+                        cluster[root_site] += -1;
+                        if(cluster[root_site] > -maior_cluster) maior_cluster = -cluster[root_site];
+                    }
+                }
+            }
+        }
+        igraph_vector_int_destroy(&vizinhos);
+    }
+    return maior_cluster;
+}
 
 
 double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo,bool* vacinado,double* hospitalizacao,double* morte,double* avg,bool weight){
@@ -349,6 +365,7 @@ void infect(int E0,double N,double p,int* seed,double** infect_time,double f,int
         
 
     }
+    if(redes <= cut_rede) printf("%d\n",s);
     free(prob_estagio);
     free(morte);
     free(hospitalizacao);
@@ -358,7 +375,7 @@ void infect(int E0,double N,double p,int* seed,double** infect_time,double f,int
     
     //if(redes <= cut_rede)printf("S = %d\n",s);
     if(ano <= dias){
-        for (i = s-1; i < dias*2; i++){
+        for (i = s; i < dias*2; i++){
             infect_time[i][0] += (double) Suscetiveis/N;
             infect_time[i][1] += (double) Expostos/N;
             infect_time[i][2] += (double) Assintomaticos/N;
@@ -400,7 +417,7 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
             //printf("%f\n",quant[i]);
         }
         for (int j = 0; j < q_resultados; j++) infect_time[i][j] /= redes;
-        //if(redes <= cut_rede) print_vetor(infect_time[i],q_resultados,sizeof(double));
+        if(redes <= cut_rede) print_vetor(infect_time[i],q_resultados,sizeof(double));
         //if(redes <= cut_rede) printf(" =============================================== \n");
     }
     
@@ -412,7 +429,7 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
             generate_file(filecheck,infect_time,tempo_total,q_resultados,sizeof(infect_time[0][0]));
         }
     }
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","graumorte","probhosp","probmorte","probhospassin","probmortepassin","weighted_close","weighted_harmonic","weighted_betwenness","weighted_eigenvector"};
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank"};
     if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0)){
         if(redes > cut_rede){
             char filename[800];
@@ -432,7 +449,7 @@ void generate_infect(double N,double p,int seed, int redes,double f,int vacina,b
         fprintf(file,"%f %f %f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6], infect_time[tempo_total-1][10],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),pow(infect_time[tempo_total-1][11] - pow(infect_time[tempo_total-1][10],2),0.5));
         fclose(file);
     }
-    else printf("%.2f %f %f %f %f %s\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),file_vacina[vacina]);
+    //else printf("%.2f %f %f %f %f %s\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),file_vacina[vacina]);
     //else printf("%.2f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
 
     for (i = 0; i < tempo_total; i++) free(infect_time[i]);

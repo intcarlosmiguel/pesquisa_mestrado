@@ -514,7 +514,7 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     igraph_cattribute_VAN_setv(&Grafo,"faixa",&faixas);
     if(weight) SETEANV(&Grafo, "duracao", &pesos);
     *avg = (double)G.edges*2/(G.Nodes);
-    lll += generate_conections(&G,degree,&faixas,p,&Grafo);
+    //lll += generate_conections(&G,degree,&faixas,p,&Grafo);
     if(calcula){
         if(check <11) *centralidade = traditional_centralities(&Grafo,check);
         else{
