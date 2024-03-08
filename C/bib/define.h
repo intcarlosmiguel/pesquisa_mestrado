@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdint.h>
 const double beta1 = (double)0.5;
 const double beta2 = (double)0.41;
@@ -11,8 +12,8 @@ const double gamma_H = (double)1/12.095497827980246;
 const double delta = (double)1/13.681339751546528;
 const double recupera = (double)1/40;
 
-double** infect_time;
-const uint16_t dias = 190;
+const uint16_t dias = 465;
 const uint16_t dia_infecao = 100;
 const uint16_t tempo_total = dias*2;
-int q_resultados = 12;
+int q_resultados = 8;
+int cut_rede = 5;

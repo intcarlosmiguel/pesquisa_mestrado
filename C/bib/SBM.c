@@ -8,7 +8,6 @@
 
 #include "mtwister.h"
 #include "calc.h"
-#include "rede.h"
 
 
 struct Graph{

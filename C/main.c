@@ -9,11 +9,12 @@
 
 #include "bib/mtwister.h"
 #include "bib/calc.h"
-//#include "bib/rede.h"
 //#include "bib/CM.h"
 #include "bib/SBM.h"
 #include "bib/LCM.h"
 #include "bib/infect.h"
+
+
 
 int main(int argc,char *argv[ ]){
     //int seed = atoi(argv[1]);
@@ -25,8 +26,7 @@ int main(int argc,char *argv[ ]){
     int redes = atoi(argv[3]);
     int vacina = atoi(argv[4]);
     double prob = atof(argv[5])/100;
-    double fracao_vacinados = atof(argv[6])/100;
-    bool weight = atoi(argv[7]);
-    generate_infect(N,prob,seed, redes,fracao_vacinados,vacina,weight);
+    bool weight = atoi(argv[6]);
+    generate_infect(N,prob,seed, redes,vacina,weight);
     
 }

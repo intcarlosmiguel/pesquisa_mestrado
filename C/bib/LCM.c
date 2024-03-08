@@ -8,30 +8,17 @@
 
 #include <omp.h>
 
+#include <igraph.h>
 #include "mtwister.h"
 #include "calc.h"
-//#include "rede.h"
-#include <igraph.h>
 #include "vacinas.h"
 struct Graph{
     int **viz;
     int Nodes;
     double edges;
 };
-struct Retorno{
-    int* faixa;
-    int** degree;
-};
 
 float lll = 0;
-
-double distance(double* point1,double* point2,int N){
-    double distance2 = 0;
-    for (int i = 0; i < N; i++) distance2 += pow(point1[i] - point2[i],2);
-    distance2 = sqrt(distance2);
-    return distance2;
-}
-
 
 int** get_array(int N,char* ptr){
     FILE* file;
@@ -46,39 +33,10 @@ int** get_array(int N,char* ptr){
     return degree;
 }
 
-int vetor_soma(int* array, int L){
-    int soma = 0;
-    for (int i = 0; i < L; i++) soma += array[i];
-    return soma;
-}
-
 int somatorio(int** array,int elemento,int N){
     int soma = 0;
     for (int i = 0; i < N; i++) soma += array[elemento][i];
     return soma;
-}
-
-int** M_bubbleSort(int **matriz, int linhas, int colunas) {
-    int i, j;
-    for (i = 0; i < linhas - 1; i++) {
-        for (j = 0; j < linhas - i - 1; j++) {
-            int somaAtual = 0, somaProxima = 0;
-            int *linhaAtual = matriz[j];
-            int *linhaProxima = matriz[j + 1];
-
-            for (int k = 0; k < colunas; k++) {
-                somaAtual += linhaAtual[k];
-                somaProxima += linhaProxima[k];
-            }
-
-            if (somaAtual < somaProxima) {
-                int *temp = matriz[j];
-                matriz[j] = matriz[j + 1];
-                matriz[j + 1] = temp;
-            }
-        }
-    }
-    return matriz;
 }
 
 double** distribution_faixas(){
@@ -95,160 +53,6 @@ double** distribution_faixas(){
         fclose(file);
     }
     return distribution;
-}
-
-void calc_metrics(struct Graph G,int* faixa){
-
-    int i;
-    int* n_faixa = calloc(5,sizeof(int));
-    double* media_grau = calloc(5,sizeof(double));
-    double k_medio = 0;
-
-    for (i = 0; i < G.Nodes; i++){
-        k_medio += G.viz[i][0];
-        media_grau[faixa[i]] += G.viz[i][0];
-        n_faixa[faixa[i]]++;
-    }
-    for ( i = 0; i < 5; i++) media_grau[i] /= n_faixa[i];
-    printf("%f\n",k_medio/G.Nodes);
-    print_vetor(media_grau,5,sizeof(double));
-    free(n_faixa);
-    free(media_grau);
-}
-
-void generate_file2(struct Graph G,int* faixa){
-
-    int i,j;
-    FILE* arquivo;
-    FILE* arquivo2;
-    char test[200] = "./test.txt";
-    char test2[200] = "./test2.txt";
-
-    arquivo = fopen(test,"a");
-    arquivo2 = fopen(test2,"a");
-
-    int** final = malloc(G.Nodes*sizeof(int*));
-    for (i = 0; i < G.Nodes; i++){
-        final[i] = calloc(5,sizeof(int));
-        for (j = 0; j < G.viz[i][0]; j++) final[i][faixa[G.viz[i][j+1]]]++;
-        for (j = 0; j < 5; j++){
-            if(j!= 4) fprintf(arquivo,"%d\t",final[i][j]);
-            else fprintf(arquivo,"%d\n",final[i][j]);
-        }
-        fprintf(arquivo2,"%d\n",faixa[i]);
-
-    }
-    fclose(arquivo);
-    fclose(arquivo2);
-}
-
-
-
-struct Graph local_conf_model_p(struct Graph G,int* faixa,int** degree,double p,int* shuff,int n,int site,igraph_vector_int_t* edges){    
-
-    for (int j = 0; j < n; j++){
-
-        if(somatorio(degree,site,5) == 0) break;
-
-        int vizinho = shuff[j];
-
-        if(genrand64_real2()<=p){
-            
-            int rep = 0;
-            for (int j = 0; j < G.viz[site][0]; j++) if(vizinho == abs(G.viz[site][j+1])) {rep = 1; break;}
-            
-            int faixa1 = faixa[site];
-            int faixa2 = faixa[vizinho];
-            if((rep == 1) || (degree[vizinho][faixa1] == 0) || (degree[site][faixa2] == 0) ) continue;
-            G.edges += 1;
-
-            degree[site][faixa2]--;
-            degree[vizinho][faixa1]--;
-            
-            G.viz[site][0]++;
-            G.viz[vizinho][0]++;
-            G.viz[site] = (int*) realloc(G.viz[site],(G.viz[site][0]+1)*sizeof(int));
-            G.viz[vizinho] = (int*) realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
-            G.viz[site][G.viz[site][0]] = vizinho;
-            G.viz[vizinho][G.viz[vizinho][0]] = site;
-
-            igraph_vector_int_push_back(edges, site);
-            igraph_vector_int_push_back(edges, vizinho);
-        }
-        else{
-            int rep = 0;
-            for (int k = 0; k < G.viz[site][0]; k++) if(vizinho == -G.viz[site][k+1]) {rep = 1; break;}
-            if(rep == 1) continue;
-            G.viz[site][0]++;
-            G.viz[vizinho][0]++;
-            G.viz[site] = (int*) realloc(G.viz[site],(G.viz[site][0]+1)*sizeof(int));
-            G.viz[vizinho] = (int*) realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
-            G.viz[site][G.viz[site][0]] = -vizinho;
-            G.viz[vizinho][G.viz[vizinho][0]] = -site;
-        }
-    }
-    
-    return G;
-}
-
-struct Graph local_add_edge_p(struct Graph G,int** degree,int* faixa,int site,double p,igraph_vector_int_t* edges){
-    int *vizinhos = (int*) malloc(0*sizeof(int));
-    int n = 0;
-    for (int i = 0; i < G.viz[site][0]; i++){
-        
-        int vizinho = G.viz[site][i+1];
-        if(vizinho < 0) continue;
-        if(somatorio(degree,vizinho,5) !=0){
-            vizinhos = (int*) realloc(vizinhos,(n+1)*sizeof(int));
-            vizinhos[n] = vizinho;
-            n++;
-        }
-    }
-    if(n > 1){
-        for (int i = 0; i < n-1; i++){
-            int vizinho1 = vizinhos[i];
-            int *shuff = (int*) malloc((n-(i+1))*sizeof(int));
-            for (int j = i+1; j < n; j++) shuff[j - (i+1)] = vizinhos[j];
-            shuff = randomize(shuff,n-(i+1),i);
-            G = local_conf_model_p(G,faixa,degree,p,shuff,n-(i+1),vizinho1,edges);
-            
-            free(shuff);
-        }
-    }
-    free(vizinhos);
-    return G;
-}
-
-struct Graph local_add_edge(struct Graph G,int** degree,int* faixa,int* shuff, int n,int site,double p,igraph_vector_int_t* edges){
-    for (int i = 0; i < n; i++){
-        int vizinho = shuff[i];
-        if(somatorio(degree,site,5) == 0) break;
-        int rep = 0;
-        for (int j = 0; j < G.viz[site][0]; j++) if(vizinho == G.viz[site][j+1]) {rep = 1; break;}
-        
-
-        int faixa1 = faixa[site];
-        int faixa2 = faixa[vizinho];
-        if((rep == 1) || (degree[vizinho][faixa1] == 0) || (degree[site][faixa2] == 0) ) continue;
-        G.edges += 1;
-
-        degree[site][faixa2]--;
-        degree[vizinho][faixa1]--;
-        
-        G.viz[site][0]++;
-        G.viz[vizinho][0]++;
-        G.viz[site] = (int*) realloc(G.viz[site],(G.viz[site][0]+1)*sizeof(int));
-        G.viz[vizinho] = (int*) realloc(G.viz[vizinho],(G.viz[vizinho][0]+1)*sizeof(int));
-        G.viz[site][G.viz[site][0]] = vizinho;
-        G.viz[vizinho][G.viz[vizinho][0]] = site;
-
-        igraph_vector_int_push_back(edges, site);
-        igraph_vector_int_push_back(edges, vizinho);
-    }
-    if((p > 0) && (somatorio(degree,site,5) == 0)){
-        G = local_add_edge_p(G,degree,faixa,site,p,edges);
-    }
-    return G;
 }
 
 void append_vizinhos(struct Graph *G,int site,int vizinho,int plus){
@@ -275,11 +79,13 @@ double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas
         for (j = 0; j < 5; j++) matriz[(int) VECTOR(*faixas)[i]][j] += degree[i][j];
         ligacoes_total += somatorio(degree,i,5);
     }
-
+    double agrupamento_medio;
+    igraph_transitivity_avglocal_undirected(Grafo,&agrupamento_medio,IGRAPH_TRANSITIVITY_ZERO);
+    printf("%f\n",agrupamento_medio);
     for (i = 0; i < 5; i++) free(matriz[i]);
     free(matriz);
    
-    if((p == 0) || (p ==0.25) || (p ==0.5) || p == (1.0)){
+    /*if((p == 0) || (p ==0.25) || (p ==0.5) || p == (1.0)){
         FILE *arquivo;
         char file[800];
         sprintf(file,"./output/modelo/resultados_%.2f.txt",p);
@@ -299,11 +105,11 @@ double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas
         }
         igraph_vector_destroy(&clustering);
         fclose(arquivo);
-    }
+    }*/
     return ligacoes_total/G->edges;
 }
 
-struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos){
+struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga){
     int i,vizinho,faixa1;
     double duracao = -1;
     faixa1 = (int) VECTOR(*faixas)[site];
@@ -320,14 +126,21 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
             
             if(degree[vizinho][faixa1] == 0) continue;
 
-            if(check_repetidos(G,site,vizinho)) continue;
+            if(liga[site][vizinho]) continue;
+            liga[site][vizinho] = true;
+            liga[vizinho][site] = true;
             degree[site][faixa]--;
             degree[vizinho][faixa1]--;
             
-            append_vizinhos(G,site,vizinho,1);
-
+            //append_vizinhos(G,site,vizinho,1);
             igraph_vector_int_push_back(edges, site);
             igraph_vector_int_push_back(edges, vizinho);
+
+            G->viz[site][0]++;
+            G->viz[vizinho][0]++;
+            G->viz[site][G->viz[site][0]] = vizinho;
+            G->viz[vizinho][G->viz[vizinho][0]] = site;
+
             if(weight){
                 
                 while(duracao < 0) duracao = normalRand(mean[faixa1][faixa],std[faixa1][faixa]);
@@ -339,8 +152,9 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
         }
         else{
             
-            if(check_repetidos(G,site,-vizinho)) continue;
-            append_vizinhos(G,site,vizinho,-1);
+            if(liga[site][vizinho]) continue;
+            liga[site][vizinho] = true;
+            liga[vizinho][site] = true;
         }
     }
     return *G;
@@ -354,11 +168,7 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     G.Nodes = N;
     G.viz = (int **)malloc(N*sizeof(int*));
     int i = 0,j = 0,k = 0;
-    for (i = 0; i < N; i++){ 
-        G.viz[i] =(int*) malloc(1*sizeof(int));
-        G.viz[i][0] = 0;
-    }
-    
+
     G.edges = 0;
 
     double r;
@@ -368,6 +178,7 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     int* grau = (int*) calloc(N,sizeof(int));
     int* n_faixas = (int *) calloc(N, sizeof(int));
     int** site_per_faixas = (int**) malloc(5*sizeof(int*));
+    bool** liga = (bool**) malloc(N*sizeof(bool*));
 
     char file_name[200] = "./dados/multi_probability.txt";
     double* p_faixas = (double *) calloc(5, sizeof(double));
@@ -425,6 +236,9 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     }
     for (i = 1; i < 5; i++) p_faixas[i] += p_faixas[i-1];
     for (i = 0; i < N; i++){
+
+        liga[i] = (bool*) calloc(N,sizeof(bool));
+
         j = 0;
         r = genrand64_real1();
         while(r > p_faixas[j]) j++;
@@ -432,10 +246,6 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
         n_faixas[j]++;
         site_per_faixas[j] = realloc(site_per_faixas[j],n_faixas[j]*sizeof(int));
         site_per_faixas[j][n_faixas[j] - 1] = i;
-    }
-
-    for (i = 0; i < N; i++){
-
         k = 0;
 
         degree[i] = (int*) calloc(5,sizeof(int));
@@ -444,7 +254,11 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
         grau[i] = k;
     }
     mergeSort(grau,&faixas,0,N-1);
-    for (i = 0; i < N; i++) generate_multinomial(grau[i], 5, constant[(int) VECTOR(faixas)[i]], degree[i]);
+    for (i = 0; i < N; i++){
+        generate_multinomial(grau[i], 5, constant[(int) VECTOR(faixas)[i]], degree[i]);
+        G.viz[i] =(int*) malloc((grau[i]+1)*sizeof(int));
+        G.viz[i][0] = 0;
+    }
     for (i = 0; i < 5; i++) free(distribution[i]);
     
 
@@ -454,15 +268,15 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     igraph_vector_init(&pesos, 0);
     int site;
     int faixa;
-    double duracao = -1;
     int vizinho;
     int faixa1;
     for (site = 0; site < N; site++){
+        //printf("%d\n",site);
         for (faixa = 0; faixa < 5; faixa++){
             seed++;
             if(degree[site][faixa] == 0) continue;
             site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
-            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos);
+            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga);
         }
         if(p > 0){
             int **vizinhos = (int**) malloc(5*sizeof(int*));
@@ -491,7 +305,7 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
                         seed++;
                         if(degree[vizinho][faixa] == 0) continue;
                         vizinhos[faixa] = randomize(vizinhos[faixa], q_vizinhos[faixa],seed);
-                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos);
+                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga);
                     }
                 }
             }
@@ -506,7 +320,6 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
         G = local_add_edge(G,degree,faixas,shuff,N-1,i,p,&edges); */
 
     }
-
     igraph_t Grafo;
     igraph_set_attribute_table(&igraph_cattribute_table);
     igraph_empty(&Grafo, G.Nodes, IGRAPH_UNDIRECTED);
@@ -529,7 +342,9 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     for (i = 0; i < G.Nodes; i++){
         free(G.viz[i]);
         free(degree[i]);
+        free(liga[i]);
     }
+    free(liga);
     free(G.viz);
     free(degree);
     free(p_faixas);
@@ -654,7 +469,6 @@ void generate_local_configuration_model(double p, int redes,int seed){
 
     double* resultados = (double *)calloc(8,sizeof(double));
     double* std = (double *)calloc(8,sizeof(double));
-    double clustering;
     igraph_vector_int_t centralidade;
     for (i = 0; i < redes; i++){
 

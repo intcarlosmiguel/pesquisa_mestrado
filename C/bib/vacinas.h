@@ -5,7 +5,6 @@
 #include <math.h>
 
 igraph_vector_int_t traditional_centralities(igraph_t* Grafo,int estrategy){
-    uint16_t i;
     int N = igraph_vcount(Grafo);
     igraph_vector_int_t centralidade;
     igraph_vector_int_init(&centralidade, N);
@@ -170,7 +169,6 @@ igraph_vector_int_t propose_centralities(igraph_t* Grafo,int estrategy,double* m
 }
 
 igraph_vector_int_t weighted_traditional_centralities(igraph_t* Grafo,int estrategy,igraph_vector_t* pesos){
-    uint16_t i;
     int N = igraph_vcount(Grafo);
     igraph_vector_int_t centralidade;
     igraph_vector_int_init(&centralidade, N);

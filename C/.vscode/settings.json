@@ -64,6 +64,9 @@
         "mtwister.h": "c",
         "cm.h": "c",
         "sbm.h": "c",
-        "igraph.h": "c"
+        "igraph.h": "c",
+        "stdint.h": "c",
+        "math.h": "c",
+        "stdlib.h": "c"
     }
 }

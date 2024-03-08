@@ -5,7 +5,6 @@
 #include <omp.h>
 #include "mtwister.h"
 #include "calc.h"
-#include "rede.h"
 #include <math.h>
 #include <igraph.h>
 

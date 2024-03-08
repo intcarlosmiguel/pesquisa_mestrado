@@ -311,6 +311,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         'Área de Infectados'
     ]
     df = df[df['Clustering'] == clustering]
+    #display(df)
     for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
 
         infect = np.loadtxt(file).T
@@ -958,7 +959,7 @@ def compara(modelo_k,contagem,faixas):
 
 
 def infectados_plot(N,ponderado):
-    infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/infect_0.00.txt").T
+    infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/infect_1.00.txt").T
 
     dados = {
         'Tempo': np.arange(len(infect[0]))/2,
@@ -1162,8 +1163,8 @@ def vacina_infect(
     fig.update_layout(
         width=700,  # Largura do gráfico em pixels
         height=700,  # Altura do gráfico em pixels
-        xaxis=dict(title='Tempo (dias)',tickfont=dict(size=15),range = [90,190]),
-        yaxis = dict(range = [0,0.1 if(n!=6) else 0.01]),
+        #xaxis=dict(title='Tempo (dias)',tickfont=dict(size=15),range = [90,190]),
+        #yaxis = dict(range = [0,0.1 if(n!=6) else 0.01]),
         title  = 'Ponderado' if(ponderado)  else 'Não Ponderado',
         #paper_bgcolor='rgba(0,0,0,0)',
         #yaxis=dict(title='Fração', range = [0,0.08],tickfont=dict(size=15)),
@@ -1233,7 +1234,7 @@ def compara_probability(N,ponderado):
         fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Expostos'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=1)
 
         # Adicionando a reta de regressão ao segundo subgráfico
-        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines',marker =dict(size = 2),showlegend=False,name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=2)
+        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=2)
 
     fig.update_layout(
         width=1200,  # Largura do gráfico em pixels
