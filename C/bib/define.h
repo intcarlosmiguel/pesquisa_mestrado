@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <time.h>
 const double beta1 = (double)0.5;
 const double beta2 = (double)0.41;
 const double sigma = (double)1/5.1;
@@ -15,5 +16,7 @@ const double recupera = (double)1/40;
 const uint16_t dias = 465;
 const uint16_t dia_infecao = 100;
 const uint16_t tempo_total = dias*2;
+const uint16_t infecao_total = dia_infecao*2;
 int q_resultados = 8;
 int cut_rede = 5;
+int THREADS = 10;

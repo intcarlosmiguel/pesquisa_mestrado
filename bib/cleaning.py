@@ -491,18 +491,33 @@ def transform_faixa(a,coluna,quartis):
     faixas = np.array(faixas)
     a[coluna+"Faixas"] = faixas
     return a
+from matplotlib.gridspec import GridSpec
 
 def generate_distribution_byfaixas(contagem,faixas):
+
     graus = np.sum(contagem,axis = 1)
+    LABEL = False
     A = []
     B = contagem/(np.sum(contagem,axis = 1)[:, np.newaxis])
     B = [np.mean(B[faixas == i,:],axis = 0) for i in range(5)]
     C = []
     S = []
-    eixos = ([0,2],[0,1],[1,0],[1,1],[0,0])
-    fig, axs = plt.subplots(2, 3, figsize=(25, 20), gridspec_kw={'width_ratios': [1.5, 1.5,3]})
-    for faixa,eix in zip(range(5),eixos):
-        fig = go.Figure()
+
+    fig = plt.figure(figsize=(20, 8),dpi = 500)  # Defina o tamanho da figura
+
+    # Cria um GridSpec com 3 linhas e 3 colunas
+    gs = GridSpec(2, 4, figure=fig)
+
+    axbig = fig.add_subplot(gs[:, :2])  # Ocupa as duas últimas linhas e as duas primeiras colunas
+    axes = []
+    axes.append(axbig)
+    axes.append(fig.add_subplot(gs[0, 2]))
+    axes.append(fig.add_subplot(gs[0, 3]))
+    axes.append(fig.add_subplot(gs[1, 2]))
+    axes.append(fig.add_subplot(gs[1, 3]))
+
+    for faixa,ax in zip(range(5),axes):
+        #fig = go.Figure()
         g = graus[faixas == faixa]
         x = np.arange(59+1)
         y = np.zeros(len(x))
@@ -540,68 +555,27 @@ def generate_distribution_byfaixas(contagem,faixas):
         angular, beta,r2 = LM(x,np.log(y),-1)
         C.append(beta)
         A.append(angular)
-        fig.add_trace(
-            go.Scatter(
-                x=x, 
-                y=np.log(y), 
-                mode='markers', 
-                name="Dados",
-                opacity = 0.8,
-                marker=dict(
-                    size = 15,
-                ),
-            )
-        )
-        fig.add_trace(
-            go.Scatter(
-                x=x, 
-                y=x*angular + beta, 
-                mode='lines', 
-                name="Regressão",
-                marker=dict(
-                    size = 15,
-                ),
-                line=dict(width=5)
-            )
-        )
-        fig.update_layout(
-            width=700,  # Largura do gráfico em pixels
-            height=600,  # Altura do gráfico em pixels
-            xaxis=dict(title='Grau',tickfont=dict(size=18)),
-            
-            #xaxis=dict(),
-            title = f'Faixa {faixa+1}',
-            yaxis=dict(title='Probabilidade',tickfont=dict(size=18)),
-            template = "seaborn",
-            showlegend = True if(faixa == 0) else False,
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(
-                #family="Courier New, monospace",
-                size=18,
-                #color="RebeccaPurple"
-            ),
-        )
-        s = 50
-        fig.update_layout(margin=dict(l=20, r=20, t=s, b=20))
-        fig.show()
-        fig.write_image(f"./img/contatos_faixa_{faixa+1}.png")
-        """ axs[eix[0],eix[1]].scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.)
-        axs[eix[0],eix[1]].plot(x,x*angular + beta,c = 'red',label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,angular,beta))
-        axs[eix[0],eix[1]].set_title(f"Faixa {faixa+1}", fontsize=16)
-        axs[eix[0],eix[1]].set_xlabel(f"Número de Ligações", fontsize=16)
-        axs[eix[0],eix[1]].set_ylabel(f"log(P)", fontsize=16)
-        axs[eix[0],eix[1]].grid() """
-        #axs[eix[0],eix[1]].legend()    
+        if(not LABEL):
+            ax.scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.,label = 'Dados' )
+            ax.set_xlabel('Conexões',fontsize = 20)
+            ax.set_ylabel('Log(P)',fontsize = 20)
+            LABEL = True
+        else:
+            ax.scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1. )
+
+        ax.plot(x,x*angular + beta,"--",label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,angular,beta),color = "red",)
+        ax.grid(True)
+        ax.set_title(f"Faixa etária: {faixa+1}", fontsize=18)
+        #s = 50
     #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
-    plt.tight_layout()
-    axs[1, 2].axis('off')
-    position = axs[0,2].get_position()
-    axs[0,2].set_position([position.x0,0.,position.width,1.])
-    #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
-
-    plt.savefig(f"./img/contatos_faixa.png")
+    fig.legend()
+    #fig.tight_layout()
+    #fig.suptitle("Idade")
+    #fig.text(0.5, 0.0, 'Conexões', ha='center', va='center', fontsize=20)
+    #fig.text(-0.01, 0.5, 'Log(P)', va='center', ha='center', rotation='vertical', fontsize=20)
+    #fig.ylabel("Log(P)")
+    fig.savefig("./img/contatos_faixa.png",transparent=True)
     plt.show()
-
     return -np.array(A),B,C,S
 
 def comparacao(graus,faixas,tem_plot = 1,Graus = np.loadtxt("./C/dados/graus_finais.txt"),faixas_ = np.loadtxt("./C/dados/faixas_finais.txt")):

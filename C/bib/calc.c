@@ -162,10 +162,20 @@ int size_txt(char *str){
     return L;
 }
 
-void print_matrix(int** mat,int N,int n){
-    printf("========================================================\n");
-    for (int i = 0; i < N; i++) print_vetor(mat[i],n,sizeof(mat[i][0]));
-    printf("========================================================\n");
+void print_matrix(void** mat,int N,int n,int check){
+    if(check == sizeof(int)){
+        int** intMat = (int**)mat;
+        printf("========================================================\n");
+        for (int i = 0; i < N; i++) print_vetor(intMat[i],n,sizeof(intMat[i][0]));
+        printf("========================================================\n");
+    }
+    if(check == sizeof(double)){
+        double** doubleMat = (double**)mat;
+        printf("========================================================\n");
+        for (int i = 0; i < N; i++) print_vetor(doubleMat[i],n,sizeof(doubleMat[i][0]));
+        printf("========================================================\n");
+    }
+    
 }
 
 int check_existence(int** outro, int N, int site, int vizinho){
@@ -274,11 +284,11 @@ void quickSort(int *arr, int low, int high) {
     }
 }
 
-void generate_file(char* filename,void* array,int linhas,int colunas,int check){
+void generate_file(char* filename,void* array,int linhas,int colunas,int check,int inicio){
 
     FILE *file;
     file = fopen(filename,"w");
-    for (int i = 0; i < linhas; i++){
+    for (int i = inicio; i < linhas; i++){
         char print[400] = "";
         char resultado[400] = "";
         for(int j = 0;j<colunas;j++){

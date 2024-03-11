@@ -91,7 +91,6 @@ int maior_cluster_infectados(igraph_t* Grafo,int N,char* estagio){
     return maior_cluster;
 }
 
-
 double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo,bool* vacinado,double* avg,bool weight){
 
     switch (estagio[site]){
@@ -179,17 +178,17 @@ double infect_init(char* estagio, double* rates,double* prob_estagio,bool* vacin
     
     int i = 0,site;
     double rate = 0,r;
-
+    double EXPOSTOS = E0;
     for (i = 0; i < N; i++){
         prob_estagio[i] = genrand64_real1();
         estagio[i] = 'S';
     }
-    while(E0!=0){
+    while(EXPOSTOS!=0){
         r = genrand64_real1();
         site = r*N;
         if(estagio[site] == 'S'){
             estagio[site] = 'E';
-            E0--;
+            EXPOSTOS--;
             rates = atualiza_estagio(rates,site,&rate,estagio,prob_estagio,Grafo,vacinado,avg_degree,weight);
         }
     }
@@ -347,9 +346,51 @@ void infect(igraph_t* Grafo,double* rate, char* estagio,double* rates,double* pr
     }    
 }
 
+void save_file(double*** infect_time,const int* redes,const bool* weight,const double* N,const double* p,const int* estrategy){
+    int i,j,k;
+    char arquivo[800];
+    char arquivo2[800];
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank"};
+    for (i = 0; i < infecao_total; i++)
+        for (j = 0; j < q_resultados; j++) 
+            infect_time[0][i][j] /= *redes;
+    
+    if(*weight)sprintf(arquivo,"./output/time/%d/ponderado/p/infect_%.2f.txt",(int)*N,*p);
+    else sprintf(arquivo,"./output/time/%d/nponderado/p/infect_%.2f.txt",(int)*N,*p);
 
+    if(!fileExists(arquivo)) generate_file(arquivo,infect_time[0],infecao_total,q_resultados,sizeof(double),0);
+    double f;
+    if(*weight) sprintf(arquivo2,"./output/vacina/%d/ponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
+    else sprintf(arquivo2,"./output/vacina/%d/nponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
+    FILE* file  = fopen(arquivo2,"w");;
 
-void generate_infect(double N,double p,int seed, int redes,int estrategy,bool weight){
+    for (k = 0; k < 100; k++){
+
+        f = (double) (k+1)/100;
+
+        for (i = infecao_total+1; i < tempo_total; i++) for (j = 0; j < q_resultados; j++) infect_time[k][i][j] /= *redes;
+
+        if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0)){
+            if(*redes > cut_rede){
+                if(*weight) sprintf(arquivo,"./output/time/%d/ponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
+                else sprintf(arquivo,"./output/time/%d/nponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
+                generate_file(arquivo,infect_time[k],tempo_total,q_resultados,sizeof(double),infecao_total+1);
+            }
+        }
+        
+        fprintf(file,"%f %f %f %f\n",f, infect_time[k][tempo_total-1][6], infect_time[k][tempo_total-1][4], infect_time[k][tempo_total-1][7]);
+        
+    }
+    fclose(file);
+    for (k = 0; k < 100; k++){
+        for (i = 0; i < tempo_total; i++) free(infect_time[k][i]);
+        free(infect_time[k]);
+    }
+    free(infect_time);
+    printf("Terminou: %s %f",file_vacina[*estrategy],*p);
+}
+
+void generate_infect(double N,double p,int seed,int redes,int estrategy,bool weight){
     
     uint32_t i,j;
     create_folder((int)N);
@@ -360,14 +401,16 @@ void generate_infect(double N,double p,int seed, int redes,int estrategy,bool we
         infect_time[i] = (double**) malloc(tempo_total*sizeof(double*));
         for (j = 0; j < tempo_total; j++)infect_time[i][j] = (double*) calloc(q_resultados,sizeof(double));        
     }
-    //for (i = 0; i < tempo_total; i++) 
-    for (i = 0; i < redes; i++){
+    int rede;
+    omp_set_num_threads(THREADS);
+    #pragma omp parallel for
+    for (rede = 0; rede < redes; rede++){
 
         double avg_degree;
         igraph_vector_int_t centralidade;
-        init_genrand64(i);
+        init_genrand64(rede*estrategy*(weight+1));
 
-        igraph_t Grafo = local_configuration_model( N, p,i,weight,&avg_degree,&centralidade,estrategy,true);
+        igraph_t Grafo = local_configuration_model( N, p,rede,weight,&avg_degree,&centralidade,estrategy,true);
         
         double* prob_estagio = (double*) malloc(N*sizeof(double));
         double* rates = (double*) calloc(N,sizeof(double));
@@ -379,15 +422,16 @@ void generate_infect(double N,double p,int seed, int redes,int estrategy,bool we
         double* copia_estado = (double*) calloc(8,sizeof(double));
         double* copia_rates = (double*) calloc(N,sizeof(double));
         char* copia_estagio = malloc(N*sizeof(char));
-        bool* copia_vacinado =(bool*) calloc(N,sizeof(bool));
         
         double rate = infect_init(estagio, rates,prob_estagio,vacinado,&Grafo,weight,&avg_degree);
-
-        estado[0] = N;
+        double copia_rate;
+        estado[0] = N-10;
         estado[1] = 10;
         infect(&Grafo,&rate,estagio, rates,prob_estagio,vacinado,infect_time[0],weight,0,dia_infecao,0,estado,&avg_degree);
         int f,N_vacinas,sitio_vacinado;
+        
         for (f = 1; f <= 100; f++){
+            copia_rate = rate;
             N_vacinas = (int)f*N/100;
             for (i = 0; i < 8; i++)copia_estado[i] = estado[i];
             for (i = 0; i < N; i++){
@@ -398,15 +442,18 @@ void generate_infect(double N,double p,int seed, int redes,int estrategy,bool we
                 
                 sitio_vacinado = VECTOR(centralidade)[i];
 
-                copia_vacinado[sitio_vacinado] = vacinado[sitio_vacinado];
-
-                if(((estagio[sitio_vacinado] == 'S') || (estagio[sitio_vacinado] == 'R') || (estagio[sitio_vacinado] == 'A')) && (N_vacinas!=0)){
-                    copia_vacinado[sitio_vacinado] = true;
-                    N_vacinas--;
+                if((estagio[sitio_vacinado] == 'S') || (estagio[sitio_vacinado] == 'R') || (estagio[sitio_vacinado] == 'A')){
+                    if(N_vacinas != 0){
+                        vacinado[sitio_vacinado] = true;
+                        N_vacinas--;
+                    }
                 }
             }
-            print_vetor(copia_estado,8,sizeof(double));
-            infect(&Grafo,&rate,copia_estagio, copia_rates,copia_prob_estagio,copia_vacinado,infect_time[f-1],weight,dia_infecao,dias,N_vacinas,copia_estado,&avg_degree);
+            //print_vetor(copia_estado,8,sizeof(double));
+            infect(&Grafo,&copia_rate,copia_estagio, copia_rates,copia_prob_estagio,vacinado,infect_time[f-1],weight,dia_infecao,dias,N_vacinas,copia_estado,&avg_degree);
+            //if(f%10 == 0)printf("%d %.2f\n",rede+1,(double) f/100);
+            free(vacinado);
+            vacinado =(bool*) calloc(N,sizeof(bool));
         }
         
 
@@ -420,55 +467,22 @@ void generate_infect(double N,double p,int seed, int redes,int estrategy,bool we
         free(copia_rates);
         free(copia_prob_estagio);
         free(copia_estagio);
-        free(copia_vacinado);
         free(copia_estado);
         igraph_destroy(&Grafo);
     }
-    
-    /*for (i = 0; i < tempo_total; i++){
-        if(redes <= cut_rede){
-            //print_vetor(infect_time[i],q_resultados,sizeof(double));
-            //printf("%f\n",quant[i]);
-        }
-        for (int j = 0; j < q_resultados; j++) infect_time[i][j] /= redes;
-        //if(redes <= cut_rede) print_vetor(infect_time[i],q_resultados,sizeof(double));
-        //if(redes <= cut_rede) printf(" =============================================== \n");
-    }
-    
-    if((f == 0)){
-        if(redes > cut_rede){
-            char filecheck[800];
-            if(weight) sprintf(filecheck,"./output/time/%d/ponderado/p/infect_%.2f.txt",(int)N,p);
-            else sprintf(filecheck,"./output/time/%d/nponderado/p/infect_%.2f.txt",(int)N,p);
-            generate_file(filecheck,infect_time,tempo_total,q_resultados,sizeof(infect_time[0][0]));
-        }
-    }
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank"};
-    if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0)){
-        if(redes > cut_rede){
-            char filename[800];
-            if(weight) sprintf(filename,"./output/time/%d/ponderado/%s_%.2f_%.2f.txt",(int)N,file_vacina[estrategy],p,f);
-            else sprintf(filename,"./output/time/%d/nponderado/%s_%.2f_%.2f.txt",(int)N,file_vacina[estrategy],p,f);
-            generate_file(filename,infect_time,tempo_total,q_resultados,sizeof(double));
-        }
-    }
-    int s = f*100;
-    if ((redes > cut_rede) && (f !=0)){
-        FILE *file;
-        char filename[800];
-        if(weight) sprintf(filename,"./output/vacina/%d/ponderado/%s_%.2f.txt",(int)N,file_vacina[estrategy],p);
-        else sprintf(filename,"./output/vacina/%d/nponderado/%s_%.2f.txt",(int)N,file_vacina[estrategy],p);
-        if(s%10 == 0)printf("%s ",file_vacina[estrategy]);
-        file = fopen(filename,"a");
-        fprintf(file,"%f %f %f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6], infect_time[tempo_total-1][10],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),pow(infect_time[tempo_total-1][11] - pow(infect_time[tempo_total-1][10],2),0.5));
-        fclose(file);
-    }
-    //else printf("%.2f %f %f %f %f %s\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(infect_time[tempo_total-1][9] - pow(infect_time[tempo_total-1][7],2),0.5), pow(infect_time[tempo_total-1][8] - pow(infect_time[tempo_total-1][6],2),0.5),file_vacina[vacina]);
-    //else printf("%.2f %f %f %f %f\n",f, infect_time[tempo_total-1][7], infect_time[tempo_total-1][6],pow(final[2] - final[0]*final[0],0.5), pow(final[3] - final[1]*final[1],0.5));
+    if(redes > cut_rede) save_file(infect_time,&redes,&weight,&N,&p,&estrategy);
+    else{
+        int k;
+        for (i = 0; i < infecao_total; i++)
+            for (j = 0; j < q_resultados; j++) 
+                infect_time[0][i][j] /= redes;
+        print_matrix((void**)infect_time[0],infecao_total,sizeof(double),sizeof(double));
+        for (k = 0; k < 100; k++){
 
-    for (i = 0; i < tempo_total; i++) free(infect_time[i]);
-    free(infect_time);
-    //if (redes != 1) printf("\e[1;1H\e[2J");
+            for (i = infecao_total+1; i < tempo_total; i++) for (j = 0; j < q_resultados; j++) infect_time[k][i][j] /= redes;
+            print_matrix((void**)infect_time[k],tempo_total,sizeof(double),sizeof(double));
+        }
+    }
+
     
-    if(s%10 == 0)printf("Terminou: %f %f\n",f,p);*/
 }

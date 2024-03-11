@@ -296,7 +296,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "random":"CR",
         "close":"CP",
         "eccentricity":"CE",
-        "betweenness":"CB",
+        "betwenness":"CB",
         "graumorte":"GM",
         "probmortepassin":"PMA",
         "probhospassin":"PHA",
@@ -337,7 +337,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
                 ),
                 error_y=dict(
                     type='data',  # Ajuste para 'percent' se desejar barras de erro em percentagem
-                    array=infect[3 if(plot ==0) else 4]/np.sqrt(200),
+                    #array=infect[3 if(plot ==0) else 4]/np.sqrt(200),
                     visible = erro == 1
                 ),
                 #opacity = 1.0 if(arquivo[file.split("_")[2]] == "CR" or arquivo[file.split("_")[2]] == "CI" or arquivo[file.split("_")[2]] == "CC") else 0.3,
@@ -959,7 +959,8 @@ def compara(modelo_k,contagem,faixas):
 
 
 def infectados_plot(N,ponderado):
-    infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/infect_1.00.txt").T
+
+    infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/infect_0.00.txt").T
 
     dados = {
         'Tempo': np.arange(len(infect[0]))/2,
@@ -1129,7 +1130,7 @@ def vacina_infect(
         y = np.loadtxt(file[-1]).T[n]
         if(n == 2):
             y += np.loadtxt(file[-1]).T[3]
-        tempo = np.arange(len(y))/2
+        tempo = np.arange(len(y))/2+100
         ylabel.append(translate[file[0]])
         Area.append([file[0],np.dot(tempo[:-1][100:],y[:-1][100:])])
         fig.add_trace(
