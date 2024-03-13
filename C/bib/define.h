@@ -19,4 +19,4 @@ const uint16_t tempo_total = dias*2;
 const uint16_t infecao_total = dia_infecao*2;
 int q_resultados = 8;
 int cut_rede = 5;
-int THREADS = 10;
+int THREADS = 11;

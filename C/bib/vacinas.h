@@ -224,6 +224,7 @@ igraph_vector_int_t weighted_traditional_centralities(igraph_t* Grafo,int estrat
             igraph_pagerank(Grafo, algo,&pagerank, &value,igraph_vss_all(), IGRAPH_DIRECTED,d,pesos,NULL );
             igraph_vector_qsort_ind(&pagerank,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&pagerank);
+            break;
         }
         
         default:{

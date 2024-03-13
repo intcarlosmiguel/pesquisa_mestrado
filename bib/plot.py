@@ -302,7 +302,12 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "probhospassin":"PHA",
         "probhosp":"PH",
         "probmorte":"PM",
-        "pagerank":"PR",
+        "pagerank":"PG",
+        "wbetwenness":"CBW",
+        "wclose":"CPW",
+        "weigenvector":"CAW",
+        "wpagerank":"PRW",
+        "wharmonic":"CHW",
     }
     ylabel = []
     titulo = [
@@ -1112,6 +1117,11 @@ def vacina_infect(
         "probhosp":"PH",
         "probmorte":"PM",
         "pagerank":"PG",
+        "wbetwenness":"CBW",
+        "wclose":"CPW",
+        "weigenvector":"CAW",
+        "wpagerank":"PRW",
+        "wharmonic":"CHW",
     }
 
     colors = px.colors.qualitative.Prism

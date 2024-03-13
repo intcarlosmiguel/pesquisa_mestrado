@@ -387,7 +387,7 @@ void save_file(double*** infect_time,const int* redes,const bool* weight,const d
         free(infect_time[k]);
     }
     free(infect_time);
-    printf("Terminou: %s %f",file_vacina[*estrategy],*p);
+    printf("Terminou: %s %f \n",file_vacina[*estrategy],*p);
 }
 
 void generate_infect(double N,double p,int seed,int redes,int estrategy,bool weight){
@@ -403,7 +403,7 @@ void generate_infect(double N,double p,int seed,int redes,int estrategy,bool wei
     }
     int rede;
     omp_set_num_threads(THREADS);
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic)
     for (rede = 0; rede < redes; rede++){
 
         double avg_degree;
