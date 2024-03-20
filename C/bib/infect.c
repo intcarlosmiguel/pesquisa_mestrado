@@ -15,6 +15,28 @@
 #include "SBM.h"
 #include "define.h"
 
+struct INFECCAO{
+    double* prob_estagio;
+    double* dias_hospitalizados;
+    double* rates;
+    double* estado;
+    bool* vacinado;
+    char* estagio;
+    double tempo_total_hospitalizado;
+    double rate;
+};
+
+void generate_infeccao(struct INFECCAO* dinamica,int N){
+    dinamica->prob_estagio = (double*) malloc(N*sizeof(double));
+    dinamica->dias_hospitalizados = (double*) calloc(N,sizeof(double));
+    dinamica->tempo_total_hospitalizado = 0;
+    dinamica->rates = (double*) calloc(N,sizeof(double));
+    dinamica->estado = (double*) calloc(8,sizeof(double));
+    dinamica->estagio = malloc(N*sizeof(char));
+    dinamica->vacinado =(bool*) calloc(N,sizeof(bool));
+    dinamica->rate = 0;
+}
+
 double* sintomatico;
 double* hospitalizacao;
 double* morte;
@@ -91,9 +113,9 @@ int maior_cluster_infectados(igraph_t* Grafo,int N,char* estagio){
     return maior_cluster;
 }
 
-double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo,bool* vacinado,double* avg,bool weight){
+double calc_estagio(int site,struct INFECCAO* dinamica, igraph_t* Grafo,double* avg,bool weight){
 
-    switch (estagio[site]){
+    switch (dinamica->estagio[site]){
         case 'S':// Suscetível
             double beta = 0;
 
@@ -112,17 +134,17 @@ double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo
                     
                 }
                 
-                if(estagio[vizinho] == 'E'){
-                    if(!vacinado[vizinho]) beta += beta1*peso;
+                if(dinamica->estagio[vizinho] == 'E'){
+                    if(!dinamica->vacinado[vizinho]) beta += beta1*peso;
                     else beta += 0.058*beta1*peso; // 0.058
                 }
-                if(estagio[vizinho] == 'A'){
-                    if(!vacinado[vizinho]) beta += beta2*peso;
+                if(dinamica->estagio[vizinho] == 'A'){
+                    if(!dinamica->vacinado[vizinho]) beta += beta2*peso;
                     else beta += 0.058*beta2*peso;// 0.058
                 }
             }
             igraph_vector_int_destroy(&vizinhos);
-            if(!vacinado[site]) return beta/ *avg;
+            if(!dinamica->vacinado[site]) return beta/ *avg;
             else return 0.058*beta/ *avg;// 0.058
             break;
         case 'E': // Exposto
@@ -132,11 +154,11 @@ double calc_estagio(int site,char* estagio,double* prob_estagio, igraph_t* Grafo
             return gamma_A;
             break;
         case 'I': // Sintomático
-            if(prob_estagio[site]< hospitalizacao[(int) VAN(Grafo, "faixa", site)]*(vacinado[site] ? 0.034 : 1)) return phi;
+            if(dinamica->prob_estagio[site]< hospitalizacao[(int) VAN(Grafo, "faixa", site)]*(dinamica->vacinado[site] ? 0.034 : 1)) return phi;
             else return gamma_I;
             break;
         case 'H': // Hospitalziado
-            if(prob_estagio[site]<morte[(int) VAN(Grafo, "faixa", site)]*(vacinado[site] ? 0.034 : 1)) return delta;
+            if(dinamica->prob_estagio[site]<morte[(int) VAN(Grafo, "faixa", site)]*(dinamica->vacinado[site] ? 0.034 : 1)) return delta;
             else return gamma_H;
             break;
         case 'R':
@@ -152,98 +174,98 @@ int find_lista(int site,int* lista){
     if(lista[site] != site) return find_lista(lista[site],lista);
     return site;
 }
-double* atualiza_estagio(double* rates,int site,double* rate,char* estagio,double* prob_estagio, igraph_t* Grafo,bool* vacinado,double* avg,bool weight){
+void atualiza_estagio(int site,struct INFECCAO* dinamica, igraph_t* Grafo,double* avg,bool weight){
     int i;
-    *rate -= rates[site];
+    dinamica->rate -= dinamica->rates[site];
     
-    rates[site] = calc_estagio(site, estagio,prob_estagio,Grafo,vacinado,avg,weight);
-    *rate += rates[site];
+    dinamica->rates[site] = calc_estagio(site, dinamica,Grafo,avg,weight);
+    dinamica->rate += dinamica->rates[site];
     
     igraph_vector_int_t vizinhos;
     igraph_vector_int_init(&vizinhos, 0);
     igraph_neighbors(Grafo, &vizinhos, site,IGRAPH_ALL);
     for (i = 0; i < igraph_vector_int_size(&vizinhos); i++){
         int vizinho = VECTOR(vizinhos)[i];
-        *rate -= rates[vizinho];
-        rates[vizinho] = calc_estagio(vizinho, estagio,prob_estagio,Grafo,vacinado,avg,weight);
-        *rate += rates[vizinho];
+        dinamica->rate -= dinamica->rates[vizinho];
+        dinamica->rates[vizinho] = calc_estagio(vizinho,dinamica,Grafo,avg,weight);
+        dinamica->rate += dinamica->rates[vizinho];
     }
     igraph_vector_int_destroy(&vizinhos);
-    return rates;
 }
 
-double infect_init(char* estagio, double* rates,double* prob_estagio,bool* vacinado,igraph_t* Grafo,bool weight,double* avg_degree){
+void infect_init(struct INFECCAO* dinamica,igraph_t* Grafo,bool weight,double* avg_degree){
 
     int N = igraph_vcount(Grafo);
     
     int i = 0,site;
-    double rate = 0,r;
+    double r;
     double EXPOSTOS = E0;
     for (i = 0; i < N; i++){
-        prob_estagio[i] = genrand64_real1();
-        estagio[i] = 'S';
+        dinamica->prob_estagio[i] = genrand64_real1();
+        dinamica->estagio[i] = 'S';
     }
     while(EXPOSTOS!=0){
         r = genrand64_real1();
         site = r*N;
-        if(estagio[site] == 'S'){
-            estagio[site] = 'E';
+        if(dinamica->estagio[site] == 'S'){
+            dinamica->estagio[site] = 'E';
             EXPOSTOS--;
-            rates = atualiza_estagio(rates,site,&rate,estagio,prob_estagio,Grafo,vacinado,avg_degree,weight);
+            atualiza_estagio(site,dinamica,Grafo,avg_degree,weight);
         }
     }
-    return rate;
 }
 
-void infect(igraph_t* Grafo,double* rate, char* estagio,double* rates,double* prob_estagio,bool* vacinado,double** infect_time,const bool weight,const int primeiro_dia,const int ultimo_dia,int N_vacinas,double* estado,double* avg_degree){
+void infect(igraph_t* Grafo,struct INFECCAO* dinamica,double** infect_time,const bool weight,const int primeiro_dia,const int ultimo_dia,int N_vacinas,double* avg_degree  ){
+
     int N = igraph_vcount(Grafo);
 
-    double Suscetiveis = estado[0];
-    double Expostos = estado[1];
-    double Assintomaticos = estado[2];
-    double Sintomaticos = estado[3];
-    double Hospitalizados = estado[4];
-    double Recuperados = estado[5];
-    double Mortos = estado[6];
-    double Infectados = estado[7];
+    double Suscetiveis = dinamica->estado[0];
+    double Expostos = dinamica->estado[1];
+    double Assintomaticos = dinamica->estado[2];
+    double Sintomaticos = dinamica->estado[3];
+    double Hospitalizados = dinamica->estado[4];
+    double Recuperados = dinamica->estado[5];
+    double Mortos = dinamica->estado[6];
+    double Infectados = dinamica->estado[7];
+
     double t = primeiro_dia;
     int i,site,s = 2*primeiro_dia;
-
     double tempo = 0;
     double ano = primeiro_dia;
     double Delta;
     double new_rate;
+
     while (ano < ultimo_dia){
-        if(rate==0) break;
-        tempo = exponentialRand(*rate);
+        if(dinamica->rate==0) break;
+        tempo = exponentialRand(dinamica->rate);
         if(tempo ==0) break;
-        Delta = *rate*genrand64_real1();
+        Delta = dinamica->rate*genrand64_real1();
         new_rate = 0;
         ano += tempo;
         if(ano >= ultimo_dia) break;
         for (i = 0; i < N; i++){
-            new_rate += rates[i];
+            new_rate += dinamica->rates[i];
             if(new_rate>=Delta) break;
         }
         site = i;
-        switch (estagio[i]){
+        switch (dinamica->estagio[i]){
             case 'S':// Sucetível - 0
-                estagio[i] = 'E';
+                dinamica->estagio[i] = 'E';
                 Expostos++;
                 Suscetiveis--;
                 break;
             case 'E': // Exposto - 1
-                if(prob_estagio[i]<sintomatico[(int) VAN(Grafo, "faixa", i)]*(vacinado[i] ? 0.34693877551 : 1)){
-                    estagio[i] = 'I';
+                if(dinamica->prob_estagio[i]<sintomatico[(int) VAN(Grafo, "faixa", i)]*(dinamica->vacinado[i] ? 0.34693877551 : 1)){
+                    dinamica->estagio[i] = 'I';
                     Sintomaticos++;
                     Infectados++;
                 }
                 else{
-                    estagio[i] = 'A';
+                    dinamica->estagio[i] = 'A';
                     Infectados++;
                     Assintomaticos++;
-                    if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!vacinado[i])){
-                        vacinado[i] = true;
+                    if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!dinamica->vacinado[i])){
+                        dinamica->vacinado[i] = true;
                         N_vacinas--;
                     }
                     
@@ -251,57 +273,60 @@ void infect(igraph_t* Grafo,double* rate, char* estagio,double* rates,double* pr
                 Expostos--;
                 break;
             case 'A': //Assintomático
-                estagio[i] = 'R';
+                dinamica->estagio[i] = 'R';
                 Assintomaticos--;
                 Recuperados++;
-                if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!vacinado[i])){
-                    vacinado[i] = true;
+                if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!dinamica->vacinado[i])){
+                    dinamica->vacinado[i] = true;
                     N_vacinas--;
                 }
                 break;
             case 'I': // Sintomático
-                if(prob_estagio[i]<hospitalizacao[(int) VAN(Grafo, "faixa", site)]){
-                    estagio[i] = 'H';
+                if(dinamica->prob_estagio[i]<hospitalizacao[(int) VAN(Grafo, "faixa", site)]){
+                    dinamica->estagio[i] = 'H';
+                    dinamica->dias_hospitalizados[i] = ano;
                     Hospitalizados++;
                 }
                 else{
-                    estagio[i] = 'R';
+                    dinamica->estagio[i] = 'R';
                     Recuperados++;
-                    if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!vacinado[i])){
-                        vacinado[i] = true;
+                    if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!dinamica->vacinado[i])){
+                        dinamica->vacinado[i] = true;
                         N_vacinas--;
                     }
                 }
                 Sintomaticos--;
                 break;
             case 'H': // Hospitalziado - 4
-                if(prob_estagio[i]<morte[(int) VAN(Grafo, "faixa", site)]){
-                    estagio[i] = 'D';
+                if(dinamica->prob_estagio[i]<morte[(int) VAN(Grafo, "faixa", site)]){
+                    dinamica->estagio[i] = 'D';
                     Mortos++;
                 }
                 else{
-                    estagio[i] = 'R';
+                    dinamica->estagio[i] = 'R';
                     Recuperados++;
-                    if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!vacinado[i])){
-                        vacinado[i] = true;
+                    if((N_vacinas!=0) && (ano >= dia_infecao+1 ) && (!dinamica->vacinado[i])){
+                        dinamica->vacinado[i] = true;
                         N_vacinas--;
                     }
                 }
                 Hospitalizados--;
+                dinamica->tempo_total_hospitalizado +=  ano - dinamica->dias_hospitalizados[i];
+                dinamica->dias_hospitalizados[i] = 0;
                 break;
             case 'R': // Recuperados 
-                estagio[i] = 'S';
+                dinamica->estagio[i] = 'S';
                 Suscetiveis++;
                 Recuperados--;
-                if((N_vacinas!=0) && (ano >= dia_infecao+1) && (!vacinado[i])){
-                    vacinado[i] = true;
+                if((N_vacinas!=0) && (ano >= dia_infecao+1) && (!dinamica->vacinado[i])){
+                    dinamica->vacinado[i] = true;
                     N_vacinas--;
                 }
                 break;
             default:
                 break;
         }
-        prob_estagio[i] = genrand64_real1();
+        dinamica->prob_estagio[i] = genrand64_real1();
         if(ano > t){
             s++;
             t += 0.5;
@@ -313,24 +338,25 @@ void infect(igraph_t* Grafo,double* rate, char* estagio,double* rates,double* pr
             infect_time[s - 1][5] += Recuperados/N;
             infect_time[s - 1][6] += Mortos/N;
             infect_time[s - 1][7] += Infectados/N;
+            infect_time[s - 1][8] += dinamica->tempo_total_hospitalizado;
             //infect_time[s - 1][9] += (double)maior_cluster_infectados(Grafo,N,estagio)/N;
             //printf("%f %f %f %f %f %f %f %f %d %f %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s,*rate,t);
             
         }
-        //printf("%f %f %f %f %f %f %f %f %d %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s,rate);
+        //printf("%f %f %f %f %f %f %f %f %d %f %f\n",ano,Suscetiveis,Expostos,Assintomaticos,Sintomaticos,Hospitalizados,Recuperados,Mortos,s,*rate,*tempo_total_hospitalizado);
         if(t >= dias+1) break;
         if((Expostos == Assintomaticos) && (Assintomaticos == Sintomaticos) && (Sintomaticos ==Hospitalizados) && (Hospitalizados == 0)) break;
 
-        rates = atualiza_estagio(rates,site,rate,estagio,prob_estagio,Grafo,vacinado,avg_degree,weight);
+        atualiza_estagio(site,dinamica,Grafo,avg_degree,weight);
     }
-    estado[0] = Suscetiveis;
-    estado[1] = Expostos;
-    estado[2] = Assintomaticos;
-    estado[3] = Sintomaticos;
-    estado[4] = Hospitalizados;
-    estado[5] = Recuperados;
-    estado[6] = Mortos;
-    estado[7] = Infectados;
+    dinamica->estado[0] = Suscetiveis;
+    dinamica->estado[1] = Expostos;
+    dinamica->estado[2] = Assintomaticos;
+    dinamica->estado[3] = Sintomaticos;
+    dinamica->estado[4] = Hospitalizados;
+    dinamica->estado[5] = Recuperados;
+    dinamica->estado[6] = Mortos;
+    dinamica->estado[7] = Infectados;
     if(ano <= dias){
         for (i = s; i < dias*2; i++){
             infect_time[i][0] += (double) Suscetiveis/N;
@@ -341,6 +367,7 @@ void infect(igraph_t* Grafo,double* rate, char* estagio,double* rates,double* pr
             infect_time[i][5] += (double) Recuperados/N;
             infect_time[i][6] += (double) Mortos/N;
             infect_time[i][7] += (double) Infectados/N;
+            infect_time[i][8] += (double) dinamica->tempo_total_hospitalizado;
             //infect_time[i][8] += (double)maior_cluster_infectados(Grafo,N,estagio)/N;
         }
     }    
@@ -363,14 +390,12 @@ void save_file(double*** infect_time,const int* redes,const bool* weight,const d
     if(*weight) sprintf(arquivo2,"./output/vacina/%d/ponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
     else sprintf(arquivo2,"./output/vacina/%d/nponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
     FILE* file  = fopen(arquivo2,"w");;
-
-    for (k = 0; k < 100; k++){
-
-        f = (double) (k+1)/100;
+    f = 0.0;
+    for (k = 0; k <= 100; k++){
 
         for (i = infecao_total+1; i < tempo_total; i++) for (j = 0; j < q_resultados; j++) infect_time[k][i][j] /= *redes;
 
-        if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0)){
+        if((f == 0.75) ||(f == 0.25) ||(f == 0.50) || (f == 1.0) || (f = 0.0)){
             if(*redes > cut_rede){
                 if(*weight) sprintf(arquivo,"./output/time/%d/ponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
                 else sprintf(arquivo,"./output/time/%d/nponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
@@ -378,11 +403,12 @@ void save_file(double*** infect_time,const int* redes,const bool* weight,const d
             }
         }
         
-        fprintf(file,"%f %f %f %f\n",f, infect_time[k][tempo_total-1][6], infect_time[k][tempo_total-1][4], infect_time[k][tempo_total-1][7]);
+        fprintf(file,"%f %f %f %f %f\n",f, infect_time[k][tempo_total-1][6], infect_time[k][tempo_total-1][8], infect_time[k][tempo_total-1][7], infect_time[k][tempo_total-1][2]+infect_time[k][tempo_total-1][3]);
+        f += 0.01;
         
     }
     fclose(file);
-    for (k = 0; k < 100; k++){
+    for (k = 0; k <= 100; k++){
         for (i = 0; i < tempo_total; i++) free(infect_time[k][i]);
         free(infect_time[k]);
     }
@@ -396,8 +422,8 @@ void generate_infect(double N,double p,int seed,int redes,int estrategy,bool wei
     create_folder((int)N);
     
     constant_init();
-    double*** infect_time = (double***) malloc(100*sizeof(double**));
-    for (i = 0; i < 100; i++){
+    double*** infect_time = (double***) malloc(101*sizeof(double**));
+    for (i = 0; i <= 100; i++){
         infect_time[i] = (double**) malloc(tempo_total*sizeof(double*));
         for (j = 0; j < tempo_total; j++)infect_time[i][j] = (double*) calloc(q_resultados,sizeof(double));        
     }
@@ -408,66 +434,67 @@ void generate_infect(double N,double p,int seed,int redes,int estrategy,bool wei
 
         double avg_degree;
         igraph_vector_int_t centralidade;
-        init_genrand64(rede*estrategy*(weight+1));
+        init_genrand64(rede*estrategy*(weight+1)+seed);
 
-        igraph_t Grafo = local_configuration_model( N, p,rede,weight,&avg_degree,&centralidade,estrategy,true);
+        igraph_t Grafo = local_configuration_model( N, p,rede+seed,weight,&avg_degree,&centralidade,estrategy,true);
         
-        double* prob_estagio = (double*) malloc(N*sizeof(double));
-        double* rates = (double*) calloc(N,sizeof(double));
-        double* estado = (double*) calloc(8,sizeof(double));
-        char* estagio = malloc(N*sizeof(char));
-        bool* vacinado =(bool*) calloc(N,sizeof(bool));
+        struct INFECCAO inicio;
+        generate_infeccao(&inicio,N);
+        struct INFECCAO pos_vacina;
+        generate_infeccao(&pos_vacina,N);
+        infect_init(&inicio,&Grafo,weight,&avg_degree);
 
-        double* copia_prob_estagio = (double*) malloc(N*sizeof(double));
-        double* copia_estado = (double*) calloc(8,sizeof(double));
-        double* copia_rates = (double*) calloc(N,sizeof(double));
-        char* copia_estagio = malloc(N*sizeof(char));
-        
-        double rate = infect_init(estagio, rates,prob_estagio,vacinado,&Grafo,weight,&avg_degree);
-        double copia_rate;
-        estado[0] = N-10;
-        estado[1] = 10;
-        infect(&Grafo,&rate,estagio, rates,prob_estagio,vacinado,infect_time[0],weight,0,dia_infecao,0,estado,&avg_degree);
+        inicio.estado[0] = N-10;
+        inicio.estado[1] = 10;
+
+        infect(&Grafo,&inicio,infect_time[0],weight,0,dia_infecao,0,&avg_degree);
+
         int f,N_vacinas,sitio_vacinado;
-        
-        for (f = 1; f <= 100; f++){
-            copia_rate = rate;
+
+        for (f = 0; f <= 100; f++){
+
+            pos_vacina.rate = inicio.rate;
+            pos_vacina.tempo_total_hospitalizado = inicio.tempo_total_hospitalizado;
+
             N_vacinas = (int)f*N/100;
-            for (i = 0; i < 8; i++)copia_estado[i] = estado[i];
+            for (i = 0; i < 8; i++)pos_vacina.estado[i] = inicio.estado[i];
             for (i = 0; i < N; i++){
 
-                copia_prob_estagio[i] = prob_estagio[i];
-                copia_rates[i] = rates[i];
-                copia_estagio[i] = estagio[i];
+                pos_vacina.prob_estagio[i] = inicio.prob_estagio[i];
+                pos_vacina.rates[i] = inicio.rates[i];
+                pos_vacina.estagio[i] = inicio.estagio[i];
+                pos_vacina.dias_hospitalizados[i] = inicio.dias_hospitalizados[i];
                 
                 sitio_vacinado = VECTOR(centralidade)[i];
 
-                if((estagio[sitio_vacinado] == 'S') || (estagio[sitio_vacinado] == 'R') || (estagio[sitio_vacinado] == 'A')){
+                if((inicio.estagio[sitio_vacinado] == 'S') || (inicio.estagio[sitio_vacinado] == 'R') || (inicio.estagio[sitio_vacinado] == 'A')){
                     if(N_vacinas != 0){
-                        vacinado[sitio_vacinado] = true;
+                        pos_vacina.vacinado[sitio_vacinado] = true;
                         N_vacinas--;
                     }
                 }
             }
             //print_vetor(copia_estado,8,sizeof(double));
-            infect(&Grafo,&copia_rate,copia_estagio, copia_rates,copia_prob_estagio,vacinado,infect_time[f-1],weight,dia_infecao,dias,N_vacinas,copia_estado,&avg_degree);
-            //if(f%10 == 0)printf("%d %.2f\n",rede+1,(double) f/100);
-            free(vacinado);
-            vacinado =(bool*) calloc(N,sizeof(bool));
+            infect(&Grafo,&pos_vacina,infect_time[f],weight,dia_infecao,dias,N_vacinas,&avg_degree);
+            free(pos_vacina.vacinado);
+            pos_vacina.vacinado =(bool*) calloc(N,sizeof(bool));
         }
         
 
         
         igraph_vector_int_destroy(&centralidade);
-        free(rates);
-        free(prob_estagio);
-        free(estagio);
-        free(vacinado);
-        free(estado);
-        free(copia_rates);
-        free(copia_prob_estagio);
-        free(copia_estagio);
-        free(copia_estado);
+        free(inicio.rates);
+        free(inicio.dias_hospitalizados);
+        free(inicio.prob_estagio);
+        free(inicio.estagio);
+        free(inicio.vacinado);
+        free(inicio.estado);
+        free(pos_vacina.vacinado);
+        free(pos_vacina.dias_hospitalizados);
+        free(pos_vacina.rates);
+        free(pos_vacina.prob_estagio);
+        free(pos_vacina.estagio);
+        free(pos_vacina.estado);
         igraph_destroy(&Grafo);
     }
     if(redes > cut_rede) save_file(infect_time,&redes,&weight,&N,&p,&estrategy);
@@ -476,11 +503,15 @@ void generate_infect(double N,double p,int seed,int redes,int estrategy,bool wei
         for (i = 0; i < infecao_total; i++)
             for (j = 0; j < q_resultados; j++) 
                 infect_time[0][i][j] /= redes;
-        print_matrix((void**)infect_time[0],infecao_total,sizeof(double),sizeof(double));
-        for (k = 0; k < 100; k++){
+        //print_matrix((void**)infect_time[0],infecao_total,sizeof(double),sizeof(double));
+        for (k = 0; k <= 100; k++){
 
-            for (i = infecao_total+1; i < tempo_total; i++) for (j = 0; j < q_resultados; j++) infect_time[k][i][j] /= redes;
-            print_matrix((void**)infect_time[k],tempo_total,sizeof(double),sizeof(double));
+            for (i = infecao_total+1; i < tempo_total; i++){
+                for (j = 0; j < q_resultados; j++)infect_time[k][i][j] /= redes;
+                print_vetor(infect_time[k][i],q_resultados,sizeof(double));
+            }
+            printf("=======================================================================================================\n");
+            //print_matrix((void**)infect_time[k],tempo_total,q_resultados,sizeof(double));
         }
     }
 

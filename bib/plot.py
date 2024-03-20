@@ -280,7 +280,7 @@ def adj(df,contacts,contacts02,Nmortos):
 
 def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 0.0):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
-    df = np.array([[i.split("_")[0],float(i.split("_")[1].split(".")[0]),cmd+i] for i in os.listdir(cmd)])
+    df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd)])
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
@@ -302,7 +302,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "probhospassin":"PHA",
         "probhosp":"PH",
         "probmorte":"PM",
-        "pagerank":"PG",
+        "pagerank":"PR",
         "wbetwenness":"CBW",
         "wclose":"CPW",
         "weigenvector":"CAW",
@@ -311,24 +311,21 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     }
     ylabel = []
     titulo = [
-        'Fração de Hospitalizados',
         'Fração de Mortos',
+        'Fração de Hospitalizados',
         'Área de Infectados'
     ]
     df = df[df['Clustering'] == clustering]
-    #display(df)
+
     for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
 
         infect = np.loadtxt(file).T
         y = infect[plot+1]
-        tempo = infect[0]
+        tempo = np.arange(100)/100
         y = y[np.argsort(tempo)]
         tempo = tempo[np.argsort(tempo)]
 
-        integral.append([
-            arquivo[estrategy],
-            np.dot(y, 0.01*np.ones(len(y)))
-        ])
+        integral.append(np.dot(y, 0.01*np.ones(len(y))))
 
         fig.add_trace(
             go.Scatter(
@@ -350,14 +347,13 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         )
         #M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
         ylabel.append(arquivo[estrategy])
-    
-    tit = 'Hospitalizados' if(plot ==0) else 'Mortos'
+    #tit = 'Mortos' if(plot ==0) else 'Hospitalizados'
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
         height=800,  # Altura do gráfico em pixels
         xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=20)),
         #xaxis=dict(),
-        yaxis=dict(title=titulo[plot],tickfont=dict(size=20)),
+        yaxis=dict(title='a',tickfont=dict(size=20)),
         template = "seaborn",
         #paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
@@ -370,16 +366,14 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
     integral = np.array(integral)
-    file = integral.T[0]
-    integral = integral.T[1]
     a = np.argsort(integral)
+    ylabel = np.array(ylabel)
+    print(ylabel[a][:10])
 
-    print(file[a][:10])
-
-    if(erro == 0):
+    """ if(erro == 0):
         fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
     else:
-        fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}_erro.png")
+        fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}_erro.png") """
     """"
     #print(integral)
     #plt.figure(figsize=(15,7),dpi=500)
@@ -1116,7 +1110,7 @@ def vacina_infect(
         "probhospassin":"PHA",
         "probhosp":"PH",
         "probmorte":"PM",
-        "pagerank":"PG",
+        "pagerank":"PR",
         "wbetwenness":"CBW",
         "wclose":"CPW",
         "weigenvector":"CAW",
