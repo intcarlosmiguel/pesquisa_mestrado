@@ -556,19 +556,19 @@ def generate_distribution_byfaixas(contagem,faixas):
         C.append(beta)
         A.append(angular)
         if(not LABEL):
-            ax.scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.,label = 'Dados' )
+            ax.scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1.,label = 'Dados', s = 100 )
             ax.set_xlabel('Conexões',fontsize = 20)
             ax.set_ylabel('Log(P)',fontsize = 20)
             LABEL = True
         else:
-            ax.scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1. )
+            ax.scatter(x,np.log(y),alpha = 0.8,edgecolors='black', linewidths=1., s = 50)
 
-        ax.plot(x,x*angular + beta,"--",label = 'R² = {:.3f}; {:.3f}x + {:.3f}'.format(r2,angular,beta),color = "red",)
+        ax.plot(x,x*angular + beta,"--",label = 'R² = {:.3f}'.format(r2),color = "red",)
         ax.grid(True)
         ax.set_title(f"Faixa etária: {faixa+1}", fontsize=18)
         #s = 50
     #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
-    fig.legend()
+    fig.legend(fontsize=15,loc='lower left')
     #fig.tight_layout()
     #fig.suptitle("Idade")
     #fig.text(0.5, 0.0, 'Conexões', ha='center', va='center', fontsize=20)

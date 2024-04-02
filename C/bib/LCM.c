@@ -338,7 +338,6 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
             }
         }
     }
-
     for (i = 0; i < G.Nodes; i++){
         free(G.viz[i]);
         free(degree[i]);

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-
+import itertools
 import plotly.graph_objs as go
 from bib.cleaning import *
 from sklearn.linear_model import LinearRegression
@@ -310,27 +310,27 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "wharmonic":"CHW",
     }
     ylabel = []
-    titulo = [
-        'Fração de Mortos',
-        'Fração de Hospitalizados',
-        'Área de Infectados'
-    ]
     df = df[df['Clustering'] == clustering]
-
+    corr = np.array([])
+    n = False
+    texto = []
+    last = []
     for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
-
+        texto.append(estrategy)
         infect = np.loadtxt(file).T
+        tempo = np.arange(100.01)/100
+        if(not n):
+            corr = np.copy(infect[1:,1:])
+            n = True
+        else:
+            np.concatenate((corr, infect[1:,:]), axis=1)
         y = infect[plot+1]
-        tempo = np.arange(100)/100
-        y = y[np.argsort(tempo)]
-        tempo = tempo[np.argsort(tempo)]
-
+        #last.append(tempo[y == 0 ][0])
         integral.append(np.dot(y, 0.01*np.ones(len(y))))
-
         fig.add_trace(
             go.Scatter(
-                x=tempo, 
-                y=y, 
+                x=tempo[tempo > 0], 
+                y=y[tempo > 0], 
                 mode='markers', 
                 name=arquivo[estrategy],
                 marker=dict(
@@ -347,7 +347,28 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         )
         #M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
         ylabel.append(arquivo[estrategy])
-    #tit = 'Mortos' if(plot ==0) else 'Hospitalizados'
+    data =pd.DataFrame(corr.T)
+    columns = data.columns
+    column_pairs = list(itertools.combinations(columns, 2))
+
+    # Calculando o número de subplots necessários
+    num_plots = len(column_pairs)
+    num_rows = int(num_plots**0.5) + 1  # Raiz quadrada do número de plots para determinar o layout
+    num_cols = num_rows
+
+    # Criando um layout de subplot com Plotly
+    fig1 = make_subplots(rows=num_rows, cols=num_cols, subplot_titles=[f'{x[0]} vs {x[1]}' for x in column_pairs])
+
+    # Adicionando gráficos de dispersão para cada par de colunas
+    for index, (col1, col2) in enumerate(column_pairs, start=1):
+        fig1.add_trace(go.Scatter(x=data[col1], y=data[col2], mode='markers',
+                                name=f'{col1} vs {col2}'),
+                    row=(index-1)//num_cols+1, col=(index-1)%num_cols+1)
+
+    # Ajustando o layout
+    fig1.update_layout(height=600, width=600, title_text="Gráficos de Dispersão para Correlações entre Colunas")
+    fig1.show()
+
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
         height=800,  # Altura do gráfico em pixels
@@ -366,9 +387,11 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
     integral = np.array(integral)
-    a = np.argsort(integral)
+    a = np.argsort(last)
     ylabel = np.array(ylabel)
-    print(ylabel[a][:10])
+    #print(ylabel[a][:10])
+    print(ylabel[np.argsort(integral)][:10])
+    return integral[np.argsort(texto)]
 
     """ if(erro == 0):
         fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
