@@ -308,6 +308,24 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "weigenvector":"CAW",
         "wpagerank":"PRW",
         "wharmonic":"CHW",
+        "laplacian":"CL",
+        "wlaplacian":"WCL",
+        "coautor":"CO",
+        "wcoautor":"WCO",
+        "gravity":"CGR",
+        "wgravity":"WCGR",
+        "gravity2":"CGR2",
+        "gravity3":"CGR3",
+        "gravity4":"CGR4",
+        "gravity5":"CGR5",
+        "gravity-2":"CGR1/2",
+        "gravity-3":"CGR1/3",
+        "gravity-4":"CGR1/4",
+        "gravity-5":"CGR1/5",
+        "wgravity2":"WCGR2",
+        "efficiency":"CF",
+        "wefficiency":"WCF",
+
     }
     ylabel = []
     df = df[df['Clustering'] == clustering]
@@ -326,7 +344,10 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
             np.concatenate((corr, infect[1:,:]), axis=1)
         y = infect[plot+1]
         #last.append(tempo[y == 0 ][0])
-        integral.append(np.dot(y, 0.01*np.ones(len(y))))
+        if(plot!= 3):
+            integral.append(np.dot(y, 0.01*np.ones(len(y))))
+        else:
+            integral.append(tempo[y ==0][0])
         fig.add_trace(
             go.Scatter(
                 x=tempo[tempo > 0], 
@@ -347,34 +368,17 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         )
         #M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
         ylabel.append(arquivo[estrategy])
-    data =pd.DataFrame(corr.T)
-    columns = data.columns
-    column_pairs = list(itertools.combinations(columns, 2))
-
-    # Calculando o número de subplots necessários
-    num_plots = len(column_pairs)
-    num_rows = int(num_plots**0.5) + 1  # Raiz quadrada do número de plots para determinar o layout
-    num_cols = num_rows
-
-    # Criando um layout de subplot com Plotly
-    fig1 = make_subplots(rows=num_rows, cols=num_cols, subplot_titles=[f'{x[0]} vs {x[1]}' for x in column_pairs])
-
-    # Adicionando gráficos de dispersão para cada par de colunas
-    for index, (col1, col2) in enumerate(column_pairs, start=1):
-        fig1.add_trace(go.Scatter(x=data[col1], y=data[col2], mode='markers',
-                                name=f'{col1} vs {col2}'),
-                    row=(index-1)//num_cols+1, col=(index-1)%num_cols+1)
-
-    # Ajustando o layout
-    fig1.update_layout(height=600, width=600, title_text="Gráficos de Dispersão para Correlações entre Colunas")
-    fig1.show()
-
+    titulo = {
+        0:"Fração de Mortos",
+        1: "Tempo hospitalizado",
+        3: "Infectados"
+    }
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
         height=800,  # Altura do gráfico em pixels
         xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=20)),
         #xaxis=dict(),
-        yaxis=dict(title='a',tickfont=dict(size=20)),
+        yaxis=dict(title=titulo[plot],tickfont=dict(size=20)),
         template = "seaborn",
         #paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
@@ -390,7 +394,8 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     a = np.argsort(last)
     ylabel = np.array(ylabel)
     #print(ylabel[a][:10])
-    print(ylabel[np.argsort(integral)][:10])
+    print(integral[np.argsort(integral)])
+    print(ylabel[np.argsort(integral)])
     return integral[np.argsort(texto)]
 
     """ if(erro == 0):

@@ -2,7 +2,7 @@
 #define INFECT_H
 struct Graph;
 
-void generate_infect(double N,double p,int seed, int redes,int vacina,bool weight);
+void generate_infect(double N,double p,int seed, uint16_t redes,uint8_t vacina,bool weight);
 
 
 #endif

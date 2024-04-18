@@ -140,7 +140,6 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
             G->viz[vizinho][0]++;
             G->viz[site][G->viz[site][0]] = vizinho;
             G->viz[vizinho][G->viz[vizinho][0]] = site;
-
             if(weight){
                 
                 while(duracao < 0) duracao = normalRand(mean[faixa1][faixa],std[faixa1][faixa]);
@@ -162,7 +161,7 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
 
 
 
-igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *avg,igraph_vector_int_t* centralidade,int check,bool calcula){
+igraph_t local_configuration_model(int N, double p,int seed,const bool weight,double *avg,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,igraph_matrix_t *W){
 
     struct Graph G;
     G.Nodes = N;
@@ -174,6 +173,7 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     double r;
     igraph_vector_t faixas;
     igraph_vector_init(&faixas, G.Nodes);
+
     int** degree = (int**) malloc(N*sizeof(int*));
     int* grau = (int*) calloc(N,sizeof(int));
     int* n_faixas = (int *) calloc(N, sizeof(int));
@@ -267,9 +267,9 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     igraph_vector_t pesos;
     igraph_vector_init(&pesos, 0);
     int site;
-    int faixa;
+    uint8_t faixa;
     int vizinho;
-    int faixa1;
+    uint8_t faixa1;
     for (site = 0; site < N; site++){
         //printf("%d\n",site);
         for (faixa = 0; faixa < 5; faixa++){
@@ -325,16 +325,19 @@ igraph_t local_configuration_model(int N, double p,int seed,bool weight,double *
     igraph_empty(&Grafo, G.Nodes, IGRAPH_UNDIRECTED);
     igraph_add_edges(&Grafo, &edges, NULL);
     igraph_cattribute_VAN_setv(&Grafo,"faixa",&faixas);
-    if(weight) SETEANV(&Grafo, "duracao", &pesos);
+    if(weight){
+        SETEANV(&Grafo, "duracao", &pesos);
+        igraph_get_adjacency(&Grafo, W, IGRAPH_GET_ADJACENCY_UPPER, &pesos, IGRAPH_NO_LOOPS);
+    }
     *avg = (double)G.edges*2/(G.Nodes);
     //lll += generate_conections(&G,degree,&faixas,p,&Grafo);
     if(calcula){
-        if(check <11) *centralidade = traditional_centralities(&Grafo,check);
+        if(estrategy <11) *centralidade = traditional_centralities(&Grafo,estrategy);
         else{
-            if(check<17) *centralidade = propose_centralities(&Grafo,check,morte,hospitalizacao,sintomatico);
+            if(estrategy<17) *centralidade = propose_centralities(&Grafo,estrategy,morte,hospitalizacao,sintomatico);
             else{
-                if(check < 21)*centralidade = weighted_traditional_centralities(&Grafo,check,&pesos);
-                else *centralidade = new_centralities(&Grafo,check,&pesos,&edges);
+                if(estrategy < 21)*centralidade = weighted_traditional_centralities(&Grafo,estrategy,&pesos);
+                else *centralidade = new_centralities(&Grafo,estrategy,&pesos,&edges,&faixas);
             }
         }
     }
@@ -469,12 +472,13 @@ void generate_local_configuration_model(double p, int redes,int seed){
     double* resultados = (double *)calloc(8,sizeof(double));
     double* std = (double *)calloc(8,sizeof(double));
     igraph_vector_int_t centralidade;
+    igraph_matrix_t W;
     for (i = 0; i < redes; i++){
 
         //if(redes!=1) printf("\e[1;1H\e[2J");
 
         igraph_t G;
-        G = local_configuration_model(N,p,seed+i,false,&a,&centralidade,0,false);
+        G = local_configuration_model(N,p,seed+i,false,&a,&centralidade,0,false,&W);
         if(redes!=1) calcula_propriedades(&G,p,N,resultados,std);
         igraph_destroy(&G);
        
