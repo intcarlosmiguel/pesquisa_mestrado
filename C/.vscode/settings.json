@@ -67,6 +67,7 @@
         "igraph.h": "c",
         "stdint.h": "c",
         "math.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "omp.h": "c"
     }
 }

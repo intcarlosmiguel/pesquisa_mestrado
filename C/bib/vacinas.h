@@ -241,12 +241,17 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
     igraph_vector_int_t centralidade;
     igraph_vector_int_init(&centralidade, N);
     double* sintomatico = (double*) malloc(5*sizeof(double));
-
+    double* morte = (double*) malloc(5*sizeof(double));;
     sintomatico[0] = 29.1/100;
     sintomatico[1] = 37.4/100;
     sintomatico[2] = 41.68/100;
     sintomatico[3] = 39.4/100;
-    sintomatico[4] = 31.3/100; 
+    sintomatico[4] = 31.3/100;
+    morte[0] = (double)0.07710809281267686;
+    morte[1] = (double)0.09561476547321676;
+    morte[2] = (double)0.13779231777947765;
+    morte[3] = (double)0.30044562859568047;
+    morte[4] = (double)0.530315172817809;
     switch (estrategy){
         
         case 21:{
@@ -264,7 +269,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < L; i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                w_i = morte[(int) VECTOR(*faixas)[site1]];
                 w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = 1;
                 termo_duplo = w_i*w_j*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
@@ -292,7 +297,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < L; i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                w_i = morte[(int) VECTOR(*faixas)[site1]];
                 w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = VECTOR(*pesos)[(int)i/2];
                 termo_duplo = w_i*w_j*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
@@ -321,7 +326,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
 
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                w_i = morte[(int) VECTOR(*faixas)[site1]];
                 w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = 0.5*(w_i+w_j);
                 x_i[site1] += peso;
@@ -368,7 +373,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
 
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                w_i = morte[(int) VECTOR(*faixas)[site1]];
                 w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = VECTOR(*pesos)[(int)i/2]*(w_i+w_j);
                 x_i[site1] += peso;
@@ -398,25 +403,27 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 5;
+            double d = 1;
             igraph_vector_init(&gravity, N);
 
-            igraph_matrix_t distance;
-            igraph_matrix_init(&distance, 0, 0);
 
-            igraph_distances(Grafo, &distance, igraph_vss_all(), igraph_vss_all(), IGRAPH_OUT);
             double w_i,w_j;
+            double maior = 0;
             for ( i = 0; i < N; i++){
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
-                for (int j = i+1; i < N; i++){
+                igraph_matrix_t distance;
+                igraph_matrix_init(&distance, 0, 0);
+                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(), IGRAPH_OUT);
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                for (int j = i+1; j < N; j++){
                     w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-                    VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,i,j),1/d);
-                    VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,i,j),1/d);
+                    VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,0,j),d);
+                    VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,0,j),d);
                 }
                 VECTOR(gravity)[i] *= w_i;
-                
+                if(VECTOR(gravity)[i] > maior) maior = VECTOR(gravity)[i];
+                igraph_matrix_destroy(&distance);
             }
-            igraph_matrix_destroy(&distance);
+            igraph_vector_scale(&gravity,1./maior);
             igraph_vector_qsort_ind(&gravity,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&gravity);
 
@@ -436,8 +443,8 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_OUT);
             double w_i,w_j;
             for ( i = 0; i < N; i++){
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
-                for (int j = i+1; i < N; i++){
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                for (int j = i+1; j < N; j++){
                     w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
                     VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,i,j),d);
                     VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,i,j),d);
@@ -456,21 +463,20 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             igraph_vector_t efficiency;
             igraph_vector_init(&efficiency, N);
 
-            igraph_matrix_t distance;
-            igraph_matrix_init(&distance, 0, 0);
-            igraph_distances(Grafo, &distance, igraph_vss_all(), igraph_vss_all(), IGRAPH_OUT);
-
             double Normalized = 0;
             int j;
             for ( i = 0; i < N; i++){
+                igraph_matrix_t distance;
+                igraph_matrix_init(&distance, 0, 0);
+                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(), IGRAPH_OUT);
                 for (j = i+1; j < N; j++){
-                    Normalized += 2.0/(MATRIX(distance,i,j));
-                    VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,i,j));
-                    VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,i,j));
+                    Normalized += 2.0/(MATRIX(distance,0,j));
+                    VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,0,j));
+                    VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,0,j));
                 }
+                igraph_matrix_destroy(&distance);
             }
             for ( i = 0; i < N; i++)VECTOR(efficiency)[i] = Normalized - VECTOR(efficiency)[i];
-            igraph_matrix_destroy(&distance);
             igraph_vector_qsort_ind(&efficiency,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&efficiency);
             break;
@@ -500,47 +506,64 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
         }
         case 29:{
 
-            igraph_vector_t gravity;
-            igraph_vector_init(&gravity, N);
-            double Normalized = 0;
-
-            igraph_vector_t Energy_per_site;
-            igraph_vector_init(&Energy_per_site, N);
+            igraph_vector_t Energy;
             
-            igraph_vector_t faixas;
-            igraph_vector_init(&faixas, 0);
-            igraph_cattribute_VANV(Grafo,"faixa",igraph_vss_all(),&faixas);
-
-            igraph_matrix_t distances;
-            igraph_matrix_init(&distances, 0, 0);
-            igraph_distances(Grafo, &distances, igraph_vss_all(), igraph_vss_all(), IGRAPH_OUT);
-
-            igraph_vector_int_t degrees;
-            igraph_vector_int_init(&degrees, 0);
-            igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
-
-            int d = 1;
-
+            double d = 1;
+            igraph_vector_init(&Energy, N);
+            double w_i,w_j,Normalized = 0;
             for ( i = 0; i < N; i++){
-
-                for (int j = i+1; i < N; i++){
-                    VECTOR(gravity)[i] += VECTOR(faixas)[j]/pow(MATRIX(distances,i,j),d);
-                    VECTOR(gravity)[j] += VECTOR(faixas)[i]/pow(MATRIX(distances,i,j),d);
-                    VECTOR(Energy_per_site)[i] -= VECTOR(faixas)[j]/pow(MATRIX(distances,i,j),d);
-                    VECTOR(Energy_per_site)[j] -= VECTOR(faixas)[i]/pow(MATRIX(distances,i,j),d);
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                igraph_matrix_t distance;
+                igraph_matrix_init(&distance, 0, 0);
+                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(), IGRAPH_OUT);
+                for (int j = i+1; j < N; j++){
+                    w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
+                    VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,0,j),d);
+                    VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,0,j),d);
+                    Normalized += 2*w_i*w_j/pow(MATRIX(distance,0,j),d);
                 }
-                VECTOR(gravity)[i] *= VECTOR(faixas)[i];
-                Normalized += VECTOR(degrees)[i] + VECTOR(gravity)[i];
-                VECTOR(Energy_per_site)[i] *= VECTOR(faixas)[i];
-                VECTOR(Energy_per_site)[i] -= VECTOR(degrees)[i];
+                VECTOR(Energy)[i] *= w_i;
+                VECTOR(Energy)[i] -= w_i;
+                Normalized += w_i;
+                igraph_matrix_destroy(&distance);
+                
             }
-            igraph_vector_add_constant(&Energy_per_site,Normalized);
-            igraph_vector_qsort_ind(&Energy_per_site,&centralidade, IGRAPH_DESCENDING);
+            for ( i = 0; i < N; i++)VECTOR(Energy)[i] = (VECTOR(Energy)[i] + Normalized)/Normalized;
+            igraph_vector_qsort_ind(&Energy,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&Energy);
 
-            igraph_matrix_destroy(&distances);
-            igraph_vector_destroy(&gravity);
-            igraph_vector_destroy(&Energy_per_site);
-            igraph_vector_int_destroy(&degrees);
+            break;
+        }
+        case 30:{
+
+            igraph_vector_t Energy;
+            
+            double d = 1;
+            igraph_vector_init(&Energy, N);
+
+            igraph_matrix_t distance;
+            igraph_matrix_init(&distance, 0, 0);
+
+            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_OUT);
+            double w_i,w_j,Normalized = 0;
+            for ( i = 0; i < N; i++){
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                for (int j = i+1; j < N; j++){
+                    w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
+                    VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,i,j),d);
+                    VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,i,j),d);
+                    Normalized += 2*w_i*w_j/pow(MATRIX(distance,i,j),d);
+                }
+                VECTOR(Energy)[i] *= w_i;
+                VECTOR(Energy)[i] -= w_i;
+                Normalized += w_i;
+                
+            }
+            for ( i = 0; i < N; i++)VECTOR(Energy)[i] = (VECTOR(Energy)[i] + Normalized)/Normalized;
+            igraph_matrix_destroy(&distance);
+            igraph_vector_qsort_ind(&Energy,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&Energy);
+
             break;
         }
         
@@ -549,6 +572,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             printf("Métrica tradicional ponderada não encontrada!\n");
         }
     }
+    free(morte);
     free(sintomatico);
     return centralidade;
 }

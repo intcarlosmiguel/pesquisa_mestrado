@@ -278,7 +278,7 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.savefig("./img/map.jpg")
     plt.show()
 
-def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 0.0):
+def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 0.0,ploting = False):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
     df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd)])
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
@@ -325,7 +325,16 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "wgravity2":"WCGR2",
         "efficiency":"CF",
         "wefficiency":"WCF",
-
+        "energy4":"CEN4",
+        "energy3":"CEN3",
+        "energy2":"CEN2",
+        "energy5":"CEN5",
+        "energy1":"CEN1",
+        "energy-5":"CEN1/5",
+        "energy-4":"CEN1/4",
+        "energy-3":"CEN1/3",
+        "energy-2":"CEN1/2",
+        "energy-5":"CEN1/5",
     }
     ylabel = []
     df = df[df['Clustering'] == clustering]
@@ -342,7 +351,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
             n = True
         else:
             np.concatenate((corr, infect[1:,:]), axis=1)
-        y = infect[plot+1]
+        y = infect[plot]
         #last.append(tempo[y == 0 ][0])
         if(plot!= 3):
             integral.append(np.dot(y, 0.01*np.ones(len(y))))
@@ -371,7 +380,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     titulo = {
         0:"Fração de Mortos",
         1: "Tempo hospitalizado",
-        3: "Infectados"
+        2: "Infectados"
     }
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
@@ -389,12 +398,13 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     )
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
-    fig.show()
+    if(ploting):
+        fig.show()
     integral = np.array(integral)
     a = np.argsort(last)
     ylabel = np.array(ylabel)
     #print(ylabel[a][:10])
-    print(integral[np.argsort(integral)])
+    #print(integral[np.argsort(integral)])
     print(ylabel[np.argsort(integral)])
     return integral[np.argsort(texto)]
 
@@ -992,7 +1002,7 @@ def infectados_plot(N,ponderado):
     dados = {
         'Tempo': np.arange(len(infect[0]))/2,
         'Suscetíveis': infect[0],
-        "Infectados": infect[2]+infect[3],
+        "Infectados": infect[1],
         "Recuperados": infect[5]
     }
     fig = go.Figure()

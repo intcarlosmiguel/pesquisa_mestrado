@@ -284,10 +284,10 @@ void quickSort(int *arr, int low, int high) {
     }
 }
 
-void generate_file(char* filename,void* array,int linhas,int colunas,int check,int inicio){
+void generate_file(char* filename,void* array,int linhas,int colunas,int check,int inicio,char* mode){
 
     FILE *file;
-    file = fopen(filename,"w");
+    file = fopen(filename,mode);
     for (int i = inicio; i < linhas; i++){
         char print[400] = "";
         char resultado[400] = "";
