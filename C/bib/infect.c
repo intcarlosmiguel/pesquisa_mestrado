@@ -384,7 +384,7 @@ void infect(igraph_t* Grafo,struct INFECCAO* dinamica,double** infect_time,const
 
 void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,const uint16_t* redes,const bool* weight,const double* N,const double* p,const uint8_t* estrategy){
     int i,j,k;
-    char arquivo[800];
+    char arquivo[800]; 
     char arquivo2[800];
     char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","coautor","wcoautor","laplacian","wlaplacian","gravity1","wgravity4","efficiency","wefficiency","energy1","wenergy"};
 
@@ -498,48 +498,87 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
     }
     for (i = 0; i < infecao_total; i++)infect_time_pre_vacina[i] = (double*) calloc(q_resultados,sizeof(double));
 
-    uint16_t rede;
+    uint16_t rede = 0;
     uint16_t count = 0;
-    omp_set_num_threads(THREADS);
-    #pragma omp parallel for schedule(dynamic)
-    for (rede = 0; rede < redes; rede++){
+    if(rede > THREADS){
+        omp_set_num_threads(THREADS);
+        #pragma omp parallel for schedule(dynamic)
+        for (rede = 0; rede < redes; rede++){
 
-        double avg_degree;
-        igraph_vector_int_t centralidade;
-        init_genrand64(rede*estrategy*(weight+1)+seed);
+            double avg_degree;
+            igraph_vector_int_t centralidade;
+            init_genrand64(rede*estrategy*(weight+1)+seed);
 
-        igraph_matrix_t W;
-        igraph_matrix_init(&W, 0, 0); // Inicializa a matriz sem tamanho específico
+            igraph_matrix_t W;
+            igraph_matrix_init(&W, 0, 0); // Inicializa a matriz sem tamanho específico
 
-        igraph_t Grafo = local_configuration_model( N, p,rede+seed,weight,&avg_degree,&centralidade,estrategy,true,&W);
-        
-        struct INFECCAO inicio;
-        generate_infeccao(&inicio,N);
+            igraph_t Grafo = local_configuration_model( N, p,rede+seed,weight,&avg_degree,&centralidade,estrategy,true,&W);
+            
+            struct INFECCAO inicio;
+            generate_infeccao(&inicio,N);
 
-        infect_init(&inicio,&Grafo,weight,&avg_degree,&W);
+            infect_init(&inicio,&Grafo,weight,&avg_degree,&W);
 
-        inicio.estado[0] = N-10;
-        inicio.estado[1] = 10;
+            inicio.estado[0] = N-10;
+            inicio.estado[1] = 10;
 
-        infect(&Grafo,&inicio,infect_time_pre_vacina,weight,dia_infecao,0,&avg_degree,&W);
-        generate_vacina(&Grafo,&inicio,&centralidade,infect_time_pos_vacina,&W, N, weight,&avg_degree);
-        
-        igraph_matrix_destroy(&W);
-        igraph_vector_int_destroy(&centralidade);
-        free(inicio.rates);
-        free(inicio.dias_hospitalizados);
-        free(inicio.prob_estagio);
-        free(inicio.estagio);
-        free(inicio.vacinado);
-        free(inicio.estado);
-        
-        igraph_destroy(&Grafo);
-        count++;
-        //printf("\e[1;1H\e[2J");
-        if(count%100 == 0)printf("%d/%d\n",count,redes);
+            infect(&Grafo,&inicio,infect_time_pre_vacina,weight,dia_infecao,0,&avg_degree,&W);
+            generate_vacina(&Grafo,&inicio,&centralidade,infect_time_pos_vacina,&W, N, weight,&avg_degree);
+            
+            igraph_matrix_destroy(&W);
+            igraph_vector_int_destroy(&centralidade);
+            free(inicio.rates);
+            free(inicio.dias_hospitalizados);
+            free(inicio.prob_estagio);
+            free(inicio.estagio);
+            free(inicio.vacinado);
+            free(inicio.estado);
+            
+            igraph_destroy(&Grafo);
+            count++;
+            //printf("\e[1;1H\e[2J");
+            if(count%100 == 0)printf("%d/%d\n",count,redes);
+        }
+        if(redes > cut_rede)save_file(infect_time_pos_vacina,infect_time_pre_vacina,&redes,&weight,&N,&p,&estrategy);
+
     }
-    if(redes > cut_rede){
-        save_file(infect_time_pos_vacina,infect_time_pre_vacina,&redes,&weight,&N,&p,&estrategy);
+    else{
+        for (rede = 0; rede < redes; rede++){
+
+            double avg_degree;
+            igraph_vector_int_t centralidade;
+            init_genrand64(rede*estrategy*(weight+1)+seed);
+
+            igraph_matrix_t W;
+            igraph_matrix_init(&W, 0, 0); // Inicializa a matriz sem tamanho específico
+
+            igraph_t Grafo = local_configuration_model( N, p,rede+seed,weight,&avg_degree,&centralidade,estrategy,true,&W);
+            
+            struct INFECCAO inicio;
+            generate_infeccao(&inicio,N);
+
+            infect_init(&inicio,&Grafo,weight,&avg_degree,&W);
+
+            inicio.estado[0] = N-10;
+            inicio.estado[1] = 10;
+
+            infect(&Grafo,&inicio,infect_time_pre_vacina,weight,dia_infecao,0,&avg_degree,&W);
+            generate_vacina(&Grafo,&inicio,&centralidade,infect_time_pos_vacina,&W, N, weight,&avg_degree);
+            
+            igraph_matrix_destroy(&W);
+            igraph_vector_int_destroy(&centralidade);
+            free(inicio.rates);
+            free(inicio.dias_hospitalizados);
+            free(inicio.prob_estagio);
+            free(inicio.estagio);
+            free(inicio.vacinado);
+            free(inicio.estado);
+            
+            igraph_destroy(&Grafo);
+            count++;
+            //printf("\e[1;1H\e[2J");
+            if(count%100 == 0)printf("%d/%d\n",count,redes);
+        }
     }
 
     

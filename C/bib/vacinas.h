@@ -440,17 +440,19 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
 
-            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_OUT);
             double w_i,w_j;
             for ( i = 0; i < N; i++){
+                igraph_matrix_t distance;
+                igraph_matrix_init(&distance, 0, 0);
+                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(),pesos, IGRAPH_OUT);
                 w_i = morte[(int) VECTOR(*faixas)[i]];
                 for (int j = i+1; j < N; j++){
                     w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-                    VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,i,j),d);
-                    VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,i,j),d);
+                    VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,0,j),d);
+                    VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,0,j),d);
                 }
                 VECTOR(gravity)[i] *= w_i;
-                
+                igraph_matrix_destroy(&distance);
             }
             igraph_matrix_destroy(&distance);
             igraph_vector_qsort_ind(&gravity,&centralidade, IGRAPH_DESCENDING);
@@ -488,15 +490,18 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
-            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_OUT);
 
             double Normalized = 0;
             for ( i = 0; i < N; i++){
+                igraph_matrix_t distance;
+                igraph_matrix_init(&distance, 0, 0);
+                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(),pesos, IGRAPH_ALL);
                 for ( int j = i+1; j < N; j++){
                     Normalized += 2.0/(MATRIX(distance,i,j));
-                    VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,i,j));
-                    VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,i,j));
+                    VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,0,j));
+                    VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,0,j));
                 }
+                igraph_matrix_destroy(&distance);
             }
             for ( i = 0; i < N; i++)VECTOR(efficiency)[i] -= Normalized;
             igraph_vector_qsort_ind(&efficiency,&centralidade, IGRAPH_ASCENDING);
@@ -544,20 +549,22 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
 
-            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_OUT);
             double w_i,w_j,Normalized = 0;
             for ( i = 0; i < N; i++){
                 w_i = morte[(int) VECTOR(*faixas)[i]];
+                igraph_matrix_t distance;
+                igraph_matrix_init(&distance, 0, 0);
+                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(),pesos, IGRAPH_OUT);
                 for (int j = i+1; j < N; j++){
                     w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-                    VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,i,j),d);
-                    VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,i,j),d);
-                    Normalized += 2*w_i*w_j/pow(MATRIX(distance,i,j),d);
+                    VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,0,j),d);
+                    VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,0,j),d);
+                    Normalized += 2*w_i*w_j/pow(MATRIX(distance,0,j),d);
                 }
                 VECTOR(Energy)[i] *= w_i;
                 VECTOR(Energy)[i] -= w_i;
                 Normalized += w_i;
-                
+                igraph_matrix_destroy(&distance);
             }
             for ( i = 0; i < N; i++)VECTOR(Energy)[i] = (VECTOR(Energy)[i] + Normalized)/Normalized;
             igraph_matrix_destroy(&distance);
