@@ -312,7 +312,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "wlaplacian":"WCL",
         "coautor":"CO",
         "wcoautor":"WCO",
-        "gravity":"CGR",
+        "gravity1":"CGR",
         "wgravity":"WCGR",
         "gravity2":"CGR2",
         "gravity3":"CGR3",

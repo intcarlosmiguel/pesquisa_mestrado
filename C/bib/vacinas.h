@@ -403,27 +403,31 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 1;
+            double d = 2;
             igraph_vector_init(&gravity, N);
 
 
-            double w_i,w_j;
-            double maior = 0;
-            for ( i = 0; i < N; i++){
+            //omp_set_num_threads(10);
+            //#pragma omp parallel for
+            for ( i = 0; i < N-1; i++){
                 igraph_matrix_t distance;
                 igraph_matrix_init(&distance, 0, 0);
-                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(), IGRAPH_OUT);
-                w_i = morte[(int) VECTOR(*faixas)[i]];
-                for (int j = i+1; j < N; j++){
-                    w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-                    VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,0,j),d);
-                    VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,0,j),d);
+                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N), IGRAPH_OUT);
+                
+                double w_i = morte[(int) VECTOR(*faixas)[i]];
+
+                for (int j = 0; j < N-i-1; j++){
+
+                    double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j+i+1]];
+
+                    double increment = 1.0/ pow(MATRIX(distance,0,j),d);
+                    VECTOR(gravity)[i] += w_j*increment;
+                    //#pragma omp atomic
+                    VECTOR(gravity)[j+i+1] += w_i*increment;
                 }
                 VECTOR(gravity)[i] *= w_i;
-                if(VECTOR(gravity)[i] > maior) maior = VECTOR(gravity)[i];
                 igraph_matrix_destroy(&distance);
             }
-            igraph_vector_scale(&gravity,1./maior);
             igraph_vector_qsort_ind(&gravity,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&gravity);
 
@@ -434,27 +438,25 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            int d = 1;
+            double d = 2;
             igraph_vector_init(&gravity, N);
-
-            igraph_matrix_t distance;
-            igraph_matrix_init(&distance, 0, 0);
-
-            double w_i,w_j;
-            for ( i = 0; i < N; i++){
+            //omp_set_num_threads(10);
+            //#pragma omp parallel for
+            for ( i = 0; i < N-1; i++){
                 igraph_matrix_t distance;
                 igraph_matrix_init(&distance, 0, 0);
-                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(),pesos, IGRAPH_OUT);
-                w_i = morte[(int) VECTOR(*faixas)[i]];
-                for (int j = i+1; j < N; j++){
-                    w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-                    VECTOR(gravity)[i] += w_j/pow(MATRIX(distance,0,j),d);
-                    VECTOR(gravity)[j] += w_i/pow(MATRIX(distance,0,j),d);
+                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N),pesos, IGRAPH_OUT);
+                double w_i = morte[(int) VECTOR(*faixas)[i]];
+                for (int j = 0; j < N-i-1; j++){
+                    double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j+i+1]];
+                    double increment = 1.0/ pow(MATRIX(distance,0,j),d);
+                    VECTOR(gravity)[i] += w_j*increment;
+                    //#pragma omp atomic
+                   VECTOR(gravity)[j+i+1] += w_i*increment;
                 }
                 VECTOR(gravity)[i] *= w_i;
                 igraph_matrix_destroy(&distance);
             }
-            igraph_matrix_destroy(&distance);
             igraph_vector_qsort_ind(&gravity,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&gravity);
 
@@ -467,11 +469,11 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             double Normalized = 0;
             int j;
-            for ( i = 0; i < N; i++){
+            for ( i = 0; i < N-1; i++){
                 igraph_matrix_t distance;
                 igraph_matrix_init(&distance, 0, 0);
-                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(), IGRAPH_OUT);
-                for (j = i+1; j < N; j++){
+                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N), IGRAPH_OUT);
+                for (int j = 0; j < N-i-1; j++){
                     Normalized += 2.0/(MATRIX(distance,0,j));
                     VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,0,j));
                     VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,0,j));
@@ -492,14 +494,18 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             igraph_matrix_init(&distance, 0, 0);
 
             double Normalized = 0;
-            for ( i = 0; i < N; i++){
+            //omp_set_num_threads(10);
+            //#pragma omp parallel for reduction(+:Normalized)
+            for ( i = 0; i < N-1; i++){
                 igraph_matrix_t distance;
                 igraph_matrix_init(&distance, 0, 0);
-                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(),pesos, IGRAPH_ALL);
-                for ( int j = i+1; j < N; j++){
-                    Normalized += 2.0/(MATRIX(distance,i,j));
-                    VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,0,j));
-                    VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,0,j));
+                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N),pesos, IGRAPH_ALL);
+                for (int j = 0; j < N-i-1; j++){
+                    double increment = 2.0 / MATRIX(distance, i, j);
+                    Normalized += increment;
+                    VECTOR(efficiency)[i] -= increment;
+                    //#pragma omp atomic
+                    VECTOR(efficiency)[j] -= increment;
                 }
                 igraph_matrix_destroy(&distance);
             }
@@ -513,16 +519,25 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             igraph_vector_t Energy;
             
-            double d = 1;
+            double d = 3;
             igraph_vector_init(&Energy, N);
+
             double w_i,w_j,Normalized = 0;
-            for ( i = 0; i < N; i++){
+
+            for ( i = 0; i < N-1; i++){
+
                 w_i = morte[(int) VECTOR(*faixas)[i]];
+
                 igraph_matrix_t distance;
+
                 igraph_matrix_init(&distance, 0, 0);
-                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(), IGRAPH_OUT);
-                for (int j = i+1; j < N; j++){
+
+                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N), IGRAPH_OUT);
+
+                for (int j = 0; j < N-i-1; j++){
+
                     w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
+
                     VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,0,j),d);
                     VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,0,j),d);
                     Normalized += 2*w_i*w_j/pow(MATRIX(distance,0,j),d);
@@ -543,21 +558,24 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             igraph_vector_t Energy;
             
-            double d = 1;
+            double d = 3;
             igraph_vector_init(&Energy, N);
 
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
 
-            double w_i,w_j,Normalized = 0;
-            for ( i = 0; i < N; i++){
-                w_i = morte[(int) VECTOR(*faixas)[i]];
+            double Normalized = 0;
+            //omp_set_num_threads(10);
+            //#pragma omp parallel for reduction(+:Normalized)
+            for ( i = 0; i < N-1; i++){
+                double w_i = morte[(int) VECTOR(*faixas)[i]];
                 igraph_matrix_t distance;
                 igraph_matrix_init(&distance, 0, 0);
-                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_all(),pesos, IGRAPH_OUT);
-                for (int j = i+1; j < N; j++){
-                    w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
+                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N),pesos, IGRAPH_OUT);
+                for (int j = 0; j < N-i-1; j++){
+                    double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
                     VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,0,j),d);
+                    //#pragma omp atomic
                     VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,0,j),d);
                     Normalized += 2*w_i*w_j/pow(MATRIX(distance,0,j),d);
                 }

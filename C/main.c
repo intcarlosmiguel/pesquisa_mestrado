@@ -31,12 +31,7 @@ int main(int argc,char *argv[ ]){
     bool weight = atoi(argv[6]);
     generate_infect(N,prob,seed, redes,vacina,weight);
     clock_t fim = clock();
-
     // Calcula a diferença e converte para segundos
     double tempo_gasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-
-    // Exibe o tempo de execução
-    printf(" Tempo gasto: %f minutos\n", tempo_gasto/60/10);
-
     
 }
