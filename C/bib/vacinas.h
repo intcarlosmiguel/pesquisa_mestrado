@@ -403,7 +403,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 2;
+            double d = 1/2;
             igraph_vector_init(&gravity, N);
 
 
@@ -438,7 +438,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 2;
+            double d = 1/2;
             igraph_vector_init(&gravity, N);
             //omp_set_num_threads(10);
             //#pragma omp parallel for
