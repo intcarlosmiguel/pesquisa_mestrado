@@ -297,8 +297,10 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < L; i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                w_i = morte[(int) VECTOR(*faixas)[site1]];
-                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
+                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                w_j = morte[(int) VECTOR(*faixas)[site2]];
+                //w_i = morte[(int) VECTOR(*faixas)[site1]];
+                //w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = VECTOR(*pesos)[(int)i/2];
                 termo_duplo = w_i*w_j*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
                 VECTOR(co_autorship)[site1] += w_j*peso/VECTOR(degrees)[site2] + termo_duplo;
@@ -373,8 +375,10 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
 
-                w_i = morte[(int) VECTOR(*faixas)[site1]];
-                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
+                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                w_j = morte[(int) VECTOR(*faixas)[site2]];
+                //w_i = morte[(int) VECTOR(*faixas)[site1]];
+                //w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = VECTOR(*pesos)[(int)i/2]*(w_i+w_j);
                 x_i[site1] += peso;
                 x_i[site2] += peso;
@@ -403,22 +407,18 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 1/4;
+            double d = 2;
             igraph_vector_init(&gravity, N);
-
-
-            //omp_set_num_threads(10);
-            //#pragma omp parallel for
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
             igraph_distances(Grafo, &distance, igraph_vss_all(), igraph_vss_all(), IGRAPH_ALL);
             for ( i = 0; i < N; i++){
-                
-                double w_i = morte[(int) VECTOR(*faixas)[i]];
+                double w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+                //double w_i = morte[(int) VECTOR(*faixas)[i]];
 
                 for (int j = i+1; j < N; j++){
-
-                    double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
+                    double w_j = morte[(int) VECTOR(*faixas)[j]];
+                    //double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
                     double increment = 1.0/ pow(MATRIX(distance,i,j),d);
                     VECTOR(gravity)[i] += w_j*increment;
                     VECTOR(gravity)[j] += w_i*increment;
@@ -436,24 +436,25 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 1/4;
+            double d = 2;
             igraph_vector_init(&gravity, N);
-            //omp_set_num_threads(10);
-            //#pragma omp parallel for
-            for ( i = 0; i < N-1; i++){
-                igraph_matrix_t distance;
-                igraph_matrix_init(&distance, 0, 0);
-                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N),pesos, IGRAPH_OUT);
-                double w_i = morte[(int) VECTOR(*faixas)[i]];
-                for (int j = 0; j < N-i-1; j++){
-                    double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j+i+1]];
-                    double increment = 1.0/ pow(MATRIX(distance,0,j),d);
+            igraph_matrix_t distance;
+            igraph_matrix_init(&distance, 0, 0);
+            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_ALL);
+            for ( i = 0; i < N; i++){
+                double w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+                //double w_i = morte[(int) VECTOR(*faixas)[i]];
+
+                for (int j = i+1; j < N; j++){
+                    double w_j = morte[(int) VECTOR(*faixas)[j]];
+                    //double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
+                    double increment = 1.0/ pow(MATRIX(distance,i,j),d);
                     VECTOR(gravity)[i] += w_j*increment;
-                    VECTOR(gravity)[j+i+1] += w_i*increment;
+                    VECTOR(gravity)[j] += w_i*increment;
                 }
                 VECTOR(gravity)[i] *= w_i;
-                igraph_matrix_destroy(&distance);
             }
+            igraph_matrix_destroy(&distance);
             igraph_vector_qsort_ind(&gravity,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&gravity);
 

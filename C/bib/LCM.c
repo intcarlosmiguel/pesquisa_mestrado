@@ -55,15 +55,6 @@ double** distribution_faixas(){
     return distribution;
 }
 
-void append_vizinhos(struct Graph *G,int site,int vizinho,int plus){
-    G->viz[site][0]++;
-    G->viz[vizinho][0]++;
-    G->viz[site] = (int*) realloc(G->viz[site],(G->viz[site][0]+1)*sizeof(int));
-    G->viz[vizinho] = (int*) realloc(G->viz[vizinho],(G->viz[vizinho][0]+1)*sizeof(int));
-    G->viz[site][G->viz[site][0]] = plus*vizinho;
-    G->viz[vizinho][G->viz[vizinho][0]] = plus*site;
-}
-
 bool check_repetidos(struct Graph *G,int i,int vizinho){
     for (int j = 0; j < G->viz[i][0]; j++) if(vizinho == abs(G->viz[i][j+1])) return true;
     return false;
@@ -109,7 +100,7 @@ double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas
     return ligacoes_total/G->edges;
 }
 
-struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga,igraph_matrix_t *W){
+struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga){
     int i,vizinho,faixa1;
     double duracao = -1;
     faixa1 = (int) VECTOR(*faixas)[site];
@@ -132,7 +123,6 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
             degree[site][faixa]--;
             degree[vizinho][faixa1]--;
             
-            //append_vizinhos(G,site,vizinho,1);
             igraph_vector_int_push_back(edges, site);
             igraph_vector_int_push_back(edges, vizinho);
 
@@ -145,8 +135,6 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
                 while(duracao < 0) duracao = normalRand(mean[faixa1][faixa],std[faixa1][faixa]);
                 igraph_vector_push_back(pesos, duracao/1440);
                 G->edges += duracao/1440;
-                MATRIX(*W,site,vizinho) = duracao/1440;
-                MATRIX(*W,vizinho,site) = duracao/1440;
             }
             else G->edges += 1;
             duracao = -1;
@@ -170,8 +158,6 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
     G.viz = (int **)malloc(N*sizeof(int*));
     int i = 0,j = 0,k = 0;
 
-    if(weight) igraph_matrix_init(W, N, N); // Inicializa a matriz sem tamanho específico
-    else igraph_matrix_init(W, 0, 0); // Inicializa a matriz sem tamanho específico
     
     G.edges = 0;
 
@@ -281,7 +267,7 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
             seed++;
             if(degree[site][faixa] == 0) continue;
             site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
-            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga,W);
+            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga);
         }
         if(p > 0){
             int **vizinhos = (int**) malloc(5*sizeof(int*));
@@ -310,7 +296,7 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
                         seed++;
                         if(degree[vizinho][faixa] == 0) continue;
                         vizinhos[faixa] = randomize(vizinhos[faixa], q_vizinhos[faixa],seed);
-                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga,W);
+                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga);
                     }
                 }
             }
@@ -337,7 +323,9 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
             }
         }
     }
-    exit(0);
+    if(weight) igraph_matrix_init(W, N, N); // Inicializa a matriz sem tamanho específico
+    else igraph_matrix_init(W, 0, 0); // Inicializa a matriz sem tamanho específico
+    igraph_get_adjacency(&Grafo, W, IGRAPH_GET_ADJACENCY_BOTH, &pesos, IGRAPH_NO_LOOPS);
     for (i = 0; i < G.Nodes; i++){
         free(G.viz[i]);
         free(degree[i]);
