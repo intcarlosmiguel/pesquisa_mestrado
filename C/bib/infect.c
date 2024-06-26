@@ -409,7 +409,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     int i,j,k;
     char arquivo[800];
     char arquivo2[800];
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","coautor","altruista-wcoautor","laplacian","altruista-wlaplacian","altruista-gravity2","altruista-wgravity2","efficiency","wefficiency","energy1","wenergy"};
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","coautor","altruista-wcoautor","laplacian","altruista-wlaplacian","altruista-gravity-5","altruista-wgravity-5","efficiency","wefficiency","energy1","wenergy"};
 
     for (i = 0; i < infecao_total; i++)
         for (j = 0; j < q_resultados; j++) 

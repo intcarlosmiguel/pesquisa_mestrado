@@ -407,7 +407,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 2;
+            double d = 1/5;
             igraph_vector_init(&gravity, N);
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
@@ -436,7 +436,7 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 2;
+            double d = 1/5;
             igraph_vector_init(&gravity, N);
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);

@@ -278,13 +278,111 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.savefig("./img/map.jpg")
     plt.show()
 
-def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 0.0,ploting = False):
+def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0,ploting = False):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
-    df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd)])
+    df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
     integral = []
+    #fig = go.Figure()
+    arquivo = {
+        "kshell":"CK",
+        "eigenvector":"CA",
+        "clustering":"CC",
+        "idade":"CI",
+        "grau":"CG",
+        "harmonic":"CH",
+        "random":"CR",
+        "close":"CP",
+        "eccentricity":"CE",
+        "betwenness":"CB",
+        "graumorte":"GM",
+        "probmortepassin":"PMA",
+        "probhospassin":"PHA",
+        "probhosp":"PH",
+        "probmorte":"PM",
+        "pagerank":"PR",
+        "wbetwenness":"CBW",
+        "wclose":"CPW",
+        "weigenvector":"CAW",
+        "wpagerank":"PRW",
+        "wharmonic":"CHW",
+        "laplacian":"CL",
+        "wlaplacian":"WCL",
+        "coautor":"CO",
+        "wcoautor":"WCO",
+        "gravity":"CGR",
+        "wgravity":"WCGR",
+        "gravity2":"CGR2",
+        "gravity3":"CGR3",
+        "gravity4":"CGR4",
+        "gravity5":"CGR5",
+        "gravity-2":"CGR1/2",
+        "gravity-3":"CGR1/3",
+        "gravity-4":"CGR1/4",
+        "gravity-5":"CGR1/5",
+        'altruista-laplacian':'A-CL',
+        "altruista-gravity":"A-CGR",
+        "altruista-wgravity":"A-WCGR",
+        "altruista-gravity2":"A-CGR2",
+        "altruista-gravity3":"A-CGR3",
+        "altruista-gravity4":"A-CGR4",
+        "altruista-gravity5":"A-CGR5",
+        "altruista-gravity-2":"A-CGR1/2",
+        "altruista-gravity-3":"A-CGR1/3",
+        "altruista-gravity-4":"A-CGR1/4",
+        "altruista-gravity-5":"A-CGR1/5",
+        'altruista-coautor':'A-CO',
+        "wgravity2":"WCGR2",
+        "efficiency":"CF",
+        "wefficiency":"WCF",
+        "energy4":"CEN4",
+        "energy3":"CEN3",
+        "energy2":"CEN2",
+        "energy5":"CEN5",
+        "energy1":"CEN1",
+        "energy-5":"CEN1/5",
+        "energy-4":"CEN1/4",
+        "energy-3":"CEN1/3",
+        "energy-2":"CEN1/2",
+        "energy-5":"CEN1/5",
+    }
+    ylabel = []
+    df = df[df['Clustering'] == clustering]
+    corr = np.array([])
+    n = False
+    texto = []
+
+    for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
+        texto.append(estrategy)
+        infect = np.loadtxt(file).T
+        tempo = np.arange(100.01)/100
+        if(not n):
+            corr = np.copy(infect[1:,1:])
+            n = True
+        else:
+            np.concatenate((corr, infect[1:,:]), axis=1)
+        y = infect[plot]
+        if(plot!= 3):
+            integral.append(np.dot(y, 0.01*np.ones(len(y))))
+        else:
+            integral.append(tempo[y ==0][0])
+        ylabel.append(arquivo[estrategy])
+    
+    integral = np.array(integral)
+    ylabel = np.array(ylabel)
+    texto = np.array(texto)
+
+    return integral[np.argsort(texto)],texto[np.argsort(texto)]
+
+def make_plot(x,soma,texto,N,ponderado,p,titulo):
+    cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
+    df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
+    df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
+    filter = ['random','idade'] + [(texto[np.argsort(x)][0])]+ [(texto[np.argsort(soma)][0])]
+    df_filtrado = df[df['Estratégia'].isin(filter)]
+    df_filtrado = df_filtrado[df_filtrado["Clustering"] == p]
     fig = go.Figure()
     arquivo = {
         "kshell":"CK",
@@ -312,7 +410,7 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "wlaplacian":"WCL",
         "coautor":"CO",
         "wcoautor":"WCO",
-        "gravity1":"CGR",
+        "gravity":"CGR",
         "wgravity":"WCGR",
         "gravity2":"CGR2",
         "gravity3":"CGR3",
@@ -322,6 +420,18 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "gravity-3":"CGR1/3",
         "gravity-4":"CGR1/4",
         "gravity-5":"CGR1/5",
+        'altruista-laplacian':'A-CL',
+        "altruista-gravity":"A-CGR",
+        "altruista-wgravity":"A-WCGR",
+        "altruista-gravity2":"A-CGR2",
+        "altruista-gravity3":"A-CGR3",
+        "altruista-gravity4":"A-CGR4",
+        "altruista-gravity5":"A-CGR5",
+        "altruista-gravity-2":"A-CGR1/2",
+        "altruista-gravity-3":"A-CGR1/3",
+        "altruista-gravity-4":"A-CGR1/4",
+        "altruista-gravity-5":"A-CGR1/5",
+        'altruista-coautor':'A-CO',
         "wgravity2":"WCGR2",
         "efficiency":"CF",
         "wefficiency":"WCF",
@@ -336,27 +446,10 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
         "energy-2":"CEN1/2",
         "energy-5":"CEN1/5",
     }
-    ylabel = []
-    df = df[df['Clustering'] == clustering]
-    corr = np.array([])
-    n = False
-    texto = []
-    last = []
-    for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
-        texto.append(estrategy)
+    for estrategy,file in zip(df_filtrado['Estratégia'].values,df_filtrado['Files'].values):
         infect = np.loadtxt(file).T
         tempo = np.arange(100.01)/100
-        if(not n):
-            corr = np.copy(infect[1:,1:])
-            n = True
-        else:
-            np.concatenate((corr, infect[1:,:]), axis=1)
-        y = infect[plot]
-        #last.append(tempo[y == 0 ][0])
-        if(plot!= 3):
-            integral.append(np.dot(y, 0.01*np.ones(len(y))))
-        else:
-            integral.append(tempo[y ==0][0])
+        y = infect[0]
         fig.add_trace(
             go.Scatter(
                 x=tempo[tempo > 0], 
@@ -365,29 +458,18 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
                 name=arquivo[estrategy],
                 marker=dict(
                     size = 5,
-                    #color = cores[file.split("_")[2]]
                 ),
                 error_y=dict(
-                    type='data',  # Ajuste para 'percent' se desejar barras de erro em percentagem
-                    #array=infect[3 if(plot ==0) else 4]/np.sqrt(200),
-                    visible = erro == 1
+                    type='data',
                 ),
-                #opacity = 1.0 if(arquivo[file.split("_")[2]] == "CR" or arquivo[file.split("_")[2]] == "CI" or arquivo[file.split("_")[2]] == "CC") else 0.3,
             )
         )
-        #M.append(y[np.argsort(infect[0])][np.arange(1,101)%10 == 0])
-        ylabel.append(arquivo[estrategy])
-    titulo = {
-        0:"Fração de Mortos",
-        1: "Tempo hospitalizado",
-        2: "Infectados"
-    }
     fig.update_layout(
         width=800,  # Largura do gráfico em pixels
         height=800,  # Altura do gráfico em pixels
         xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=20)),
         #xaxis=dict(),
-        yaxis=dict(title=titulo[plot],tickfont=dict(size=20)),
+        yaxis=dict(title=titulo,tickfont=dict(size=20)),
         template = "seaborn",
         #paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
@@ -398,98 +480,8 @@ def generate_vacinado(plot = 0,erro = 0,N = 7189,ponderado = False,clustering = 
     )
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
-    if(ploting):
-        fig.show()
-    integral = np.array(integral)
-    a = np.argsort(last)
-    ylabel = np.array(ylabel)
-    #print(ylabel[a][:10])
-    #print(integral[np.argsort(integral)])
-    print(ylabel[np.argsort(integral)])
-    return integral[np.argsort(texto)]
 
-    """ if(erro == 0):
-        fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}0.png")
-    else:
-        fig.write_image(f"./img/infect/vacinas_{tit}_{clustering}_{'ponderado' if(ponderado) else 'nponderado'}_erro.png") """
-    """"
-    #print(integral)
-    #plt.figure(figsize=(15,7),dpi=500)
-    arquivo = {
-        "kshell":"CK",
-        "eigenvector":"CA",
-        "clustering":"CC",
-        "idade":"CI",
-        "grau":"CG",
-        "harmonic":"CH",
-        "random":"CR",
-        "close":"CP",
-        "eccentricity":"CE",
-        "betweenness":"CB"
-    }
-
-    integral = np.array(integral)
-    arr = np.argsort(integral)
-
-    bar = go.Figure()
-    bar.add_trace(
-        go.Bar(
-            x=[arquivo[i] for i in np.array(nomes)[arr][:10]],  # Categorias no eixo X
-            y=integral[arr][:10],  # Valores no eixo Y
-            text=np.round(integral[arr][:10],4),  # Texto exibido no topo de cada barra
-            textposition='auto'  # Posição do texto ('auto' para escolher automaticamente a melhor posição)
-        )
-    )
-    bar.update_layout(
-        width=800,  # Largura do gráfico em pixels
-        height=600,  # Altura do gráfico em pixels
-        xaxis=dict(title='Estratégia'),
-        yaxis=dict(title='Integral'),
-        template = "seaborn"
-    )
-
-    #bar.show()
-    bar.write_image(f'./img/infect/vacinas_bar_{tit}_{c}0.png')
-
-    df = pd.DataFrame(df)
-    matriz_correlacao = df.corr().T
-    heat = go.Figure(data=go.Heatmap(
-        z=matriz_correlacao.values,  # Os valores para o heatmap
-        x=matriz_correlacao.columns,  # Rótulos do eixo X (colunas do DataFrame)
-        y=matriz_correlacao.index,  # Rótulos do eixo Y (índices do DataFrame)
-        colorscale='Cividis_r', 
-    ))
-    annotations = []
-    for i in range(len(matriz_correlacao.index)):
-        for j in range(len(matriz_correlacao.index)):
-            annotations.append(dict(x=matriz_correlacao.index[j], 
-                                    y=matriz_correlacao.index[i],
-                                    text=str(np.round(matriz_correlacao.values[i, j], 2)),
-                                    showarrow=False,
-                                    font=dict(color='white' if(matriz_correlacao.values[i, j] > np.max(matriz_correlacao)*0.95) else 'black' )))
-
-    heat.update_layout(
-        width=800,  # Largura do gráfico em pixels
-        height=800,  # Altura do gráfico em pixels
-        #xaxis=dict(title='Tempo'),
-        #xaxis=dict(),
-        #yaxis=dict(title='Fração'),
-        #template = "seaborn"
-        annotations = annotations
-    )
-    M = np.array(M)
-    ylabel = np.array(ylabel)
-    arr = np.argsort(integral)[::-1]
-    # Mostrar o heatmap
-    heat_map(
-        M[arr],
-        np.arange(1,101)[np.arange(1,101)%10 == 0]/100,
-        ylabel[arr],
-        f'/infect/vacinas_heat_{tit}_{c}0',
-        'Fração de Vacinados',
-        'Estratégias',
-        4,
-    ) """
+    fig.show()
     
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
 
@@ -1027,7 +1019,7 @@ def infectados_plot(N,ponderado):
         #xaxis=dict(),
         yaxis=dict(title='Fração',tickfont=dict(size=15)),
         template = "seaborn",
-        #paper_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
             #family="Courier New, monospace",
             size=15,
@@ -1048,10 +1040,10 @@ def mortos_hosp_plot(ponderado,infect):
     }
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Hospitalizados', 'Mortos'))
 
-    fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Hospitalizados'][:-30], mode='markers', showlegend = False ), row=1, col=1)
+    fig.add_trace(go.Scatter(x=dados['Tempo'][:], y=dados['Hospitalizados'][:], mode='markers', showlegend = False ), row=1, col=1)
 
     # Adicionando a reta de regressão ao segundo subgráfico
-    fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines', showlegend = False), row=1, col=2)
+    fig.add_trace(go.Scatter(x=dados['Tempo'][:], y=dados['Mortos'][:], mode='lines', showlegend = False), row=1, col=2)
 
     # Layout dos subgráficos
     fig.update_layout(
@@ -1061,7 +1053,7 @@ def mortos_hosp_plot(ponderado,infect):
         #xaxis=dict(),
         yaxis=dict(title='Fração',tickfont=dict(size=15)),
         template = "seaborn",
-        #paper_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
             #family="Courier New, monospace",
             size=15,
@@ -1106,7 +1098,7 @@ def compara_ponderacao(N,n):
         #xaxis=dict(),
         yaxis=dict(title='Fração',tickfont=dict(size=15)),
         template = "seaborn",
-        #paper_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
         title = titulo[n],
         margin=dict(l=s, r=s, t=s+20, b=s),
         font=dict(
@@ -1115,7 +1107,7 @@ def compara_ponderacao(N,n):
             #color="RebeccaPurple"
         ),
     )
-    
+    #fig.write_image(f"./img/infect/compara_ponderado_nponderado.png")
     fig.show()
 def vacina_infect(
         N = 7189,
@@ -1299,4 +1291,4 @@ def compara_probability(N,ponderado):
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
-    #fig.write_image('./img/infect/pre_vacina_mortos_p.png')
+    fig.write_image('./img/infect/pre_vacina_mortos_p.png')
