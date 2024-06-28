@@ -311,7 +311,9 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0,ploti
         "laplacian":"CL",
         "wlaplacian":"WCL",
         "coautor":"CO",
-        "wcoautor":"WCO",
+        "wcoautor":"WUT",
+        "altruista-wcoautor":"A-WUT",
+        "altruista-wlaplacian":"A-WCL",
         "gravity":"CGR",
         "wgravity":"WCGR",
         "gravity2":"CGR2",
@@ -322,6 +324,16 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0,ploti
         "gravity-3":"CGR1/3",
         "gravity-4":"CGR1/4",
         "gravity-5":"CGR1/5",
+
+        "wgravity2":"WCGR2",
+        "wgravity3":"WCGR3",
+        "wgravity4":"WCGR4",
+        "wgravity5":"WCGR5",
+        "wgravity-2":"WCGR1/2",
+        "wgravity-3":"WCGR1/3",
+        "wgravity-4":"WCGR1/4",
+        "wgravity-5":"WCGR1/5",
+
         'altruista-laplacian':'A-CL',
         "altruista-gravity":"A-CGR",
         "altruista-wgravity":"A-WCGR",
@@ -333,20 +345,22 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0,ploti
         "altruista-gravity-3":"A-CGR1/3",
         "altruista-gravity-4":"A-CGR1/4",
         "altruista-gravity-5":"A-CGR1/5",
+
+        "altruista-wgravity":"A-WCGR",
+        "altruista-wgravity2":"A-WCGR2",
+        "altruista-wgravity3":"A-WCGR3",
+        "altruista-wgravity4":"A-WCGR4",
+        "altruista-wgravity5":"A-WCGR5",
+        "altruista-wgravity-2":"A-WCGR1/2",
+        "altruista-wgravity-3":"A-WCGR1/3",
+        "altruista-wgravity-4":"A-WCGR1/4",
+        "altruista-wgravity-5":"A-WCGR1/5",
+
         'altruista-coautor':'A-CO',
         "wgravity2":"WCGR2",
         "efficiency":"CF",
         "wefficiency":"WCF",
-        "energy4":"CEN4",
-        "energy3":"CEN3",
-        "energy2":"CEN2",
-        "energy5":"CEN5",
-        "energy1":"CEN1",
-        "energy-5":"CEN1/5",
-        "energy-4":"CEN1/4",
-        "energy-3":"CEN1/3",
-        "energy-2":"CEN1/2",
-        "energy-5":"CEN1/5",
+        
     }
     ylabel = []
     df = df[df['Clustering'] == clustering]
@@ -373,17 +387,16 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0,ploti
     integral = np.array(integral)
     ylabel = np.array(ylabel)
     texto = np.array(texto)
+    x = integral[np.argsort(texto)]
+    return (x - np.min(x))/(np.max(x) - np.min(x)),texto[np.argsort(texto)]
 
-    return integral[np.argsort(texto)],texto[np.argsort(texto)]
-
-def make_plot(x,soma,texto,N,ponderado,p,titulo):
+def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,legenda,coluna,eixo):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
     df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     filter = ['random','idade'] + [(texto[np.argsort(x)][0])]+ [(texto[np.argsort(soma)][0])]
     df_filtrado = df[df['Estratégia'].isin(filter)]
     df_filtrado = df_filtrado[df_filtrado["Clustering"] == p]
-    fig = go.Figure()
     arquivo = {
         "kshell":"CK",
         "eigenvector":"CA",
@@ -409,7 +422,9 @@ def make_plot(x,soma,texto,N,ponderado,p,titulo):
         "laplacian":"CL",
         "wlaplacian":"WCL",
         "coautor":"CO",
-        "wcoautor":"WCO",
+        "wcoautor":"WUT",
+        "altruista-wcoautor":"A-WUT",
+        "altruista-wlaplacian":"A-WCL",
         "gravity":"CGR",
         "wgravity":"WCGR",
         "gravity2":"CGR2",
@@ -420,6 +435,16 @@ def make_plot(x,soma,texto,N,ponderado,p,titulo):
         "gravity-3":"CGR1/3",
         "gravity-4":"CGR1/4",
         "gravity-5":"CGR1/5",
+
+        "wgravity2":"WCGR2",
+        "wgravity3":"WCGR3",
+        "wgravity4":"WCGR4",
+        "wgravity5":"WCGR5",
+        "wgravity-2":"WCGR1/2",
+        "wgravity-3":"WCGR1/3",
+        "wgravity-4":"WCGR1/4",
+        "wgravity-5":"WCGR1/5",
+
         'altruista-laplacian':'A-CL',
         "altruista-gravity":"A-CGR",
         "altruista-wgravity":"A-WCGR",
@@ -431,57 +456,65 @@ def make_plot(x,soma,texto,N,ponderado,p,titulo):
         "altruista-gravity-3":"A-CGR1/3",
         "altruista-gravity-4":"A-CGR1/4",
         "altruista-gravity-5":"A-CGR1/5",
+
+        "altruista-wgravity":"A-WCGR",
+        "altruista-wgravity2":"A-WCGR2",
+        "altruista-wgravity3":"A-WCGR3",
+        "altruista-wgravity4":"A-WCGR4",
+        "altruista-wgravity5":"A-WCGR5",
+        "altruista-wgravity-2":"A-WCGR1/2",
+        "altruista-wgravity-3":"A-WCGR1/3",
+        "altruista-wgravity-4":"A-WCGR1/4",
+        "altruista-wgravity-5":"A-WCGR1/5",
+
         'altruista-coautor':'A-CO',
         "wgravity2":"WCGR2",
         "efficiency":"CF",
         "wefficiency":"WCF",
-        "energy4":"CEN4",
-        "energy3":"CEN3",
-        "energy2":"CEN2",
-        "energy5":"CEN5",
-        "energy1":"CEN1",
-        "energy-5":"CEN1/5",
-        "energy-4":"CEN1/4",
-        "energy-3":"CEN1/3",
-        "energy-2":"CEN1/2",
-        "energy-5":"CEN1/5",
+        
     }
-    for estrategy,file in zip(df_filtrado['Estratégia'].values,df_filtrado['Files'].values):
+    cores = ['#264653','#2a9d8f','#e76f51','#f4a261']
+    filter = np.array(filter)
+    if(filter[-1] == filter[-2]):
+        filter = filter[:-1]
+    print(filter)
+    df_filtrado['Estratégia'] = pd.Categorical(df_filtrado['Estratégia'], categories=filter, ordered=True)
+    # Ordenando o DataFrame pela coluna 'nome' na ordem do vetor
+    df_filtrado = df_filtrado.sort_values(by='Estratégia')
+
+    # Redefinindo os índices do DataFrame ordenado
+    df_filtrado.reset_index(drop=True, inplace=True)
+    # Adicionando a última linha ao DataFrame
+    text = ['Aleatório','Idade','Melhor no Parâmetro','Melhor em Média']
+    showlegend = ((len(filter) == 4) and (legenda))
+    for estrategy,file,cor,t in zip(df_filtrado['Estratégia'].values,df_filtrado['Files'].values,cores,text):
         infect = np.loadtxt(file).T
         tempo = np.arange(100.01)/100
-        y = infect[0]
+        y = infect[coluna]
         fig.add_trace(
             go.Scatter(
                 x=tempo[tempo > 0], 
                 y=y[tempo > 0], 
-                mode='markers', 
-                name=arquivo[estrategy],
+                mode='markers',     
+                name=t,
                 marker=dict(
-                    size = 5,
+                    size = 7,
                 ),
                 error_y=dict(
                     type='data',
                 ),
-            )
+                showlegend=((len(filter) == 4) and (legenda)),
+                line=dict(color=cor)
+            ),
+            row=row,
+            col=col,
         )
-    fig.update_layout(
-        width=800,  # Largura do gráfico em pixels
-        height=800,  # Altura do gráfico em pixels
-        xaxis=dict(title='Fração de Vacinados',tickfont=dict(size=20)),
-        #xaxis=dict(),
-        yaxis=dict(title=titulo,tickfont=dict(size=20)),
-        template = "seaborn",
-        #paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(
-            #family="Courier New, monospace",
-            size=25,
-            #color="RebeccaPurple"
-        ),
-    )
-    s = 20
-    fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
-
-    fig.show()
+    if(showlegend):
+        legenda = False
+    fig.update_yaxes(title_text=eixo, row=row, col=col)
+    fig.update_xaxes(title_text='f', row=row, col=col)
+    return fig,legenda
+    
     
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
 
