@@ -278,9 +278,9 @@ def adj(df,contacts,contacts02,Nmortos):
     plt.savefig("./img/map.jpg")
     plt.show()
 
-def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0,ploting = False):
+def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
-    df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
+    df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
     #cores = ["#"+i for i in cores]
@@ -1061,8 +1061,8 @@ def infectados_plot(N,ponderado):
     )
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
-    fig.show()
     fig.write_image(f"./img/infect/pre_vacina_{'ponderado' if(ponderado) else 'nponderado'}.png")
+    fig.show()
     return infect
 
 def mortos_hosp_plot(ponderado,infect):
@@ -1089,7 +1089,7 @@ def mortos_hosp_plot(ponderado,infect):
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
             #family="Courier New, monospace",
-            size=15,
+            size=16,
             #color="RebeccaPurple"
         ),
     )
@@ -1140,7 +1140,7 @@ def compara_ponderacao(N,n):
             #color="RebeccaPurple"
         ),
     )
-    #fig.write_image(f"./img/infect/compara_ponderado_nponderado.png")
+    fig.write_image(f"./img/infect/compara_ponderado_nponderado.png")
     fig.show()
 def vacina_infect(
         N = 7189,
@@ -1286,7 +1286,7 @@ def vacina_infect(
 def compara_probability(N,ponderado):
 
     files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/")]
-    fig = make_subplots(rows=1, cols=2, subplot_titles=('Hospitalizados', 'Mortos'))
+    fig = make_subplots(rows=1, cols=2, subplot_titles=('Expostos', 'Mortos'))
     cores = px.colors.qualitative.Dark24
     for file,cor in zip(files,cores):
         infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/{file}").T
@@ -1299,7 +1299,7 @@ def compara_probability(N,ponderado):
         dados = pd.DataFrame(dados)
         
 
-        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Expostos'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Expostos'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor),showlegend=False), row=1, col=1)
 
         # Adicionando a reta de regressão ao segundo subgráfico
         fig.add_trace(go.Scatter(x=dados['Tempo'][:-30], y=dados['Mortos'][:-30], mode='lines',marker =dict(size = 2),name = f"p = {file.split('_')[1][:4]}",line=dict(color=cor)), row=1, col=2)
@@ -1310,7 +1310,7 @@ def compara_probability(N,ponderado):
         xaxis=dict(title='Tempo'),
         #xaxis=dict(),
         yaxis=dict(title='Fração'),
-        #paper_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
         template = "seaborn",
         font=dict(
             #family="Courier New, monospace",
@@ -1323,5 +1323,5 @@ def compara_probability(N,ponderado):
     fig.update_xaxes(title_text='Tempo',tickfont=dict(size=15), row=1, col=2)
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
+    fig.write_image(f"./img/infect/pre_vacina_mortos_p_{'ponderado' if(ponderado)  else 'nponderado'}.png")
     fig.show()
-    fig.write_image('./img/infect/pre_vacina_mortos_p.png')

@@ -3,7 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "/home/miguel/igraph/**"
+                "/home/carlos/igraph/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -418,8 +418,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     if(*weight)sprintf(arquivo,"./output/time/%d/ponderado/p/infect_%.2f.txt",(int)*N,*p);
     else sprintf(arquivo,"./output/time/%d/nponderado/p/infect_%.2f.txt",(int)*N,*p);
 
-    if(!fileExists(arquivo)) generate_file(arquivo,infect_time_pos_vacina[0],infecao_total,q_resultados,sizeof(double),0,"w");
-
+    generate_file(arquivo,infect_time_pre_vacina,infecao_total,q_resultados,sizeof(double),0,"w");
     double f;
 
     if(*weight) sprintf(arquivo2,"./output/vacina/%d/ponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
@@ -439,7 +438,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
                 if(*weight) sprintf(arquivo,"./output/time/%d/ponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
                 else sprintf(arquivo,"./output/time/%d/nponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
 
-                generate_file(arquivo,infect_time_pos_vacina[k],final,q_resultados,sizeof(double),0,"w");
+                //generate_file(arquivo,infect_time_pos_vacina[k],final,q_resultados,sizeof(double),0,"w");
 
             }
         }

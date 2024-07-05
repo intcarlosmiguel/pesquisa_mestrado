@@ -1,3 +1,5 @@
 {
-    "julia.environmentPath": "/home/miguel/Downloads/Code/Github/pesquisa_mestrado"
+    "julia.environmentPath": "/home/miguel/Downloads/Code/Github/pesquisa_mestrado",
+    "CodeGPT.apiKey": "CodeGPT Plus Beta",
+    "CodeGPT.Autocomplete.enabled": true
 }
