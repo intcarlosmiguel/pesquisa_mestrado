@@ -282,10 +282,7 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
     df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
-    #cores = ["darkred","lightseagreen","darkolivegreen",'red','darkorange','royalblue','navy','purple','darkseagreen']
-    #cores = ["#"+i for i in cores]
     integral = []
-    #fig = go.Figure()
     arquivo = {
         "kshell":"CK",
         "eigenvector":"CA",
@@ -514,7 +511,59 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,legenda,coluna,eixo):
     fig.update_yaxes(title_text=eixo, row=row, col=col)
     fig.update_xaxes(title_text='f', row=row, col=col)
     return fig,legenda
-    
+
+def set_labels(ax,new_labels):
+    ax.set_xticks(np.arange(len(new_labels)))
+    ax.set_yticks(np.arange(len(new_labels)))
+    ax.set_xticklabels(new_labels,fontsize = 30)
+    ax.set_yticklabels(new_labels,fontsize = 30)
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+
+def add_heatmap_values(ax, im, data):
+    Z = (data - np.min(data))/(np.max(data) - np.min(data))
+    for i in range(len(data)):
+        for j in range(len(data)):
+            text = ax.text(j, i, f"{data[i, j]:.2f}",ha="center", va="center", color="w" if Z[i, j] > 0.2 else 'k',fontsize = 25)
+
+def make_heat_prob(value,axes,ponderado,title,labels):
+
+    x00,texto1 = generate_vacinado(value,10000,ponderado,0.)
+    x25,texto2 = generate_vacinado(value,10000,ponderado,0.25)
+    x50,_ = generate_vacinado(value,10000,ponderado,0.50)
+    x75,_ = generate_vacinado(value,10000,ponderado,0.75)
+    x100,_ = generate_vacinado(value,10000,ponderado,1.00)
+    M = np.array([x00,x25,x50,x75,x100])
+    data =pd.DataFrame(M.T)
+
+    correlation_matrix = data.corr(method='spearman')
+    correlation_matrix = np.array(correlation_matrix)
+
+    heatmap1 = axes.imshow(correlation_matrix, cmap='bone_r', aspect='auto')
+    axes.set_title(title,fontsize = 30)
+    add_heatmap_values(axes, heatmap1, correlation_matrix)
+    set_labels(axes,labels)
+    return axes
+
+def make_heat(axes,p,ponderado,title,labels):
+
+    x0,_ = generate_vacinado(0,10000,ponderado, clustering= p)
+    #print('Tempo hospitalizado:')
+    x1,_ = generate_vacinado(1,10000,ponderado, clustering= p)
+    #print('Fração de vacinação para exinguir a doença:')
+    x2,_ = generate_vacinado(2,10000,ponderado, clustering= p)
+
+    M = np.array([x0,x1,x2])
+    data =pd.DataFrame(M.T)
+
+    correlation_matrix = data.corr(method='spearman')
+    correlation_matrix = np.array(correlation_matrix)
+
+    heatmap1 = axes.imshow(correlation_matrix, cmap='inferno_r', aspect='auto')
+    axes.set_title(title,fontsize = 30)
+    add_heatmap_values(axes, heatmap1, correlation_matrix)
+    set_labels(axes,labels)
+    return axes
+
     
 def generate_3D_graph(plot = 0,color = 'orange',cmap = 'bone_r'):
 
@@ -1325,3 +1374,429 @@ def compara_probability(N,ponderado):
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.write_image(f"./img/infect/pre_vacina_mortos_p_{'ponderado' if(ponderado)  else 'nponderado'}.png")
     fig.show()
+
+
+def compara_weight(N,p):
+    arquivo = {
+        "kshell":"CK",
+        "eigenvector":"CA",
+        "clustering":"CC",
+        "idade":"CI",
+        "grau":"CG",
+        "harmonic":"CH",
+        "random":"CR",
+        "close":"CP",
+        "eccentricity":"CE",
+        "betwenness":"CB",
+        "graumorte":"GM",
+        "probmortepassin":"PMA",
+        "probhospassin":"PHA",
+        "probhosp":"PH",
+        "probmorte":"PM",
+        "pagerank":"PR",
+        "wbetwenness":"WCB",
+        "wclose":"WCP",
+        "weigenvector":"WCA",
+        "wpagerank":"WPR",
+        "wharmonic":"WCH",
+        "laplacian":"CL",
+        "wlaplacian":"WCL",
+        "coautor":"UT",
+        "wcoautor":"WUT",
+        "altruista-wcoautor":"A-WUT",
+        "altruista-wlaplacian":"A-WCL",
+        "gravity":"CGR",
+        "wgravity":"WCGR",
+        "gravity2":"CGR2",
+        "gravity3":"CGR3",
+        "gravity4":"CGR4",
+        "gravity5":"CGR5",
+        "gravity-2":"CGR1/2",
+        "gravity-3":"CGR1/3",
+        "gravity-4":"CGR1/4",
+        "gravity-5":"CGR1/5",
+
+        "wgravity2":"WCGR2",
+        "wgravity3":"WCGR3",
+        "wgravity4":"WCGR4",
+        "wgravity5":"WCGR5",
+        "wgravity-2":"WCGR1/2",
+        "wgravity-3":"WCGR1/3",
+        "wgravity-4":"WCGR1/4",
+        "wgravity-5":"WCGR1/5",
+
+        'altruista-laplacian':'A-CL',
+        "altruista-gravity":"A-CGR",
+        "altruista-wgravity":"A-WCGR",
+        "altruista-gravity2":"A-CGR2",
+        "altruista-gravity3":"A-CGR3",
+        "altruista-gravity4":"A-CGR4",
+        "altruista-gravity5":"A-CGR5",
+        "altruista-gravity-2":"A-CGR1/2",
+        "altruista-gravity-3":"A-CGR1/3",
+        "altruista-gravity-4":"A-CGR1/4",
+        "altruista-gravity-5":"A-CGR1/5",
+
+        "altruista-wgravity":"A-WCGR",
+        "altruista-wgravity2":"A-WCGR2",
+        "altruista-wgravity3":"A-WCGR3",
+        "altruista-wgravity4":"A-WCGR4",
+        "altruista-wgravity5":"A-WCGR5",
+        "altruista-wgravity-2":"A-WCGR1/2",
+        "altruista-wgravity-3":"A-WCGR1/3",
+        "altruista-wgravity-4":"A-WCGR1/4",
+        "altruista-wgravity-5":"A-WCGR1/5",
+
+        'altruista-coautor':'A-UT',
+        "wgravity2":"WCGR2",
+        "efficiency":"CF",
+        "wefficiency":"WCF",
+        
+    }
+    cmd = f"./C/output/vacina/{N}/ponderado/"
+    df = np.array([[arquivo[i.split("_")[0]],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
+    df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
+    df = df[df['Clustering'] == p].reset_index(drop=True)
+
+    with_w = list(df[df['Estratégia'].str.contains('W')]['Estratégia'])
+
+    resultado_w = df[df['Estratégia'].isin(with_w)].reset_index(drop=True)
+
+    non_w = []
+    for i in df[df['Estratégia'].isin(with_w)]['Estratégia']:
+        non_w.append(i.split('W')[0]+i.split('W')[1])
+
+    resultado = df[df['Estratégia'].isin(non_w)].copy()
+
+    # Ordenar o resultado de acordo com a ordem do vetor
+    resultado['Estratégia'] = pd.Categorical(resultado['Estratégia'], categories=non_w, ordered=True)
+    resultado = resultado.sort_values('Estratégia').reset_index(drop=True)
+
+    if(len(non_w) == len(with_w)):
+        all_ = []
+        all_w = []
+
+        for i,j in zip(resultado['Files'],resultado_w['Files']):
+            infect = np.loadtxt(i)
+            infect_w = np.loadtxt(j)
+            tempo = np.arange(100.01)/100
+            all_.append(list(np.dot(infect[:,:2].T,tempo)) + [tempo[infect.T[2] ==0][0]])
+            all_w.append(list(np.dot(infect_w[:,:2].T,tempo)) + [tempo[infect_w.T[2] ==0][0]])
+        all_ = np.array(all_)
+        all_w = np.array(all_w)
+
+        data = {
+            'Estratégia': resultado['Estratégia'],
+            'Fração de Mortos': (all_w[:,0] - all_[:,0])/all_[:,0],
+            'Tempo Hospitalizado': (all_w[:,1] - all_[:,1])/all_[:,1],
+            'Fração de Infectados': (all_w[:,2] - all_[:,2])/all_[:,2],
+        }
+        data = pd.DataFrame(data)
+
+        fig = make_subplots(rows=3, cols=1,vertical_spacing=0.05, subplot_titles=('Fração de Mortos', 'Tempo Total Hospitalizado', 'Fração de Imunização Necessária'))
+
+        fig.add_trace(go.Bar(x=data['Estratégia'], y=data['Fração de Mortos'], name='Fração de Mortos',marker_color='#e1a79e', marker_line_color='rgb(8,48,107)',marker_line_width=1.5), row=1, col=1)
+        fig.add_trace(
+            go.Bar(
+                x=data['Estratégia'], 
+                y=data['Tempo Hospitalizado'],
+                marker_color='rgb(158,202,225)', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5,
+            ),
+            row=2,
+            col=1
+        )
+        fig.add_trace(
+            go.Bar(
+                x=data['Estratégia'], 
+                y=data['Fração de Infectados'], 
+                name='Fração de Infectados',
+                marker_color='#b6a9d6', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5,
+            ), 
+            row=3,
+            col=1
+        )
+        fig.update_xaxes(showticklabels=False, zeroline=False, row=1, col=1)
+        fig.update_xaxes(showticklabels=False, zeroline=False, row=2, col=1)
+        #fig.update_yaxes(showticklabels=False, zeroline=False, row=1, col=1)
+        #fig.update_yaxes(showticklabels=False, zeroline=False,row=2, col=1)
+        fig.update_layout(
+            showlegend=False, 
+            width=1500, 
+            height=1000,
+            template = "seaborn",
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(
+                #family="Courier New, monospace",
+                size=20,
+                #color="RebeccaPurple"
+            ),
+        )
+        for annotation in fig['layout']['annotations']:
+            annotation['font'] = dict(size=30)
+        # Exibindo a figura
+
+        s = 20
+        fig.update_layout(margin=dict(l=s, r=s, t=50, b=s))
+        fig.write_image(f'./img/infect/compara_pesos_{p}.png')
+        # Exibindo a figura
+        fig.show()
+
+
+    else:
+        print("Erro na quantidade de arquivos!")
+
+def with_altruista(df):
+    with_altruista = list(df[df['Estratégia'].str.contains('A-')]['Estratégia'])
+
+    resultado_altruista = df[df['Estratégia'].isin(with_altruista)].reset_index(drop=True)
+
+    individualista = []
+
+    for i in resultado_altruista['Estratégia']:
+        individualista.append(i[2:])
+
+    resultado = df[df['Estratégia'].isin(individualista)].copy()
+
+    # Ordenar o resultado de acordo com a ordem do vetor
+    resultado['Estratégia'] = pd.Categorical(resultado['Estratégia'], categories=individualista, ordered=True)
+    resultado = resultado.sort_values('Estratégia').reset_index(drop=True)
+    return resultado,resultado_altruista
+
+def get_data(resultado,resultado_altruista):
+    altruista = []
+    individualista = []
+    for i,j in zip(resultado['Files'],resultado_altruista['Files']):
+        infect = np.loadtxt(i)
+        infect_w = np.loadtxt(j)
+        tempo = np.arange(100.01)/100
+        altruista.append(list(np.dot(infect[:,:2].T,tempo)) + [tempo[infect.T[2] ==0][0]])
+        individualista.append(list(np.dot(infect_w[:,:2].T,tempo)) + [tempo[infect_w.T[2] ==0][0]])
+    altruista = np.array(altruista)
+    individualista = np.array(individualista)
+
+    data = {
+        'Estratégia': resultado['Estratégia'],
+        'Fração de Mortos': (individualista[:,0] - altruista[:,0])/altruista[:,0],
+        'Tempo Hospitalizado': (individualista[:,1] - altruista[:,1])/altruista[:,1],
+        'Fração de Infectados': (individualista[:,2] - altruista[:,2])/altruista[:,2],
+    }
+    return pd.DataFrame(data)
+def compara_altruismo(N,p):
+    arquivo = {
+        "kshell":"CK",
+        "eigenvector":"CA",
+        "clustering":"CC",
+        "idade":"CI",
+        "grau":"CG",
+        "harmonic":"CH",
+        "random":"CR",
+        "close":"CP",
+        "eccentricity":"CE",
+        "betwenness":"CB",
+        "graumorte":"GM",
+        "probmortepassin":"PMA",
+        "probhospassin":"PHA",
+        "probhosp":"PH",
+        "probmorte":"PM",
+        "pagerank":"PR",
+        "wbetwenness":"WCB",
+        "wclose":"WCP",
+        "weigenvector":"WCA",
+        "wpagerank":"WPR",
+        "wharmonic":"WCH",
+        "laplacian":"CL",
+        "wlaplacian":"WCL",
+        "coautor":"UT",
+        "wcoautor":"WUT",
+        "altruista-wcoautor":"A-WUT",
+        "altruista-wlaplacian":"A-WCL",
+        "gravity":"CGR",
+        "wgravity":"WCGR",
+        "gravity2":"CGR2",
+        "gravity3":"CGR3",
+        "gravity4":"CGR4",
+        "gravity5":"CGR5",
+        "gravity-2":"CGR1/2",
+        "gravity-3":"CGR1/3",
+        "gravity-4":"CGR1/4",
+        "gravity-5":"CGR1/5",
+
+        "wgravity2":"WCGR2",
+        "wgravity3":"WCGR3",
+        "wgravity4":"WCGR4",
+        "wgravity5":"WCGR5",
+        "wgravity-2":"WCGR1/2",
+        "wgravity-3":"WCGR1/3",
+        "wgravity-4":"WCGR1/4",
+        "wgravity-5":"WCGR1/5",
+
+        'altruista-laplacian':'A-CL',
+        "altruista-gravity":"A-CGR",
+        "altruista-wgravity":"A-WCGR",
+        "altruista-gravity2":"A-CGR2",
+        "altruista-gravity3":"A-CGR3",
+        "altruista-gravity4":"A-CGR4",
+        "altruista-gravity5":"A-CGR5",
+        "altruista-gravity-2":"A-CGR1/2",
+        "altruista-gravity-3":"A-CGR1/3",
+        "altruista-gravity-4":"A-CGR1/4",
+        "altruista-gravity-5":"A-CGR1/5",
+
+        "altruista-wgravity":"A-WCGR",
+        "altruista-wgravity2":"A-WCGR2",
+        "altruista-wgravity3":"A-WCGR3",
+        "altruista-wgravity4":"A-WCGR4",
+        "altruista-wgravity5":"A-WCGR5",
+        "altruista-wgravity-2":"A-WCGR1/2",
+        "altruista-wgravity-3":"A-WCGR1/3",
+        "altruista-wgravity-4":"A-WCGR1/4",
+        "altruista-wgravity-5":"A-WCGR1/5",
+
+        'altruista-coautor':'A-UT',
+        "wgravity2":"WCGR2",
+        "efficiency":"CF",
+        "wefficiency":"WCF",
+        
+    }
+    cmd = f"./C/output/vacina/{N}/ponderado/"
+    df = np.array([[arquivo[i.split("_")[0]],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
+    df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
+    df = df[df['Clustering'] == p].reset_index(drop=True)
+
+    resultado_ponderado,resultado_ponderado_altruista = with_altruista(df)
+
+    cmd = f"./C/output/vacina/{N}/nponderado/"
+    df = np.array([[arquivo[i.split("_")[0]],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
+    df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
+    df = df[df['Clustering'] == p].reset_index(drop=True)
+
+    resultado_nao_ponderado,resultado_nao_ponderado_altruista = with_altruista(df)
+
+    if(resultado_ponderado.shape[0] == resultado_ponderado_altruista.shape[0]):
+        data_ponderado = get_data(resultado_ponderado,resultado_ponderado_altruista)
+        data_nao_ponderado = get_data(resultado_nao_ponderado,resultado_nao_ponderado_altruista)
+
+        fig = make_subplots(rows=3, cols=2,vertical_spacing=0.05,horizontal_spacing=0.05,column_titles=['Não Ponderado','Ponderado'])
+        fig.add_trace(
+            go.Bar(
+                x=data_nao_ponderado['Estratégia'], 
+                y=data_nao_ponderado['Fração de Mortos'], 
+                name='Fração de Mortos',
+                marker_color='#e1a79e', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5
+            ), 
+            row=1, 
+            col=2
+        )
+        fig.add_trace(
+            go.Bar(
+                x=data_nao_ponderado['Estratégia'], 
+                y=data_nao_ponderado['Tempo Hospitalizado'],
+                marker_color='rgb(158,202,225)', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5,
+            ),
+            row=2,
+            col=2
+        )
+        fig.add_trace(
+            go.Bar(
+                x=data_nao_ponderado['Estratégia'], 
+                y=data_nao_ponderado['Fração de Infectados'], 
+                name='Fração de Infectados',
+                marker_color='#b6a9d6', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5,
+            ), 
+            row=3,
+            col=2
+        )
+        fig.add_trace(
+            go.Bar(
+                x=data_ponderado['Estratégia'], 
+                y=data_ponderado['Fração de Mortos'], 
+                name='Fração de Mortos',
+                marker_color='#e1a79e', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5
+            ), 
+            row=1, 
+            col=1
+        )
+        fig.add_trace(
+            go.Bar(
+                x=data_ponderado['Estratégia'], 
+                y=data_ponderado['Tempo Hospitalizado'],
+                marker_color='rgb(158,202,225)', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5,
+            ),
+            row=2,
+            col=1
+        )
+        fig.add_trace(
+            go.Bar(
+                x=data_ponderado['Estratégia'], 
+                y=data_ponderado['Fração de Infectados'], 
+                name='Fração de Infectados',
+                marker_color='#b6a9d6', 
+                marker_line_color='rgb(8,48,107)',
+                marker_line_width=1.5,
+            ), 
+            row=3,
+            col=1
+        )
+        fig.update_xaxes(showticklabels=False, zeroline=False, row=1, col=1)
+        fig.update_xaxes(showticklabels=False, zeroline=False, row=2, col=1)
+        fig.update_xaxes(showticklabels=False, zeroline=False, row=1, col=2)
+        fig.update_xaxes(showticklabels=False, zeroline=False, row=2, col=2)
+        fig.update_yaxes(title_text='Fração de Mortos', row=1, col=1)
+        fig.update_yaxes(title_text='Tempo Hospitalizado', row=2, col=1)
+        fig.update_yaxes(title_text='Fração de Vacinados', row=3, col=1)
+        #fig.update_yaxes(showticklabels=False, zeroline=False,row=2, col=1)
+        fig.update_layout(
+            showlegend=False, 
+            width=1500, 
+            height=1000,
+            template = "seaborn",
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(
+                #family="Courier New, monospace",
+                size=20,
+                #color="RebeccaPurple"
+            ),
+        )
+        for annotation in fig['layout']['annotations']:
+            annotation['font'] = dict(size=30)
+        # Exibindo a figura
+
+        s = 20
+        fig.update_layout(margin=dict(l=s, r=s, t=40, b=s))
+        fig.write_image(f"./img/infect/compara_altruismo_{p}.png")
+        # Exibindo a figura
+        fig.show()
+
+
+def make_heat_prob(value,axes,ponderado,title,labels):
+
+    x00,texto1 = generate_vacinado(value,10000,ponderado,0.)
+    x25,texto2 = generate_vacinado(value,10000,ponderado,0.25)
+    x50,_ = generate_vacinado(value,10000,ponderado,0.50)
+    x75,_ = generate_vacinado(value,10000,ponderado,0.75)
+    x100,_ = generate_vacinado(value,10000,ponderado,1.00)
+    M = np.array([x00,x25,x50,x75,x100])
+    data =pd.DataFrame(M.T)
+
+    correlation_matrix = data.corr(method='spearman')
+    correlation_matrix = np.array(correlation_matrix)
+
+    heatmap1 = axes.imshow(correlation_matrix, cmap='bone_r', aspect='auto')
+    axes.set_title(title,fontsize = 30)
+    add_heatmap_values(axes, heatmap1, correlation_matrix)
+    set_labels(axes,labels)
+    return axes

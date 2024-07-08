@@ -1,0 +1,260 @@
+\chapter{Resultados}
+\label{chap:resultados}
+
+\subsection{Análise exploratória}
+
+A partir da coleta de dados realizada pelo POLYMOD, o propósito é elucidar a estruturação das interconexões interpessoais e analisar as implicações decorrentes dessas relações visando uma modelagem em redes. Para isso cada indivíduo foi categorizado em 5 faixas etárias: [0,20) (jovens), [20,30) (jovens adultos), [30,50) (adultos), [50,70) (adultos \textit{seniors}) e maiores de 70 que representam os idosos; a distribuição de cada faixa etária é mostrada na Figura \ref{fig:freq}. Esta categorização reveste-se de relevância considerável, haja vista que a estimação dos parâmetros utilizados é viável com a categorização das idades. 
+
+\begin{figure}[H]
+    \centering
+
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Faixas etárias no banco de dados POLYMOD}
+    \includegraphics[scale= 0.5]{figuras/faixas_polymod-PIF.png}
+        %PIF15102023
+    %\captionsetup{font=small}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Resultados da frequência de cada faixa etária no banco de dados POLYMOD, esse será um dos \textit{inputs} do modelo posteriormente.\\ Fonte: Autor.}
+
+    \label{fig:freq}
+\end{figure}
+
+Com base nos dados obtidos, será realizada uma investigação para avaliar a duração, frequência e a presença de contato físico nos encontros em análise. A Figura \ref{fig:graficos} mostra os padrões dos contatos do POLYMOD; é possível ver que quanto mais frequente ou durável é o contato maior a chance dele ter contato físico.
+Além disso, quanto mais frequente é o contato maiores as chances da conversa durar mais, por exemplo em contatos diários existe mais de 50\% de chance de que o contato dure mais que 1 hora. Por fim, o gráfico mais recente evidencia que, no ambiente domiciliar, a probabilidade de ocorrência de contato físico é significativamente maior, especialmente em áreas designadas para o lazer. Por contraste, no ambiente profissional, as chances são substancialmente menores, sendo considerado o cenário menos propenso a esse tipo de interação.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Probabilidade de contato físico}
+    \includegraphics[scale= 0.45]{figuras/graficos-PIF.png}
+\captionsetup{font=small,justification=justified}
+    \caption*{Ilustra a relação entre a frequência e a duração dos contatos com a probabilidade de contato físico, mostrando que contatos mais frequentes e duradouros têm maior probabilidade de envolver contato físico. Além disso, o ambiente domiciliar apresenta maior probabilidade de contato físico, especialmente nas áreas de lazer, em comparação ao ambiente profissional, onde a probabilidade é consideravelmente menor. Todas as correlações são altamente significantes.\\ Fonte: Autor.}
+    \label{fig:graficos}
+\end{figure}
+
+
+Um elemento importante que foi investigado foi como as idades influenciam nas conexões entre os indivíduos da rede. Na Figura \ref{fig:contatos_faixa} nota-se como é a distribuição de idades da pesquisa. Ao analisar a distribuição de ligações por faixa etária é percebido que seguem uma distribuição geométrica, que pode ser escrita como $P \propto (1 - p)^xp$ ou $P \propto e^{-\lambda x}(1 - e^\lambda)$. Na Figura \ref{fig:contatos_faixa} temos o estudo das distribuições como se fosse da segunda forma, no eixo das abscissas o grau e no eixo das ordenadas o logaritmo da probabilidade, com isso é encontrado uma reta com Mínimos Quadrados na qual o coeficiente angular é igual ao $\lambda$ e seu respectivo $R^2$. 
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Influência das idades nas conexões}
+    \includegraphics[scale= 0.3]{figuras/contatos_faixa.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Ilustra a influência das idades nas 
+    conexões da rede social, observando uma distribuição geométrica nas ligações por faixa etária.\\ Fonte: Autor.}
+    \label{fig:contatos_faixa}
+\end{figure}
+
+A pesquisa também revela a relação entre a faixa etária de um indivíduo que preencheu o questionário e a distribuição de suas ligações. A Figura \ref{fig:heat} ilustra a frequência média de conexões para cada faixa etária. Observa-se um padrão consistente, independentemente da faixa etária; no entanto, os valores numéricos variam. Notavelmente, a faixa etária 3 apresenta a maior frequência de conexões, sendo composta majoritariamente por indivíduos que estão na fase produtiva da vida, muitas vezes já com família estabelecida. Em contraste, a última faixa etária demonstra a menor frequência de conexões, presumivelmente devido às dificuldades associadas a essa fase da vida.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Frequência média de conexões por faixa etária}
+    \includegraphics[scale= 0.5]{figuras/h-PIF.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Mostra a frequência média de conexões por faixa etária, ressaltando que a faixa etária 3, associada à vida profissional e familiar, possui a maior frequência de conexões, enquanto a última faixa apresenta a menor frequência devido às dificuldades inerentes a essa fase da vida. \\Fonte: Autor}
+    \label{fig:heat}
+\end{figure}
+
+Por último, a Figura \ref{fig:mediastd} apresenta duas matrizes de calor que ilustram a média e o desvio padrão do tempo de contato entre diferentes faixas etárias. A matriz da média mostra que as faixas etárias tendem a ter maior tempo de contato consigo mesmas e com faixas etárias adjacentes, com tempos decrescentes à medida que a diferença de idade aumenta. Notavelmente, a Faixa Etária 1 possui os maiores tempos médios de contato consigo mesma e com a Faixa Etária 2, enquanto os tempos são menores com as faixas etárias superiores e a Faixa Etária 4 apresenta contato elevado com a Faixa Etária 5.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Frequência média de conexões por faixa etária}
+    \includegraphics[scale= 0.35]{figuras/media_std.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{A imagem mostra a média e o desvio padrão do tempo de contato entre diferentes faixas etárias. A matriz da média indica que o contato é mais intenso dentro da mesma faixa etária e entre faixas etárias adjacentes, reduzindo conforme aumenta a diferença de idade. A matriz do desvio padrão mostra maior variação nos contatos dentro da mesma faixa e entre adjacentes, com menor variação entre faixas mais distantes. \\Fonte: Autor}
+    \label{fig:mediastd}
+\end{figure}
+
+A matriz do desvio padrão indica que a variação no tempo de contato é mais significativa dentro da mesma faixa etária e com faixas etárias adjacentes, sugerindo maior inconstância nesses contatos. A Faixa Etária 1 apresenta o maior desvio padrão consigo mesma, seguido por desvios elevados com as Faixas Etárias 2 e 3, e menores com as Faixas Etárias 4 e 5. As Faixas Etárias 2 e 3 também exibem variações notáveis consigo mesmas e com faixas adjacentes, enquanto a Faixa Etária 4 tem maior variação com a Faixa Etária 5.
+
+\subsection{Resultados da Rede gerada}
+
+Os dados das Figuras \ref{fig:contatos_faixa} e \ref{fig:heat} serão utilizados como \textit{inputs} do Modelo de Configuração Ponderado, onde aquele vai ser usado para construir a distribuição empírica do grau de cada nó de cada faixa etária e este será usado como parâmetros de uma multinomial para estabelecer quantas ligações vão para cada faixa etária. A partir disso e dado um valor de $p$ (parâmetro que aumenta o coeficiente de agrupamento) será construída a rede para acontecer a simulação da epidemia. As características dessa rede são mostradas na Tabela \ref{table:rrede} e na Figura \ref{fig:regressao}
+mostra-se como evolui o agrupamento com o incremento de $p$, que cresce com $C \propto p^{\alpha}$, tanto o agrupamento médio quanto o total no qual $\alpha_{medio } = 0.46$ e $\alpha_{total } = 0.55$. Após a aplicação do algoritmo foi recolhido os dados da rede e observou-se que para qualquer valor de $p$ a distribuição de graus tinha a mesma distribuição que a encontrada pela Figura \ref{fig:contatos_faixa} a partir do teste de Kolmogorov-Smirnov (Figura \ref{fig:comparacao}) \cite{manual}. Na Figura \ref{fig:modelo}
+mostra-se a diferença absoluta ao final do algoritmo da proporção de conexões de cada faixa etária em comparação com a Figura \ref{fig:heat}, tendo uma diferença maior entre as conexões com faixa etária 1. Além disso na Figura \ref{fig:correlation} apresenta a correlação linear entre o Agrupamento e o Grau com o incremento de $p$, nele é possível notar que o valor decresce, ou seja nós com maior grau tendem a ter menos agrupamento, isso acontece, provavelmente, porque com grau muito alto existem muito mais combinações entre os sítios e o algoritmo não consegue contemplar esses nós com alto grau, expondo uma limitação do algoritmo.
+\begin{figure}[H]
+    \centering
+    %PIF27092023
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Agrupamento da rede em função de $p$}
+    %PIF27092023 É possível apagar o enquadramento branco?        
+    %\includegraphics[scale= 0.5]{figuras/clustering_vs_p.png}
+    \includegraphics[scale= 0.6]{figuras/clustering_vs_p.png}
+    \captionsetup{font=small,justification=justified}    \caption*{Evolução do agrupamento da rede em função 
+    do incremento do valor de $p$, foi utilizada uma regressão linear para saber qual a função que rege encontrando $C \propto p^{\alpha}$.\\Fonte: Autor}
+    \label{fig:regressao}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Resultados da proporção de conexões entre faixas}
+    \includegraphics[scale= 0.4]{figuras/modelo.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{ A figura mostra a diferença absoluta entre a matriz de proporções de conexões entre as faixas etárias do modelo e do encontrado no POLYMOD essa diferença se mantém constante independe do valor de $p$.}
+    \label{fig:modelo}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Distribuição de Graus $p = 1.0$}
+    \includegraphics[scale= 0.4]{figuras/comparacao.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Comparação de como fica a distribuição de graus comparando modelo com $p = 1.0$ com dados do POLYMOD, é possível ver todas as faixas foram bem no teste de comparação.\\Fonte: Autor}
+    \label{fig:comparacao}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Agrupamento da rede em função de $p$}
+    \includegraphics[scale= 0.5]{figuras/correlation.png}
+    \captionsetup{font=small,justification=justified}    \caption*{Evolução do agrupamento da rede em função 
+    do incremento do valor de $p$, foi utilizada uma regressão linear para saber qual a função que rege encontrando $C \propto p^{\alpha}$.\\Fonte: Autor}
+    \label{fig:correlation}
+\end{figure}
+
+\subsection{Resultados do Modelo de Infecção}
+
+Em suma o modelo utilizado é o Modelo de Configuração Ponderado usando como entrada uma distribuição de graus empírica, a distribuição de faixas etárias e a distribuição de ligações entre faixas etárias encontradas no banco de dados do POLYMOD, no caso da infecção os parâmetros são os que foram encontrados na literatura ou calculados pelo OpenDataSUS, além disso com o POLYMOD foram calculados as médias e desvios do tempo de contato entre os indivíduos que serão considerados. A simulação acontece do dia 0 até o dia 465 iniciando com 10 nós infectados — para garantir que a simulação não termine cedo — no compartimento Exposto e todos os outros sítios como Suscetíveis. A vacinação ocorre no dia 100, nesse dia são aplicadas vacinas para uma fração $f$ da rede para sítios no compartimento Suscetível,Exposto , Recuperado ou Assintomático dado um critério de prioridade que é determinado pelo valor das centralidades introduzidas anteriormente. Se o indivíduo não estiver apto a ser vacinado no dia e após todos os aptos serem vacinados ainda existirem vacinas sobrando, então se ele atingir um dos compartimentos aptos ele será vacinado.
+
+Para as centralidades que dependem da ponderação nos nós foram utilizadas a probabilidade do nó ser assintomático e a probabilidade dele morrer, para centralidades que originalmente não utilizam ponderação dos nós, apenas nas arestas utilizamos a seguinte mudança:
+\begin{equation}
+    Z_{\nu,\mu} = w_{\nu,\mu}\cdot(\Theta_\nu + \Theta_\mu).
+\end{equation}
+
+O valor de $\Theta_\nu$ e $\Theta_\mu$ e das centralidades com ponderação dos nós será feito de duas abordagens diferentes: Altruísta e a Individualista. A Altruísta será calculando as centralidade pensando que o nó $\nu$ a ser calculado esteja tentando infectar as outras pessoas na rede e matar elas, na abordagem Individualista as centralidades são calculadas pensando no nó $\nu$ sendo infectado por todas as outras pessoas na rede e morrer.
+
+Após a implementação do modelo epidemiológico no modelo de redes escolhidos foram escolhidos pela performasse do algoritmo que após o dia 100 a infecção estabilizava e esse seria o dia da vacinação, deste modo simula-se a situação real na qual a vacina só se tornou disponível após a COVID-19 já ter se espalhado por todo o mundo. Anteriormente a esse dia a rede se comporta, para $p = 0$ (com agrupamento médio de 0.01), de acordo com as Figuras \ref{fig:pre_vacina} e \ref{fig:pre_vacina_mortos}. A Figura \ref{fig:pre_vacina} mostra a evolução da epidemia, em que pode-se observar que a proporção de indivíduos suscetíveis diminui rapidamente até aproximadamente o quinto dia, que é o tempo de incubação, para posteriormente aumentar e atingir um estado de estabilidade. A fração de indivíduos infectados (a soma da fração de assintomáticos com a de sintomáticos) aumenta até atingir um pico, com  dois quintos da população total sendo infectada simultaneamente, seguido por um declínio. Finalmente, a fração de indivíduos recuperados aumenta até que 71\% da população esteja nesse estado, estabilizando posteriormente. Já a Figura \ref{fig:pre_vacina_mortos} mostra a evolução  da  fração de mortos e a fração de hospitalizados, nesse sentido observa-se que o número máximo de hospitalizados observado foi cerca de 0.5\% da rede, enquanto o número de mortos cresce indefinidamente. Neste trabalho, não consideramos a capacidade do sistema hospitalar, pois neste caso, precisaríamos de informações sobre a taxa de recuperação e de morte de sintomáticos que precisariam ser internados e não foram por falta de leitos que não são facilmente determinadas.   
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Suscetíveis, Infectados e Recuperados antes da aplicação de qualquer estratégia de vacinação}
+    \includegraphics[scale= 0.5]{figuras/pre_vacina.png}
+        %PIF15102023
+    %\captionsetup{font=small}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Resultados antes da aplicação de qualquer 
+    estratégia de vacinação para uma rede $N$ = 10000 com $p $ = 0 após 1000 realizações. Inicialmente, a proporção de suscetíveis diminui rapidamente, seguida por um aumento e estabilização. A fração de infectados atinge um pico, afetando 
+    40\% da população, e depois diminui. Paralelamente, a proporção de recuperados aumenta e estabiliza em 71\% da população.}
+    \label{fig:pre_vacina}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Hospitalizados e Mortos antes da aplicação de qualquer estratégia de vacinação}
+    %\includegraphics[scale= 0.5]{figuras/pre_vacina_mortos.png}
+    %\includegraphics[scale= 0.4]{figuras/pre_vacina_mortos-PIF.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Simulações foram feitas para uma rede $N$ = 2028 com $p $ = 0 após 1000 realizações.}
+    \label{fig:pre_vacina_mortos}
+\end{figure}
+
+Com o aumento de $p$ surgem diferenças com o comportamento da infecção, a Figura mostra que a rede tem uma quantidade menor de mortos, contudo a infecção demora mais para decair e estabilizar, ou seja o agente permanece mais tempo na rede, isso se deve, provavelmente, ao fato de que em média os idosos tem conexões menores e sabemos anteriormente que o MCP aumenta o agrupamento de nós com poucas conexões e que os mais idosos tem mais conexões com os mais novos pois precisam de cuidados e esses têm pouca chance de morrer mas tem mais conexões, portanto o que deve acontecer é que a infecção se espalha mais no grupo dos mais jovens.
+
+Para finalizar, fizemos a comparação entre como a rede se espalha nos primeiros 100 dias no caso ponderado e não ponderado e para o caso da simulação, não houve uma diferença significativa entre o avanço da infecção, a Figura mostra para Expostos e Mortos que a diferença é pouco perceptível. Apesar disso será feita a análise das centralidades comparando caso ponderado e não ponderado, porém no caso da infecção pré-vacina não há diferença o que acarreta numa simplificação do modelo o que favorece o tempo computacional dos algoritmos.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Mortos e Hospitalizados antes da aplicação de qualquer estratégia de vacinação e diferentes valores de $p$}
+    \vspace{5pt}
+    %\includegraphics[width=\textwidth]{figuras/pre_vacina_mortos_p.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{Resultados para fração de Mortos e Hospitalizados e função do tempo antes da aplicação de qualquer estratégia de vacinação para uma rede $N$ = 2028 para valores de $p$ = 0, $p$ = 0.5 e $p$ = 1.}
+    \label{fig:pre_vacina_mortos_p}
+\end{figure}
+
+Após os 100 dias, foi aplicado a vacina com diversas estratégias seguindo as centralidades em redes apresentadas anteriormente. Ao final foram coletadas o tempo total hospitalizado, a fração de mortos e fração de indivíduos necessária para extinguir a doença, assim para cada parâmetro foi feito um \textit{ranking} mostrando para as melhores centralidades integrando a área do gráfico de parâmetro \textit{versus} $f$, e para saber qual foi a centralidade que foi melhor no geral foi feito uma média entre os seus respectivos valores em cada parâmetro. O quão bom cada centralidade é varia perante a rede, ou seja, com a alteração de $p$ o \textit{ranking} será diferente e poderá existir diferentes melhores estratégias, seria então necessário estimar os valores de $p$ da rede real para saber qual seria a melhor estratégia. 
+
+A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como ficaram os resultados para $p = 0$ e $p = 1$ mostrando 4 métricas, o caso aleatório, idade, a melhor na métrica e a melhor na média, quando o gráfico apresenta apenas 3 curvas significa que a melhor na métrica é a mesma para melhor na média. Esse esquema será repetido na Figura \ref{fig:resultados_metricas_ponderado}, optamos por motivo de muitas centralidades terem sido testadas - 29 para caso não ponderado e 65 para caso não ponderado - para ver os resultados de todas as métricas consulte o Anexo 1.
+
+É possível perceber que em todas as métricas e mudando o valor de $p$ a idade não foi uma boa estratégia no geral contra a doença, um resultado importante é que para extinguir a doença seria necessário vacinar cerca de 80\% da população, entretanto na melhor estratégia foram necessários apenas 32\% para extinguir a doença. Porém é notável que para uma fração menor de 15\% da rede vacinada a idade foi muito boa em comparação às melhores, entretanto ela foi pior para valores maiores. Essa comparação é feita pois foi a principal estratégia utilizada pelos governos.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \includegraphics[scale= 0.45]{figuras/cmpara_p_f.png}
+    \captionsetup{font=small,justification=justified}
+    
+    \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
+    \label{fig:resultados_metricas}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \includegraphics[scale= 0.45]{figuras/cmpara_p_f_ponderado.png}
+    \captionsetup{font=small,justification=justified}
+    
+    \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
+    \label{fig:resultados_metricas_ponderado}
+\end{figure}
+
+Agora para analisar a fração de hospitalizados foram considerados a fração total de todos os nós que foram hospitalizados na simulação toda. A Figura \ref{fig:vacinas_Hospitalizados_0.0} mostra a fração de hospitalizados em função da fração de vacinados variando as estratégias utilizadas com o número de sítios $N = 2048$, que é o número de participantes do POLYMOD. 
+A estratégia mais efetiva foi a de idade, ela foi muito melhor até cerca de %PIF15102023 de 
+50\% da rede vacinada, após isso se saiu pior que um conjunto de centralidades e a CE, CH e CC foram as piores nesse quesito. Esse conjunto (CB, CP, CG, CR, CK e CA) parece que são equivalentes em hospitalizados, então para simulações com $N$ maior o ideal seria utilizar uma delas, pois assim diminui o tempo gasto com as outras estratégias, como a CB que é muito custosa computacionalmente. Depois da vacinação de cerca de 85\% da rede, as curvas se comportam em conjunto pois são vacinadas tantas pessoas que já não importa mais a estratégia vigente. Na Figura \ref{fig:hospitalizados_vacinado_p} é mostrado o mesmo gráfico para valores de $p = 0.5$ e $p = 0.1$, com o incremento de $p$ há um aumento na fração de hospitalizados, o critério por idade continua sendo melhor e o de agrupamento piora. O grupo que em $p$ nulo apresenta agora uma pequena diferença, mas ainda sim apontam ter uma proporcionalidade entre elas.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Mortos e Hospitalizados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \includegraphics[scale= 0.45]{figuras/vacinas_heat_Hospitalizados_0.00.png}
+    \captionsetup{font=small,justification=justified}
+    \caption*{A estratégia mais eficaz foi baseada na idade, superando as centralidades até cerca de 50\% de vacinação da rede. Posteriormente, as centralidades demonstraram maior eficácia, e o conjunto CB, CP, CG, CR, CK e CA apresentou desempenho similar em relação aos hospitalizados, sugerindo a escolha de uma delas para simulações com um grande número de nós a fim de otimizar a computação.}
+    \label{fig:vacinas_Hospitalizados_0.0}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+
+
+      \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+        \caption{Resultados com diferentes estratégias de vacinação, $p$ = 0.5 e $p$ = 1.0}
+
+    \begin{minipage}[b]{0.495\textwidth}
+      \centering
+      \caption*{$p = 0.5$}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.495\textwidth}
+      \centering
+      \caption*{$p = 1.0$}
+    \end{minipage}
+    \captionsetup{font=small,justification=justified}
+
+    \caption*{Ilustra dados relacionados a valores de $p = 0.5$ e $p = 0.1$.
+    Aumentar o valor de $p$ resulta em um aumento na fração de indivíduos hospitalizados. A análise comparativa indica que o critério baseado na idade mantém sua eficácia, enquanto o critério de agrupamento mostra um desempenho inferior. Apesar de uma pequena diferença no grupo inicial de $p = 0$, persiste uma relação proporcional entre as variáveis analisadas.}
+    \label{fig:hospitalizados_vacinado_p}
+\end{figure}
+
+
+\begin{table}[H]
+    \captionsetup{width=13.5cm}
+    \caption{Mudança de parâmetros ao vacinar um nó.}
+    \centering
+    \begin{tabular}{crr}
+        \toprule
+        Definição & Não Vacinado & Vacinado  \\
+        \midrule
+        \midrule
+        Taxa de contágio Sintomática & \(\epsilon_S\) & \(0.058 \times \epsilon_S\)\\
+        Taxa de contágio Assintomática & \(\epsilon_A\) & \(0.058 \times \epsilon_A\)\\
+        Prob. E\(\rightarrow\)I & \(\alpha^f\) & \(0.346 \times \alpha^f\)\\
+        Prob. I\(\rightarrow\)H & \(\psi^f\) & \(0.034 \times \psi^f\) \\
+        Prob. H\(\rightarrow\)D & \(\tau^f\) & \(0.034 \times \tau^f\)\\
+        \bottomrule
+    \end{tabular}
+    \caption*{Valores das eficácias e sua interferência nos parâmetros. Fonte:~\cite{Haas2021}.}
+    \label{tabela:vacina_adaptada}
+\end{table}
