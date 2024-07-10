@@ -1457,7 +1457,7 @@ def compara_weight(N,p):
     df = np.array([[arquivo[i.split("_")[0]],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     df = df[df['Clustering'] == p].reset_index(drop=True)
-
+    df = df.sort_values(by='Estratégia')
     with_w = list(df[df['Estratégia'].str.contains('W')]['Estratégia'])
 
     resultado_w = df[df['Estratégia'].isin(with_w)].reset_index(drop=True)
@@ -1680,7 +1680,7 @@ def compara_altruismo(N,p):
         data_ponderado = get_data(resultado_ponderado,resultado_ponderado_altruista)
         data_nao_ponderado = get_data(resultado_nao_ponderado,resultado_nao_ponderado_altruista)
 
-        fig = make_subplots(rows=3, cols=2,vertical_spacing=0.05,horizontal_spacing=0.05,column_titles=['Não Ponderado','Ponderado'])
+        fig = make_subplots(rows=3, cols=2,vertical_spacing=0.05,horizontal_spacing=0.05,column_titles=['Ponderado','Não Ponderado'])
         fig.add_trace(
             go.Bar(
                 x=data_nao_ponderado['Estratégia'], 
@@ -1782,13 +1782,14 @@ def compara_altruismo(N,p):
         fig.show()
 
 
-def make_heat_prob(value,axes,ponderado,title,labels):
+def make_heat_prob(value,axes,ponderado,title,labels,islabel = True):
 
     x00,texto1 = generate_vacinado(value,10000,ponderado,0.)
     x25,texto2 = generate_vacinado(value,10000,ponderado,0.25)
     x50,_ = generate_vacinado(value,10000,ponderado,0.50)
     x75,_ = generate_vacinado(value,10000,ponderado,0.75)
     x100,_ = generate_vacinado(value,10000,ponderado,1.00)
+    print(len(x00))
     M = np.array([x00,x25,x50,x75,x100])
     data =pd.DataFrame(M.T)
 
@@ -1798,5 +1799,8 @@ def make_heat_prob(value,axes,ponderado,title,labels):
     heatmap1 = axes.imshow(correlation_matrix, cmap='bone_r', aspect='auto')
     axes.set_title(title,fontsize = 30)
     add_heatmap_values(axes, heatmap1, correlation_matrix)
-    set_labels(axes,labels)
+    if(islabel):
+        set_labels(axes,labels)
+    else:
+        set_labels(axes,[])
     return axes

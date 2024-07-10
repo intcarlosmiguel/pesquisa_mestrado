@@ -128,18 +128,15 @@ Para as centralidades que dependem da ponderação nos nós foram utilizadas a p
 \begin{equation}
     Z_{\nu,\mu} = w_{\nu,\mu}\cdot(\Theta_\nu + \Theta_\mu).
 \end{equation}
-
 O valor de $\Theta_\nu$ e $\Theta_\mu$ e das centralidades com ponderação dos nós será feito de duas abordagens diferentes: Altruísta e a Individualista. A Altruísta será calculando as centralidade pensando que o nó $\nu$ a ser calculado esteja tentando infectar as outras pessoas na rede e matar elas, na abordagem Individualista as centralidades são calculadas pensando no nó $\nu$ sendo infectado por todas as outras pessoas na rede e morrer.
 
-Após a implementação do modelo epidemiológico no modelo de redes escolhidos foram escolhidos pela performasse do algoritmo que após o dia 100 a infecção estabilizava e esse seria o dia da vacinação, deste modo simula-se a situação real na qual a vacina só se tornou disponível após a COVID-19 já ter se espalhado por todo o mundo. Anteriormente a esse dia a rede se comporta, para $p = 0$ (com agrupamento médio de 0.01), de acordo com as Figuras \ref{fig:pre_vacina} e \ref{fig:pre_vacina_mortos}. A Figura \ref{fig:pre_vacina} mostra a evolução da epidemia, em que pode-se observar que a proporção de indivíduos suscetíveis diminui rapidamente até aproximadamente o quinto dia, que é o tempo de incubação, para posteriormente aumentar e atingir um estado de estabilidade. A fração de indivíduos infectados (a soma da fração de assintomáticos com a de sintomáticos) aumenta até atingir um pico, com  dois quintos da população total sendo infectada simultaneamente, seguido por um declínio. Finalmente, a fração de indivíduos recuperados aumenta até que 71\% da população esteja nesse estado, estabilizando posteriormente. Já a Figura \ref{fig:pre_vacina_mortos} mostra a evolução  da  fração de mortos e a fração de hospitalizados, nesse sentido observa-se que o número máximo de hospitalizados observado foi cerca de 0.5\% da rede, enquanto o número de mortos cresce indefinidamente. Neste trabalho, não consideramos a capacidade do sistema hospitalar, pois neste caso, precisaríamos de informações sobre a taxa de recuperação e de morte de sintomáticos que precisariam ser internados e não foram por falta de leitos que não são facilmente determinadas.   
+Após a implementação do modelo epidemiológico no modelo de redes escolhidos foram escolhidos pela performasse do algoritmo que após o dia 100 a infecção estabilizava e esse seria o dia da vacinação, deste modo simula-se a situação real na qual a vacina só se tornou disponível após a COVID-19 já ter se espalhado por todo o mundo. Anteriormente a esse dia a rede se comporta, para $p = 0$ (com agrupamento médio de 0.01), de acordo com as Figuras \ref{fig:pre_vacina} e \ref{fig:pre_vacina_mortos}. A Figura \ref{fig:pre_vacina} mostra a evolução da epidemia, em que pode-se observar que a proporção de indivíduos suscetíveis diminui rapidamente até o dia 25, que é o tempo de incubação, para posteriormente aumentar e atingir um estado de estabilidade. A fração de indivíduos infectados (a soma da fração de assintomáticos com a de sintomáticos) aumenta até atingir um pico, com  30\% da população total sendo infectada simultaneamente, seguido por um declínio. Finalmente, a fração de indivíduos recuperados aumenta até que 58\% da população esteja nesse estado, estabilizando posteriormente. Já a Figura \ref{fig:pre_vacina_mortos} mostra a evolução  da  fração de mortos e a fração de hospitalizados, nesse sentido observa-se que o número máximo de hospitalizados observado foi cerca de 0.46\% da rede, enquanto o número de mortos cresce indefinidamente. Neste trabalho, não consideramos a capacidade do sistema hospitalar, pois neste caso, precisaríamos de informações sobre a taxa de recuperação e de morte de sintomáticos que precisariam ser internados e não foram por falta de leitos que não são facilmente determinadas.   
 
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Fração de Suscetíveis, Infectados e Recuperados antes da aplicação de qualquer estratégia de vacinação}
-    \includegraphics[scale= 0.5]{figuras/pre_vacina.png}
-        %PIF15102023
-    %\captionsetup{font=small}
+    \includegraphics[scale= 0.5]{figuras/pre_vacina_nponderado.png}
     \captionsetup{font=small,justification=justified}
     \caption*{Resultados antes da aplicação de qualquer 
     estratégia de vacinação para uma rede $N$ = 10000 com $p $ = 0 após 1000 realizações. Inicialmente, a proporção de suscetíveis diminui rapidamente, seguida por um aumento e estabilização. A fração de infectados atinge um pico, afetando 
@@ -151,29 +148,40 @@ Após a implementação do modelo epidemiológico no modelo de redes escolhidos 
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Fração de Hospitalizados e Mortos antes da aplicação de qualquer estratégia de vacinação}
-    %\includegraphics[scale= 0.5]{figuras/pre_vacina_mortos.png}
+    \includegraphics[scale= 0.5]{figuras/pre_vacina_mortos_nponderado.png}
     %\includegraphics[scale= 0.4]{figuras/pre_vacina_mortos-PIF.png}
     \captionsetup{font=small,justification=justified}
     \caption*{Simulações foram feitas para uma rede $N$ = 2028 com $p $ = 0 após 1000 realizações.}
     \label{fig:pre_vacina_mortos}
 \end{figure}
 
-Com o aumento de $p$ surgem diferenças com o comportamento da infecção, a Figura mostra que a rede tem uma quantidade menor de mortos, contudo a infecção demora mais para decair e estabilizar, ou seja o agente permanece mais tempo na rede, isso se deve, provavelmente, ao fato de que em média os idosos tem conexões menores e sabemos anteriormente que o MCP aumenta o agrupamento de nós com poucas conexões e que os mais idosos tem mais conexões com os mais novos pois precisam de cuidados e esses têm pouca chance de morrer mas tem mais conexões, portanto o que deve acontecer é que a infecção se espalha mais no grupo dos mais jovens.
-
-Para finalizar, fizemos a comparação entre como a rede se espalha nos primeiros 100 dias no caso ponderado e não ponderado e para o caso da simulação, não houve uma diferença significativa entre o avanço da infecção, a Figura mostra para Expostos e Mortos que a diferença é pouco perceptível. Apesar disso será feita a análise das centralidades comparando caso ponderado e não ponderado, porém no caso da infecção pré-vacina não há diferença o que acarreta numa simplificação do modelo o que favorece o tempo computacional dos algoritmos.
+Com o aumento de $p$ surgem diferenças com o comportamento da infecção, a Figura mostra \ref{fig:pre_vacina_mortos_p} que a rede tem uma quantidade menor de mortos, contudo a infecção demora mais para crescer, decair e estabilizar, ou seja o agente permanece mais tempo na rede, isso se deve, provavelmente, ao fato de que em média os idosos tem conexões menores e sabemos anteriormente que o MCP aumenta o agrupamento de nós com poucas conexões e que os mais idosos tem mais conexões com os mais novos pois precisam de cuidados e esses têm pouca chance de morrer mas tem mais conexões, portanto o que deve acontecer é que a infecção se espalha mais no grupo dos mais jovens.
 
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Fração de Mortos e Hospitalizados antes da aplicação de qualquer estratégia de vacinação e diferentes valores de $p$}
     \vspace{5pt}
-    %\includegraphics[width=\textwidth]{figuras/pre_vacina_mortos_p.png}
+    \includegraphics[width=\textwidth]{figuras/pre_vacina_mortos_p_nponderado.png}
     \captionsetup{font=small,justification=justified}
     \caption*{Resultados para fração de Mortos e Hospitalizados e função do tempo antes da aplicação de qualquer estratégia de vacinação para uma rede $N$ = 2028 para valores de $p$ = 0, $p$ = 0.5 e $p$ = 1.}
     \label{fig:pre_vacina_mortos_p}
 \end{figure}
 
-Após os 100 dias, foi aplicado a vacina com diversas estratégias seguindo as centralidades em redes apresentadas anteriormente. Ao final foram coletadas o tempo total hospitalizado, a fração de mortos e fração de indivíduos necessária para extinguir a doença, assim para cada parâmetro foi feito um \textit{ranking} mostrando para as melhores centralidades integrando a área do gráfico de parâmetro \textit{versus} $f$, e para saber qual foi a centralidade que foi melhor no geral foi feito uma média entre os seus respectivos valores em cada parâmetro. O quão bom cada centralidade é varia perante a rede, ou seja, com a alteração de $p$ o \textit{ranking} será diferente e poderá existir diferentes melhores estratégias, seria então necessário estimar os valores de $p$ da rede real para saber qual seria a melhor estratégia. 
+Para finalizar, fizemos a comparação entre como a rede se espalha nos primeiros 100 dias no caso ponderado e não ponderado nesse caso  não houve uma diferença significativa entre o avanço da infecção, a Figura \ref{fig:compara_ponderado_nponderado} mostra para Expostos que a diferença é pouco perceptível isso é visível para qualquer compartimento da rede. Apesar disso será feita a análise das centralidades comparando caso ponderado e não ponderado, porém no caso da infecção pré-vacina não há diferença o que acarreta numa simplificação do modelo o que favorece o tempo computacional dos algoritmos.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \includegraphics[scale= 0.5]{figuras/compara_ponderado_nponderado.png}
+    \captionsetup{font=small,justification=justified}
+    
+    \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
+    \label{fig:compara_ponderado_nponderado}
+\end{figure}
+
+Após os 100 dias, foi aplicado a vacina com diversas estratégias seguindo as centralidades em redes apresentadas anteriormente. Ao final foram coletadas o tempo total hospitalizado $T_H$, a fração de mortos $F_M$ e fração de indivíduos necessária para extinguir a doença $F_I$, assim para cada parâmetro foi feito um \textit{ranking} mostrando para as melhores centralidades integrando a área do gráfico de parâmetro \textit{versus} $f$, e para saber qual foi a centralidade que foi melhor no geral foi feito uma média entre os seus respectivos valores em cada parâmetro. A qualidade de cada centralidade é varia perante a rede, ou seja, com a alteração de $p$ o \textit{ranking} será diferente e poderá existir diferentes melhores estratégias, seria então necessário estimar os valores de $p$ da rede real para saber qual seria a melhor estratégia. 
 
 A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como ficaram os resultados para $p = 0$ e $p = 1$ mostrando 4 métricas, o caso aleatório, idade, a melhor na métrica e a melhor na média, quando o gráfico apresenta apenas 3 curvas significa que a melhor na métrica é a mesma para melhor na média. Esse esquema será repetido na Figura \ref{fig:resultados_metricas_ponderado}, optamos por motivo de muitas centralidades terem sido testadas - 29 para caso não ponderado e 65 para caso não ponderado - para ver os resultados de todas as métricas consulte o Anexo 1.
 
@@ -183,7 +191,7 @@ A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
-    \includegraphics[scale= 0.45]{figuras/cmpara_p_f.png}
+    \includegraphics[scale= 0.3]{figuras/cmpara_p_f.png}
     \captionsetup{font=small,justification=justified}
     
     \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
@@ -194,67 +202,68 @@ A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
-    \includegraphics[scale= 0.45]{figuras/cmpara_p_f_ponderado.png}
+    \includegraphics[scale= 0.3]{figuras/newplot.png}
+
     \captionsetup{font=small,justification=justified}
     
     \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
     \label{fig:resultados_metricas_ponderado}
 \end{figure}
 
-Agora para analisar a fração de hospitalizados foram considerados a fração total de todos os nós que foram hospitalizados na simulação toda. A Figura \ref{fig:vacinas_Hospitalizados_0.0} mostra a fração de hospitalizados em função da fração de vacinados variando as estratégias utilizadas com o número de sítios $N = 2048$, que é o número de participantes do POLYMOD. 
-A estratégia mais efetiva foi a de idade, ela foi muito melhor até cerca de %PIF15102023 de 
-50\% da rede vacinada, após isso se saiu pior que um conjunto de centralidades e a CE, CH e CC foram as piores nesse quesito. Esse conjunto (CB, CP, CG, CR, CK e CA) parece que são equivalentes em hospitalizados, então para simulações com $N$ maior o ideal seria utilizar uma delas, pois assim diminui o tempo gasto com as outras estratégias, como a CB que é muito custosa computacionalmente. Depois da vacinação de cerca de 85\% da rede, as curvas se comportam em conjunto pois são vacinadas tantas pessoas que já não importa mais a estratégia vigente. Na Figura \ref{fig:hospitalizados_vacinado_p} é mostrado o mesmo gráfico para valores de $p = 0.5$ e $p = 0.1$, com o incremento de $p$ há um aumento na fração de hospitalizados, o critério por idade continua sendo melhor e o de agrupamento piora. O grupo que em $p$ nulo apresenta agora uma pequena diferença, mas ainda sim apontam ter uma proporcionalidade entre elas.
+Embora os gráficos forneçam uma indicação preliminar da diferença entre a melhor estratégia em termos de um determinado parâmetro e o desempenho médio, é fundamental realizar uma avaliação para determinar se existe uma diferença significativa entre as métricas, nesse caso foi optado por dado os valores de cada centralidade em cada métrica foi calculado a integral da sua respectiva curva e foi feito a correlação de Spearman entre as métricas. A Figura \ref{fig:Spearman} mostram o valor da correlação para diferentes valores de $p$ para o caso não ponderado e ponderado. É possível ver que as duas métricas mais distintas entre si são $F_M$ e $F_I$ mostrando que a métrica que foca em diminuir a mortalidade uma não necessariamente previne a espalhamento da doença, outrossim com o incremento de $p$ $F_M$ e $T_H$ se tornam mais próximas, por fim existe uma diferença no caso ponderado, na qual as métricas são mais próximas entre si, principalmente a $F_M$ e $T_H$ o que poderia ser descartada nesse caso.
 
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Mortos e Hospitalizados com diferentes estratégias de vacinação e $p$ = 0.0}
-    \includegraphics[scale= 0.45]{figuras/vacinas_heat_Hospitalizados_0.00.png}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    
+    \includegraphics[scale= 0.4]{figuras/corr_p.png}
+    \\
+    \includegraphics[scale= 0.4]{figuras/corr_p_ponderado.png}
     \captionsetup{font=small,justification=justified}
-    \caption*{A estratégia mais eficaz foi baseada na idade, superando as centralidades até cerca de 50\% de vacinação da rede. Posteriormente, as centralidades demonstraram maior eficácia, e o conjunto CB, CP, CG, CR, CK e CA apresentou desempenho similar em relação aos hospitalizados, sugerindo a escolha de uma delas para simulações com um grande número de nós a fim de otimizar a computação.}
-    \label{fig:vacinas_Hospitalizados_0.0}
+    \caption*{}
+    \label{fig:Spearman}
 \end{figure}
+
+Como mostrado pela Figura \ref{fig:Spearman} as relações entre métricas mudam com o incremento de $p$, assim o próprio \textit{ranking} muda com a variação do parâmetro, assim a Figura \ref{fig:Spearman_p} mostra a correlação de Spearman do \textit{ranking} para cada par de $p$ para rede não ponderada e ponderada, é possível ver que para o caso não ponderado no geral existe uma alta correlação entre os pares, contudo para $F_M$ os valores são menores do que para a $F_I$ e aquele apresenta valores são mais correlacionados com agrupamentos maiores do que este. A conclusão é que no geral o posicionamento das estratégias é bastante estável com o aumento do agrupamento tanto no caso ponderado quanto não ponderado. Isso é bastante útil pois não foi medido o agrupamento da rede real de contatos entre pessoas e com essa estabilidade não se torna tão necessário estimar esse valor.
 
 \begin{figure}[H]
     \centering
-
-
-      \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-        \caption{Resultados com diferentes estratégias de vacinação, $p$ = 0.5 e $p$ = 1.0}
-
-    \begin{minipage}[b]{0.495\textwidth}
-      \centering
-      \caption*{$p = 0.5$}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.495\textwidth}
-      \centering
-      \caption*{$p = 1.0$}
-    \end{minipage}
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    
+    \includegraphics[scale= 0.4]{figuras/compara_agrupamento_nponderado.png}
+    \\
+    \includegraphics[scale= 0.4]{figuras/compara_agrupamento_ponderado.png}
     \captionsetup{font=small,justification=justified}
-
-    \caption*{Ilustra dados relacionados a valores de $p = 0.5$ e $p = 0.1$.
-    Aumentar o valor de $p$ resulta em um aumento na fração de indivíduos hospitalizados. A análise comparativa indica que o critério baseado na idade mantém sua eficácia, enquanto o critério de agrupamento mostra um desempenho inferior. Apesar de uma pequena diferença no grupo inicial de $p = 0$, persiste uma relação proporcional entre as variáveis analisadas.}
-    \label{fig:hospitalizados_vacinado_p}
+    \caption*{}
+    \label{fig:Spearman_p}
 \end{figure}
 
+Anteriormente foram apresentadas as centralidades e as suas versões utilizando ponderamento nas arestas, contudo a utilização da forma ponderada tem um custo computacional bastante considerável, portanto foi avaliado como a métrica foi em comparação com a sua versão ponderada considerando a diferença relativa entre o valor na métrica com ponderação em relação ao valor sem considerar ponderação. A Figura \ref{fig:compara_pesos} mostra como ficou a comparação para dois casos de agrupamento $p = 0$ e pode se perceber que várias métricas não foram bem com o incremento da ponderação nas arestas, principalmente a Utilidade que para $F_I$ teve uma perca de 100\%, mas algumas conseguiram se beneficiar, mas no geral teve um saldo pior.
 
-\begin{table}[H]
-    \captionsetup{width=13.5cm}
-    \caption{Mudança de parâmetros ao vacinar um nó.}
+\begin{figure}[H]
     \centering
-    \begin{tabular}{crr}
-        \toprule
-        Definição & Não Vacinado & Vacinado  \\
-        \midrule
-        \midrule
-        Taxa de contágio Sintomática & \(\epsilon_S\) & \(0.058 \times \epsilon_S\)\\
-        Taxa de contágio Assintomática & \(\epsilon_A\) & \(0.058 \times \epsilon_A\)\\
-        Prob. E\(\rightarrow\)I & \(\alpha^f\) & \(0.346 \times \alpha^f\)\\
-        Prob. I\(\rightarrow\)H & \(\psi^f\) & \(0.034 \times \psi^f\) \\
-        Prob. H\(\rightarrow\)D & \(\tau^f\) & \(0.034 \times \tau^f\)\\
-        \bottomrule
-    \end{tabular}
-    \caption*{Valores das eficácias e sua interferência nos parâmetros. Fonte:~\cite{Haas2021}.}
-    \label{tabela:vacina_adaptada}
-\end{table}
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    
+    \includegraphics[scale= 0.3]{figuras/compara_pesos_0.0.png}
+    \\
+    \captionsetup{font=small,justification=justified}
+    \caption*{}
+    \label{fig:compara_pesos}
+\end{figure}
+
+Diferente da comparação entre o ponderado e não ponderado, a comparação entre Individualista e Altruísta pelo erro relativo é consenso, como mostra a Figura \ref{fig:compara_altruismo}, que o Individualista foi muito pior que a abordagem Altruísta pois ou os valores eram bastante parecidos ou havia uma piora muito grande, no caso da rede ponderada muitas métricas pioraram e nas outras havia pouca mudança já na rede não ponderada houve o contrário.
+
+\begin{figure}[H]
+    \centering
+    \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
+    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    
+    \includegraphics[scale= 0.3]{figuras/compara_altruismo_0.0.png}
+    \\
+    \captionsetup{font=small,justification=justified}
+    \caption*{}
+    \label{fig:compara_altruismo}
+\end{figure}
