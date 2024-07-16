@@ -387,7 +387,7 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
     x = integral[np.argsort(texto)]
     return (x - np.min(x))/(np.max(x) - np.min(x)),texto[np.argsort(texto)]
 
-def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,legenda,coluna,eixo):
+def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores,estrategy_to_color):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
     df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
@@ -411,14 +411,14 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,legenda,coluna,eixo):
         "probhosp":"PH",
         "probmorte":"PM",
         "pagerank":"PR",
-        "wbetwenness":"CBW",
-        "wclose":"CPW",
-        "weigenvector":"CAW",
-        "wpagerank":"PRW",
-        "wharmonic":"CHW",
+        "wbetwenness":"WCB",
+        "wclose":"WCP",
+        "weigenvector":"WCA",
+        "wpagerank":"WPR",
+        "wharmonic":"WCH",
         "laplacian":"CL",
         "wlaplacian":"WCL",
-        "coautor":"CO",
+        "coautor":"UT",
         "wcoautor":"WUT",
         "altruista-wcoautor":"A-WUT",
         "altruista-wlaplacian":"A-WCL",
@@ -464,17 +464,15 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,legenda,coluna,eixo):
         "altruista-wgravity-4":"A-WCGR1/4",
         "altruista-wgravity-5":"A-WCGR1/5",
 
-        'altruista-coautor':'A-CO',
+        'altruista-coautor':'A-UT',
         "wgravity2":"WCGR2",
         "efficiency":"CF",
         "wefficiency":"WCF",
         
     }
-    cores = ['#264653','#2a9d8f','#e76f51','#f4a261']
     filter = np.array(filter)
     if(filter[-1] == filter[-2]):
         filter = filter[:-1]
-    print(filter)
     df_filtrado['Estratégia'] = pd.Categorical(df_filtrado['Estratégia'], categories=filter, ordered=True)
     # Ordenando o DataFrame pela coluna 'nome' na ordem do vetor
     df_filtrado = df_filtrado.sort_values(by='Estratégia')
@@ -483,34 +481,36 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,legenda,coluna,eixo):
     df_filtrado.reset_index(drop=True, inplace=True)
     # Adicionando a última linha ao DataFrame
     text = ['Aleatório','Idade','Melhor no Parâmetro','Melhor em Média']
-    showlegend = ((len(filter) == 4) and (legenda))
-    for estrategy,file,cor,t in zip(df_filtrado['Estratégia'].values,df_filtrado['Files'].values,cores,text):
+        
+    for file,estrategy in zip(df_filtrado['Files'].values,filter):
         infect = np.loadtxt(file).T
         tempo = np.arange(100.01)/100
         y = infect[coluna]
+        legend = False
+        if(estrategy not in estrategy_to_color):
+            estrategy_to_color[estrategy] = cores[cor_value]
+            cor_value += 1
+            legend = True
         fig.add_trace(
             go.Scatter(
                 x=tempo[tempo > 0], 
                 y=y[tempo > 0], 
                 mode='markers',     
-                name=t,
+                name=arquivo[estrategy],
                 marker=dict(
-                    size = 7,
+                    size = 10,
                 ),
                 error_y=dict(
                     type='data',
                 ),
-                showlegend=((len(filter) == 4) and (legenda)),
-                line=dict(color=cor)
+                line=dict(color=estrategy_to_color[estrategy]),
+                showlegend= legend
             ),
             row=row,
-            col=col,
-        )
-    if(showlegend):
-        legenda = False
+            col=col,)
     fig.update_yaxes(title_text=eixo, row=row, col=col)
     fig.update_xaxes(title_text='f', row=row, col=col)
-    return fig,legenda
+    return fig,cor_value,estrategy_to_color
 
 def set_labels(ax,new_labels):
     ax.set_xticks(np.arange(len(new_labels)))

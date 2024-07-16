@@ -64,7 +64,7 @@ Por último, a Figura \ref{fig:mediastd} apresenta duas matrizes de calor que il
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Média e desvio-padrão dos tempos de contato entre faixas etárias}
-    \includegraphics[scale= 0.35]{figuras/media_std.png}
+    \includegraphics[scale= 0.32]{figuras/media_std.png}
     \captionsetup{font=small,justification=justified}
     \caption*{A imagem mostra a média e o desvio padrão do tempo de contato entre diferentes faixas etárias. A matriz da média indica que o contato é mais intenso dentro da mesma faixa etária e entre faixas etárias adjacentes, reduzindo conforme aumenta a diferença de idade. A matriz do desvio padrão mostra maior variação nos contatos dentro da mesma faixa e entre adjacentes, com menor variação entre faixas mais distantes. \\Fonte: Autor}
     \label{fig:mediastd}
@@ -86,7 +86,7 @@ mostra-se a diferença absoluta ao final do algoritmo da proporção de conexõe
     \caption{Agrupamento da rede em função de $p$}
     %PIF27092023 É possível apagar o enquadramento branco?        
     %\includegraphics[scale= 0.5]{figuras/clustering_vs_p.png}
-    \includegraphics[scale= 0.6]{figuras/clustering_vs_p.png}
+    \includegraphics[scale= 0.45]{figuras/clustering_vs_p.png}
     \captionsetup{font=small,justification=justified}    \caption*{Evolução do agrupamento da rede em função 
     do incremento do valor de $p$, foi utilizada uma regressão linear para saber qual a função que rege encontrando $C \propto p^{\alpha}$.\\Fonte: Autor}
     \label{fig:regressao}
@@ -116,7 +116,7 @@ mostra-se a diferença absoluta ao final do algoritmo da proporção de conexõe
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Agrupamento da rede em função de $p$}
-    \includegraphics[scale= 0.5]{figuras/correlation.png}
+    \includegraphics[scale= 0.45]{figuras/correlation.png}
     \captionsetup{font=small,justification=justified}    \caption*{Evolução do agrupamento da rede em função 
     do incremento do valor de $p$, foi utilizada uma regressão linear para saber qual a função que rege encontrando $C \propto p^{\alpha}$.\\Fonte: Autor}
     \label{fig:correlation}
@@ -141,7 +141,7 @@ Após a implementação do modelo epidemiológico no modelo de redes escolhidos 
     \includegraphics[scale= 0.5]{figuras/pre_vacina_nponderado.png}
     \captionsetup{font=small,justification=justified}
     \caption*{Resultados antes da aplicação de qualquer 
-    estratégia de vacinação para uma rede $N$ = 10000 com $p $ = 0 após 1000 realizações. Inicialmente, a proporção de suscetíveis diminui rapidamente, seguida por um aumento e estabilização. A fração de infectados atinge um pico, afetando 
+    estratégia de vacinação para uma rede $N$ = 10000 com $p $ = 0 após 400 realizações. Inicialmente, a proporção de suscetíveis diminui rapidamente, seguida por um aumento e estabilização. A fração de infectados atinge um pico, afetando 
     40\% da população, e depois diminui. Paralelamente, a proporção de recuperados aumenta e estabiliza em 71\% da população.}
     \label{fig:pre_vacina}
 \end{figure}
@@ -153,20 +153,22 @@ Após a implementação do modelo epidemiológico no modelo de redes escolhidos 
     \includegraphics[scale= 0.5]{figuras/pre_vacina_mortos_nponderado.png}
     %\includegraphics[scale= 0.4]{figuras/pre_vacina_mortos-PIF.png}
     \captionsetup{font=small,justification=justified}
-    \caption*{Simulações foram feitas para uma rede $N$ = 2028 com $p $ = 0 após 1000 realizações.}
+    \caption*{Simulações foram feitas para uma rede $N$ = 10000 com $p $ = 0 após 400 realizações. O gráfico mostra que a Fração de Hospitalizados chega a um limite máximo de pessoas que podem estar no estágio ao mesmo tempo enquanto que a fração de mortos cresce indefinidamente até chegar em aproximadamente 0.6\% da rede.}
     \label{fig:pre_vacina_mortos}
 \end{figure}
 
 Com o aumento de $p$ surgem diferenças com o comportamento da infecção, a Figura mostra \ref{fig:pre_vacina_mortos_p} que a rede tem uma quantidade menor de mortos, contudo a infecção demora mais para crescer, decair e estabilizar, ou seja o agente permanece mais tempo na rede, isso se deve, provavelmente, ao fato de que em média os idosos tem conexões menores e sabemos anteriormente que o MCP aumenta o agrupamento de nós com poucas conexões e que os mais idosos tem mais conexões com os mais novos pois precisam de cuidados e esses têm pouca chance de morrer mas tem mais conexões, portanto o que deve acontecer é que a infecção se espalha mais no grupo dos mais jovens.
 
+%LCR10072024: É possível exibir gráficos com o número de mortos por faixa etária? E também exibir gráficos com o número de infectados por faixa etária?
+
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Mortos e Hospitalizados antes da aplicação de qualquer estratégia de vacinação e diferentes valores de $p$}
+    \caption{Fração de Mortos e Hospitalizados antes da aplicação de qualquer estratégia de vacinação para diferentes valores de $p$}
     \vspace{5pt}
     \includegraphics[width=\textwidth]{figuras/pre_vacina_mortos_p_nponderado.png}
     \captionsetup{font=small,justification=justified}
-    \caption*{Resultados para fração de Mortos e Hospitalizados e função do tempo antes da aplicação de qualquer estratégia de vacinação para uma rede $N$ = 2028 para valores de $p$ = 0, $p$ = 0.5 e $p$ = 1.}
+    \caption*{Resultados para fração de Mortos e Hospitalizados e função do tempo antes da aplicação de qualquer estratégia de vacinação para uma rede $N$ = 10000 para diferentes valores de $p$. Quanto maior o $p$ menor a fração de mortos e o número de Expostos tende a demorar a estabilizar, resultado das conexões entre faixas.}
     \label{fig:pre_vacina_mortos_p}
 \end{figure}
 
@@ -192,23 +194,25 @@ A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
-    \includegraphics[scale= 0.3]{figuras/cmpara_p_f.png}
+    \caption{Gráfico para cada métrica por fração de vacinados para $p = 0$ e $p = 1.0$ sem ponderação nas arestas}
+    \includegraphics[scale= 0.3]{figuras/compara_p_f_nponderado_0.0.png}
+    \includegraphics[scale= 0.3]{figuras/compara_p_f_nponderado_1.0.png}
     \captionsetup{font=small,justification=justified}
     
-    \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
+    \caption*{Comparação de cada métrica mostrando se a estratégia fosse aleatória (CR) e se fosse idade (CI) e com as melhores estratégias em cada métrica. Para $p = 0$ a melhor estratégia foi a Utilidade com abordagem Altruísta (A-UT) já no segundo foi a Centralidade de Intermediação (CB). }
     \label{fig:resultados_metricas}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
-    \includegraphics[scale= 0.3]{figuras/newplot.png}
+    \caption{Gráfico para cada métrica por fração de vacinados para $p = 0$ e $p = 1.0$ com ponderação nas arestas}
+    \includegraphics[scale= 0.3]{figuras/compara_p_f_ponderado_0.0.png}
+    \includegraphics[scale= 0.3]{figuras/compara_p_f_ponderado_1.0.png}
 
     \captionsetup{font=small,justification=justified}
     
-    \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
+    \caption*{ Comparação de cada métrica mostrando se a estratégia fosse aleatória (CR) e se fosse idade (CI) e com as melhores estratégias em cada métrica. Para $p = 0$ a melhor estratégia foi o Page-Rank com pesos nas arestas (WPR) já no segundo foi a Centralidade de Grau (CG). }
     \label{fig:resultados_metricas_ponderado}
 \end{figure}
 
@@ -217,13 +221,13 @@ Embora os gráficos forneçam uma indicação preliminar da diferença entre a m
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \caption{Correlação entre o ranqueamento entre cada métrica}
     
     \includegraphics[scale= 0.4]{figuras/corr_p.png}
     \\
     \includegraphics[scale= 0.4]{figuras/corr_p_ponderado.png}
     \captionsetup{font=small,justification=justified}
-    \caption*{}
+    \caption*{A correlação entre o ranqueamento das métricas mostra que $F_I$ e $F_M$ são as mais diferentes,entretanto com o incremento de $p$ a diferença diminui, para ambos os casos de rede ponderada nas arestas e não ponderada. Além disso na rede ponderada a correlação é muito maior que a não ponderada.}
     \label{fig:Spearman}
 \end{figure}
 
@@ -232,13 +236,13 @@ Como mostrado pela Figura \ref{fig:Spearman} as relações entre métricas mudam
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \caption{Correlação entre o ranqueamento de cada métrica para cada agrupamento}
     
     \includegraphics[scale= 0.4]{figuras/compara_agrupamento_nponderado.png}
     \\
     \includegraphics[scale= 0.4]{figuras/compara_agrupamento_ponderado.png}
     \captionsetup{font=small,justification=justified}
-    \caption*{}
+    \caption*{Para cada métrica foi feito uma correlação de Spearman entre os 5 valores de $p$ tanto para ponderação nas arestas quanto sem ponderação. Em ambos os casos mostra-se que a classificação se altera pouco o que é útil pois estimar o agrupamento de uma rede de contatos real é custoso.}
     \label{fig:Spearman_p}
 \end{figure}
 
@@ -247,12 +251,12 @@ Anteriormente foram apresentadas as centralidades e as suas versões utilizando 
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \caption{Diferença relativa da centralidade com e sem peso nas arestas}
     
     \includegraphics[scale= 0.3]{figuras/compara_pesos_0.0.png}
     \\
     \captionsetup{font=small,justification=justified}
-    \caption*{}
+    \caption*{Diferença relativa entre ponderação nas arestas: em todas as métricas a diferença foi irrelevante ou houve uma piora considerável, não utilizá-las reduz o custo computacional do cálculo das centralidades.}
     \label{fig:compara_pesos}
 \end{figure}
 
@@ -261,11 +265,10 @@ Diferente da comparação entre o ponderado e não ponderado, a comparação ent
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \caption{Diferença relativa entre abordagem Individualista e Altruista}
     
     \includegraphics[scale= 0.3]{figuras/compara_altruismo_0.0.png}
-    \\
     \captionsetup{font=small,justification=justified}
-    \caption*{}
+    \caption*{Resultado para a diferença relativa entre abordagens: estratégias individualistas foram, em sua maioria, piores que as altruístas. Sem ponderação nas arestas, não houve diferença; com ponderação, houve piora.}
     \label{fig:compara_altruismo}
 \end{figure}
