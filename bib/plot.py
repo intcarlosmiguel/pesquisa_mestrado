@@ -361,21 +361,15 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
     }
     ylabel = []
     df = df[df['Clustering'] == clustering]
-    corr = np.array([])
-    n = False
     texto = []
 
     for estrategy,file in zip(df['Estratégia'].values,df['Files'].values):
         texto.append(estrategy)
         infect = np.loadtxt(file).T
         tempo = np.arange(100.01)/100
-        if(not n):
-            corr = np.copy(infect[1:,1:])
-            n = True
-        else:
-            np.concatenate((corr, infect[1:,:]), axis=1)
+
         y = infect[plot]
-        if(plot!= 3):
+        if(plot!= 2):
             integral.append(np.dot(y, 0.01*np.ones(len(y))))
         else:
             integral.append(tempo[y ==0][0])
@@ -1334,11 +1328,11 @@ def vacina_infect(
 
 def compara_probability(N,ponderado):
 
-    files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/")]
+    files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/test/")]
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Expostos', 'Mortos'))
     cores = px.colors.qualitative.Dark24
     for file,cor in zip(files,cores):
-        infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/{file}").T
+        infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/test/{file}").T
         dados = {
             'Tempo': np.arange(len(infect[0]))/2,
             #'Suscetíveis': infect[0],
@@ -1359,7 +1353,7 @@ def compara_probability(N,ponderado):
         xaxis=dict(title='Tempo'),
         #xaxis=dict(),
         yaxis=dict(title='Fração'),
-        paper_bgcolor='rgba(0,0,0,0)',
+        #paper_bgcolor='rgba(0,0,0,0)',
         template = "seaborn",
         font=dict(
             #family="Courier New, monospace",
@@ -1372,7 +1366,7 @@ def compara_probability(N,ponderado):
     fig.update_xaxes(title_text='Tempo',tickfont=dict(size=15), row=1, col=2)
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
-    fig.write_image(f"./img/infect/pre_vacina_mortos_p_{'ponderado' if(ponderado)  else 'nponderado'}.png")
+    #fig.write_image(f"./img/infect/pre_vacina_mortos_p_{'ponderado' if(ponderado)  else 'nponderado'}.png")
     fig.show()
 
 

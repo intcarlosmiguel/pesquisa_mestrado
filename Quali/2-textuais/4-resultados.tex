@@ -132,7 +132,7 @@ Para as centralidades que dependem da ponderação nos nós foram utilizadas a p
 \end{equation}
 O valor de $\Theta_\nu$ e $\Theta_\mu$ e das centralidades com ponderação dos nós será feito de duas abordagens diferentes: Altruísta e a Individualista. A Altruísta será calculando as centralidade pensando que o nó $\nu$ a ser calculado esteja tentando infectar as outras pessoas na rede e matar elas, na abordagem Individualista as centralidades são calculadas pensando no nó $\nu$ sendo infectado por todas as outras pessoas na rede e morrer.
 
-Após a implementação do modelo epidemiológico no modelo de redes escolhidos foram escolhidos pela performasse do algoritmo que após o dia 100 a infecção estabilizava e esse seria o dia da vacinação, deste modo simula-se a situação real na qual a vacina só se tornou disponível após a COVID-19 já ter se espalhado por todo o mundo. Anteriormente a esse dia a rede se comporta, para $p = 0$ (com agrupamento médio de 0.01), de acordo com as Figuras \ref{fig:pre_vacina} e \ref{fig:pre_vacina_mortos}. A Figura \ref{fig:pre_vacina} mostra a evolução da epidemia, em que pode-se observar que a proporção de indivíduos suscetíveis diminui rapidamente até o dia 25, que é o tempo de incubação, para posteriormente aumentar e atingir um estado de estabilidade. A fração de indivíduos infectados (a soma da fração de assintomáticos com a de sintomáticos) aumenta até atingir um pico, com  30\% da população total sendo infectada simultaneamente, seguido por um declínio. Finalmente, a fração de indivíduos recuperados aumenta até que 58\% da população esteja nesse estado, estabilizando posteriormente. Já a Figura \ref{fig:pre_vacina_mortos} mostra a evolução  da  fração de mortos e a fração de hospitalizados, nesse sentido observa-se que o número máximo de hospitalizados observado foi cerca de 0.46\% da rede, enquanto o número de mortos cresce indefinidamente. Neste trabalho, não consideramos a capacidade do sistema hospitalar, pois neste caso, precisaríamos de informações sobre a taxa de recuperação e de morte de sintomáticos que precisariam ser internados e não foram por falta de leitos que não são facilmente determinadas.   
+Após a implementação do modelo epidemiológico no modelo de redes escolhidos foram escolhidos pela performasse do algoritmo que após o dia 100 a infecção estabilizava e esse seria o dia da vacinação, deste modo simula-se a situação real na qual a vacina só se tornou disponível após a COVID-19 já ter se espalhado por todo o mundo. Anteriormente a esse dia a rede se comporta, para $p = 0$ (com agrupamento médio de 0.01), de acordo com as Figuras \ref{fig:pre_vacina} e \ref{fig:pre_vacina_mortos} na qual foi feito uma média com 400 simulações. A Figura \ref{fig:pre_vacina} mostra a evolução da epidemia, em que pode-se observar que a proporção de indivíduos suscetíveis diminui rapidamente até o dia 25, que é o tempo de incubação, para posteriormente aumentar e atingir um estado de estabilidade. A fração de indivíduos infectados (a soma da fração de assintomáticos com a de sintomáticos) aumenta até atingir um pico, com  30\% da população total sendo infectada simultaneamente, seguido por um declínio. Finalmente, a fração de indivíduos recuperados aumenta até que 58\% da população esteja nesse estado, estabilizando posteriormente. Já a Figura \ref{fig:pre_vacina_mortos} mostra a evolução  da  fração de mortos e a fração de hospitalizados, nesse sentido observa-se que o número máximo de hospitalizados observado foi cerca de 0.46\% da rede, enquanto o número de mortos cresce indefinidamente. Neste trabalho, não consideramos a capacidade do sistema hospitalar, pois neste caso, precisaríamos de informações sobre a taxa de recuperação e de morte de sintomáticos que precisariam ser internados e não foram por falta de leitos que não são facilmente determinadas.   
 
 \begin{figure}[H]
     \centering
@@ -151,15 +151,12 @@ Após a implementação do modelo epidemiológico no modelo de redes escolhidos 
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
     \caption{Fração de Hospitalizados e Mortos antes da aplicação de qualquer estratégia de vacinação}
     \includegraphics[scale= 0.5]{figuras/pre_vacina_mortos_nponderado.png}
-    %\includegraphics[scale= 0.4]{figuras/pre_vacina_mortos-PIF.png}
     \captionsetup{font=small,justification=justified}
     \caption*{Simulações foram feitas para uma rede $N$ = 10000 com $p $ = 0 após 400 realizações. O gráfico mostra que a Fração de Hospitalizados chega a um limite máximo de pessoas que podem estar no estágio ao mesmo tempo enquanto que a fração de mortos cresce indefinidamente até chegar em aproximadamente 0.6\% da rede.}
     \label{fig:pre_vacina_mortos}
 \end{figure}
 
 Com o aumento de $p$ surgem diferenças com o comportamento da infecção, a Figura mostra \ref{fig:pre_vacina_mortos_p} que a rede tem uma quantidade menor de mortos, contudo a infecção demora mais para crescer, decair e estabilizar, ou seja o agente permanece mais tempo na rede, isso se deve, provavelmente, ao fato de que em média os idosos tem conexões menores e sabemos anteriormente que o MCP aumenta o agrupamento de nós com poucas conexões e que os mais idosos tem mais conexões com os mais novos pois precisam de cuidados e esses têm pouca chance de morrer mas tem mais conexões, portanto o que deve acontecer é que a infecção se espalha mais no grupo dos mais jovens.
-
-%LCR10072024: É possível exibir gráficos com o número de mortos por faixa etária? E também exibir gráficos com o número de infectados por faixa etária?
 
 \begin{figure}[H]
     \centering
@@ -177,11 +174,11 @@ Para finalizar, fizemos a comparação entre como a rede se espalha nos primeiro
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
-    \caption{Fração de Infectados com diferentes estratégias de vacinação e $p$ = 0.0}
+    \caption{Comparação entre a ponderação nas arestas e sem ponderação}
     \includegraphics[scale= 0.5]{figuras/compara_ponderado_nponderado.png}
     \captionsetup{font=small,justification=justified}
     
-    \caption*{ Após 60 dias, diferentes estratégias de vacinação foram aplicadas, mostrando variação no número de infectados. As estratégias de priorização de graus e centralidade de intermediação foram mais eficazes em conter a proliferação, enquanto as estratégias baseadas em idade e aleatória foram as menos eficazes, apresentando desempenho quase equivalente. As demais estratégias, com exceção da centralidade excêntrica, mostraram comportamento semelhante.}
+    \caption*{Nesse gráfico mostra a diferença sútil entre o caso não ponderado nnas arestas e ponderado nas arestas no caso Suscetível, essa pequena diferença aparece nas outros gráficos, mas foi optado por mostrar apenas esse.}
     \label{fig:compara_ponderado_nponderado}
 \end{figure}
 
@@ -199,7 +196,7 @@ A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como
     \includegraphics[scale= 0.3]{figuras/compara_p_f_nponderado_1.0.png}
     \captionsetup{font=small,justification=justified}
     
-    \caption*{Comparação de cada métrica mostrando se a estratégia fosse aleatória (CR) e se fosse idade (CI) e com as melhores estratégias em cada métrica. Para $p = 0$ a melhor estratégia foi a Utilidade com abordagem Altruísta (A-UT) já no segundo foi a Centralidade de Intermediação (CB). }
+    \caption*{Comparação de cada métrica mostrando se a estratégia fosse aleatória (CR) e se fosse idade (CI) e com as melhores estratégias em cada métrica. Para $p = 0$ a melhor estratégia foi a Utilidade com abordagem Altruísta (A-UT) já no segundo foi o Page Rank (PR). }
     \label{fig:resultados_metricas}
 \end{figure}
 
@@ -212,7 +209,7 @@ A Figura \ref{fig:resultados_metricas} para o caso sem ponderação compara como
 
     \captionsetup{font=small,justification=justified}
     
-    \caption*{ Comparação de cada métrica mostrando se a estratégia fosse aleatória (CR) e se fosse idade (CI) e com as melhores estratégias em cada métrica. Para $p = 0$ a melhor estratégia foi o Page-Rank com pesos nas arestas (WPR) já no segundo foi a Centralidade de Grau (CG). }
+    \caption*{ Comparação de cada métrica mostrando se a estratégia fosse aleatória (CR) e se fosse idade (CI) e com as melhores estratégias em cada métrica. Para $p = 0$ a melhor estratégia foi o Page-Rank com pesos nas arestas (WPR) em ambos os casos }
     \label{fig:resultados_metricas_ponderado}
 \end{figure}
 
@@ -261,7 +258,6 @@ Anteriormente foram apresentadas as centralidades e as suas versões utilizando 
 \end{figure}
 
 Diferente da comparação entre o ponderado e não ponderado, a comparação entre Individualista e Altruísta pelo erro relativo é consenso, como mostra a Figura \ref{fig:compara_altruismo}, que o Individualista foi muito pior que a abordagem Altruísta pois ou os valores eram bastante parecidos ou havia uma piora muito grande, no caso da rede ponderada muitas métricas pioraram e nas outras havia pouca mudança já na rede não ponderada houve o contrário.
-
 \begin{figure}[H]
     \centering
     \captionsetup{font=normalsize,skip=0.8pt,singlelinecheck=on,labelsep=endash}
@@ -272,3 +268,63 @@ Diferente da comparação entre o ponderado e não ponderado, a comparação ent
     \caption*{Resultado para a diferença relativa entre abordagens: estratégias individualistas foram, em sua maioria, piores que as altruístas. Sem ponderação nas arestas, não houve diferença; com ponderação, houve piora.}
     \label{fig:compara_altruismo}
 \end{figure}
+
+Por fim as Tabelas \ref{tabela:melhoresnponderado} e \ref{tabela:melhoresponderado} expõe as melhores estratégias e a estratégia média encontradas para cada valor de $p$, métrica e ponderaçãona rede. No geral as estratégias que são apresentadas são aquelas que têm característica local, ou seja, os vizinhos mais próximos têm um maior peso e também o Page-rank na qual foi mostrado a sua utilidade em prever difusão.
+
+Além disso, foram identificadas as fronteiras de Pareto para cada valor de \( p \), que representam as combinações de estratégias que oferecem o melhor compromisso entre as diferentes métricas de desempenho avaliadas. A curva de Pareto é uma representação gráfica que ilustra essa relação de trade-off: ao longo da curva, cada ponto representa uma configuração de estratégias onde melhorar uma métrica implica necessariamente piorar outra. Assim, as fronteiras de Pareto mostradas indicam as soluções eficientes para cada valor de \( p \). Para o caso não ponderado a curva de Parteo é composta pelas seguintes estratégias:
+
+\begin{itemize}
+    \item \( p = 0.00 \): A-UT, A-CGR, A-CGR1/2, A-CGR1/3, A-CGR1/4, A-CGR3, A-CGR4, A-CGR5, A-CL, CGR, CGR1/3, CGR1/4, CGR5, PR;
+    \item \( p = 0.25 \): A-UT, A-CGR, A-CGR1/2, A-CGR1/5, A-CGR3, A-CGR4, A-CGR5, A-CL, CB, CG, CGR5;
+    \item \( p = 0.50 \): A-UT, A-CGR, A-CGR1/2, A-CGR1/4, A-CGR1/5, A-CGR3, A-CGR4, A-CGR5, A-CL, CB, CG, CGR5, PR;
+    \item \( p = 0.75 \): A-UT, A-CGR, A-CGR1/2, A-CGR1/3, A-CGR1/4, A-CGR1/5, A-CGR3, A-CGR4, A-CGR5, CB, CG, PR;
+    \item \( p = 1.00 \): A-UT, A-CGR, A-CGR1/2, A-CGR1/3, A-CGR1/5, A-CGR3, A-CGR4, A-CGR5, CG, CGR5, PR,
+\end{itemize}
+
+já para o caso ponderado são as seguintes estratégias:
+
+\begin{itemize}
+    \item \( p = 0.00 \): A-CGR, A-CGR1/2, A-CGR1/3, A-WUT, A-WCL, CB, CA, CG, PR, WPR
+    \item \( p = 0.25 \): A-CGR, A-CGR1/2, A-CGR1/3, A-CGR5, A-WCL, CB, CG, CGR1/3, WPR
+    \item \( p = 0.50 \): A-CGR, A-CGR1/2, A-CGR1/3, A-CGR5, A-WCL, CB, CG, CGR5, PR, WPR
+    \item \( p = 0.75 \): A-CGR, A-CGR1/2, A-CGR1/3, A-CGR5, A-WCL, CB, CG, PR, WPR
+    \item \( p = 1.00 \): A-CGR, A-CGR1/2, A-CGR1/3, A-CGR5, A-WCL, CB, CG, CGR5, PR
+  \end{itemize}
+
+\begin{table}[H]
+    \caption{Melhores estratégias para cada valor de $p$ na rede não ponderada}
+    \captionsetup{width=13.5cm}
+    \begin{tabular}{crrrr}
+    \toprule
+    Probabilidade & Fração de Mortos & Tempo Hospitalizado & Fração de Vacinados & Média \\
+    \midrule
+    \midrule
+    p = 0.00      & CGR1/4 & A-UT & PR & A-UT\\
+    p = 0.25      & A-CGR4 & CB & CG & CB\\
+    p = 0.50      & CGR5 & PR & CG & PR\\
+    p = 0.75      & A-CGR5 & A-CGR5 & CG & CG\\
+    p = 1.00      & A-CGR5 & CGR5 & PR & PR\\    
+    \bottomrule
+\end{tabular}
+\caption*{Resultado final para as melhores estratégias para o caso não ponderado nas arestas. Há uma predominância de estratégias locais, ou seja, que tem um maior peso nós mais próximos do nó avaliado.}
+\label{tabela:melhoresnponderado}
+\end{table}
+
+\begin{table}[H]
+    \captionsetup{width=13.5cm}
+    \caption{Melhores estratégias para cada valor de $p$ na rede ponderada}
+    \begin{tabular}{crrrr}
+    \toprule
+    Probabilidade & Fração de Mortos & Tempo Hospitalizado & Fração de Vacinados & Média \\
+    \midrule
+    \midrule
+    p = 0.00       & WPR & WPR & CG & WPR\\
+    p = 0.25      & CGR1/3 & CG & WPR & WPR\\
+    p = 0.50      & CGR5 & PR & WPR & WPR\\
+    p = 0.75      & WPR & PR & WPR &  WPR\\
+    p = 1.00      & CGR5 & CG & WPR &  PR\\    
+    \bottomrule
+\end{tabular}
+\caption*{Resultado final para as melhores estratégias para o caso ponderado nas arestas. Há uma predominância da WPR e PR em relação as outras centralidades e ainda sim como no exemplo passado uma predominância de estratégias locais.}
+\label{tabela:melhoresponderado}
+\end{table}
