@@ -367,7 +367,6 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
         texto.append(estrategy)
         infect = np.loadtxt(file).T
         tempo = np.arange(100.01)/100
-
         y = infect[plot]
         if(plot!= 2):
             integral.append(np.dot(y, 0.01*np.ones(len(y))))
@@ -381,7 +380,7 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
     x = integral[np.argsort(texto)]
     return (x - np.min(x))/(np.max(x) - np.min(x)),texto[np.argsort(texto)]
 
-def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores,estrategy_to_color):
+def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores,estrategy_to_color,estrategy_to_symbols,symbols):
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
     df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
@@ -483,6 +482,7 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores
         legend = False
         if(estrategy not in estrategy_to_color):
             estrategy_to_color[estrategy] = cores[cor_value]
+            estrategy_to_symbols[estrategy] = symbols[cor_value]
             cor_value += 1
             legend = True
         fig.add_trace(
@@ -492,13 +492,20 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores
                 mode='markers',     
                 name=arquivo[estrategy],
                 marker=dict(
-                    size = 10,
+                    size = 7,
+                    symbol=estrategy_to_symbols[estrategy],
+                    color='rgba(0,0,0,0)',  # Torna a cor interna transparente
+                    line=dict(
+                        color=estrategy_to_color[estrategy],  # Cor do contorno do marcador
+                        width=2  # Largura do contorno do marcador
+                    )
                 ),
                 error_y=dict(
                     type='data',
                 ),
-                line=dict(color=estrategy_to_color[estrategy]),
-                showlegend= legend
+                #line=dict(color=estrategy_to_color[estrategy]),
+                showlegend= legend,
+                
             ),
             row=row,
             col=col,)
@@ -1083,13 +1090,13 @@ def infectados_plot(N,ponderado):
                 mode='markers', 
                 name=coluna,
                 marker=dict(
-                    size=5
+                    size=10
                 )
             )
         )
     #print(infect[0][200]+infect[5][200]+infect[3][200])
     fig.update_layout(
-        width=700,  # Largura do gráfico em pixels
+        width=800,  # Largura do gráfico em pixels
         height=600,  # Altura do gráfico em pixels
         xaxis=dict(title='Tempo',tickfont=dict(size=15)),
         #xaxis=dict(),
@@ -1098,7 +1105,7 @@ def infectados_plot(N,ponderado):
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(
             #family="Courier New, monospace",
-            size=15,
+            size=22,
             #color="RebeccaPurple"
         ),
     )
@@ -1329,6 +1336,7 @@ def vacina_infect(
 def compara_probability(N,ponderado):
 
     files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/test/")]
+    print(files)
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Expostos', 'Mortos'))
     cores = px.colors.qualitative.Dark24
     for file,cor in zip(files,cores):
@@ -1366,7 +1374,7 @@ def compara_probability(N,ponderado):
     fig.update_xaxes(title_text='Tempo',tickfont=dict(size=15), row=1, col=2)
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
-    #fig.write_image(f"./img/infect/pre_vacina_mortos_p_{'ponderado' if(ponderado)  else 'nponderado'}.png")
+    fig.write_image(f"./img/infect/pre_vacina_mortos_p_{'ponderado' if(ponderado)  else 'nponderado'}.png")
     fig.show()
 
 
@@ -1465,7 +1473,6 @@ def compara_weight(N,p):
     # Ordenar o resultado de acordo com a ordem do vetor
     resultado['Estratégia'] = pd.Categorical(resultado['Estratégia'], categories=non_w, ordered=True)
     resultado = resultado.sort_values('Estratégia').reset_index(drop=True)
-
     if(len(non_w) == len(with_w)):
         all_ = []
         all_w = []
@@ -1478,7 +1485,6 @@ def compara_weight(N,p):
             all_w.append(list(np.dot(infect_w[:,:2].T,tempo)) + [tempo[infect_w.T[2] ==0][0]])
         all_ = np.array(all_)
         all_w = np.array(all_w)
-
         data = {
             'Estratégia': resultado['Estratégia'],
             'Fração de Mortos': (all_w[:,0] - all_[:,0])/all_[:,0],
@@ -1660,7 +1666,7 @@ def compara_altruismo(N,p):
     df = np.array([[arquivo[i.split("_")[0]],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     df = df[df['Clustering'] == p].reset_index(drop=True)
-
+    display(df)
     resultado_ponderado,resultado_ponderado_altruista = with_altruista(df)
 
     cmd = f"./C/output/vacina/{N}/nponderado/"

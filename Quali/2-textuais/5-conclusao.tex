@@ -1,10 +1,31 @@
 \chapter{Conclusões e Trabalhos Futuros}
 \label{chap:conclusoes-e-trabalhos-futuros}
 
-Neste trabalho, foram investigados diferentes métricas de centralidade e quais delas são melhores efetivas em identificar indivíduos chave na propagação do COVID-19. Ao estudar uma pesquisa conseguimos obter dados que nos ajudaram a construir um modelo de redes, apesar da pesquisa não contribuir para isso, propomos um modelo de formação de rede a partir de uma sequência de graus e as conexões entre indivíduos de faixa etária diferentes e propomos um modelo de propagação do COVID-19 e vacinação na rede.
+Neste trabalho, foram investigados diferentes métricas de centralidade e quais delas são 
+mais
+efetivas em identificar indivíduos chave na propagação do COVID-19
+e nas hospitalizações e mortes decorrentes da COVID-19.
+Ao estudar o POLYMOD, realizamos uma análise exploratória que nos permitiu coletar dados fundamentais para a construção de um modelo de redes. Embora a pesquisa original não tenha sido direcionada especificamente para esse fim, propomos um modelo de formação de rede a partir de uma sequência de graus, considerando as conexões entre indivíduos de diferentes faixas etárias e a distribuição etária na rede. Através dessa abordagem, foi possível obter dados sobre o tempo de contato entre as diferentes faixas etárias, permitindo ponderar as ligações entre os indivíduos. Como resultado, desenvolvemos um modelo de propagação da COVID-19 
+mais complexo em comparação aos usualmente presentes na literatura de redes. Esse modelo considera as interferências na rede e as alterações resultantes da vacinação dos indivíduos, oferecendo uma visão mais detalhada sobre os impactos da vacinação na dinâmica de propagação da doença.
 
 %Resultados 
-A partir do modelo utilizado, da variação do agrupamento, da ponderação da rede e das métricas a disposição foi mostrado que centralidades que consideraram peso nos nós e a estrutura da rede foram muito efetivas para vacinação contra COVID, essas estratégias conseguiam reduzir a mortalidade em de mais 60\% da mortalidade, 66\% do tempo total hospitalizado e foi necessário vacinar menos de 40\% da rede com a melhor estratégia para inibir a proliferação do vírus, ademais foi mostrado que utilizar peso nas arestas não teve ganho tão significativo, o que gera um menor gasto computacional, e até as vezes teve uma piora enquanto que uma abordagem altruísta dos valores se mostrou uma estratégia forte contra o vírus. Por fim, a classificação das melhores métricas mostrou ser bastante estável com o incremento do agrupamento da rede, o que possibilita não ser tão necessário a estimação esse valor em uma rede real.
+A partir do modelo utilizado, da variação do agrupamento, da construção da rede, da ponderação ou não das arestas foi mostrado como o modelo se comporta, como ele é sensível em relação ao incremento 
+do agrupamento
+e que ele é pouco alterado com a ponderação nas arestas. Com as métricas a disposição foi mostrado que centralidades que consideraram peso nos nós e a estrutura da rede foram muito efetivas para vacinação contra COVID na média e que como foi mostrado o \textit{PageRank} apresenta uma grande efetividade contra a propagação, essas estratégias conseguiam reduzir a mortalidade em 
+mais de
+60\%, 
+o tempo total de hospitalização em 66\% 
+e foi necessário vacinar menos de 40\% da rede com a melhor estratégia para inibir a proliferação do vírus. Ademais foi mostrado que utilizar peso nas arestas não teve ganho tão significativo, o que gera um menor gasto computacional, e até as vezes teve uma piora enquanto que uma abordagem altruísta dos valores se mostrou uma estratégia forte contra o vírus. Outrossim foi listado quais foram as melhores métricas, as métricas melhores em média e a fronteira de Pareto para os dados. Por fim, a classificação das melhores métricas mostrou ser bastante estável com o incremento do agrupamento da rede, o que 
+sugere não ser tão necessário a estimação 
+
+desse
+valor em uma rede de contágio real. Os resultados mostram que a idade utilizada por maior parte dos países não foi uma estratégia tão eficiente nos três parâmetros, a melhor escolha seria aquelas métricas que estão na fronteira de Pareto.
     
 %Próximos passos
-Entretanto, essa pesquisa ainda apresenta limitações, o POLYMOD apesar de obter vários dados não se sabe a abrangência total e até que ponto se pode aplicar para diferentes países e culturas, o MCP não consegue aumentar o agrupamento para nós com grau maiores, não se sabe se é uma limitação do algoritmo, dos dados, ou é um comportamento padrão, o modelo epidemiológico que foi proposto abre margem para o estudo de superlotação de hospitais que foi uma característica importante na pandemia. Essas são uma das várias limitações do trabalho e propostas para futuras pesquisas nessa área.
+Entretanto, essa pesquisa ainda apresenta limitações: 
+\begin{enumerate}
+    \item o POLYMOD apesar de obter vários dados não se sabe a abrangência total e até que ponto se pode aplicar para diferentes países e culturas
+    \item o MCP não consegue aumentar o agrupamento para nós com grau maiores, não se sabe se é uma limitação do algoritmo, dos dados, ou é um comportamento padrão;
+    \item o modelo epidemiológico que foi proposto abre margem para o estudo de superlotação de hospitais que foi uma característica importante na pandemia e não explorada neste trabalho.
+\end{enumerate}
+Essas são algumas limitações do presente trabalho, que podem servir de propostas para futuras pesquisas nessa área.

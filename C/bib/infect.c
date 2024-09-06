@@ -409,7 +409,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     int i,j,k;
     char arquivo[800];
     char arquivo2[800];
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","coautor","altruista-wcoautor","laplacian","altruista-wlaplacian","altruista-gravity-5","altruista-wgravity-5","efficiency","wefficiency","energy1","wenergy"};
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","coautor","wcoautor","laplacian","wlaplacian","gravity-3","wgravity-3"};
 
     for (i = 0; i < infecao_total; i++)
         for (j = 0; j < q_resultados; j++) 
@@ -418,7 +418,8 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     if(*weight)sprintf(arquivo,"./output/time/%d/ponderado/p/infect_%.2f.txt",(int)*N,*p);
     else sprintf(arquivo,"./output/time/%d/nponderado/p/infect_%.2f.txt",(int)*N,*p);
 
-    generate_file(arquivo,infect_time_pre_vacina,infecao_total,q_resultados,sizeof(double),0,"w");
+    if(!fileExists(arquivo)) generate_file(arquivo,infect_time_pos_vacina[0],infecao_total,q_resultados,sizeof(double),0,"w");
+
     double f;
 
     if(*weight) sprintf(arquivo2,"./output/vacina/%d/ponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
@@ -438,7 +439,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
                 if(*weight) sprintf(arquivo,"./output/time/%d/ponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
                 else sprintf(arquivo,"./output/time/%d/nponderado/%s_%.2f_%.2f.txt",(int)*N,file_vacina[*estrategy],*p,f);
 
-                //generate_file(arquivo,infect_time_pos_vacina[k],final,q_resultados,sizeof(double),0,"w");
+                generate_file(arquivo,infect_time_pos_vacina[k],final,q_resultados,sizeof(double),0,"w");
 
             }
         }
@@ -522,7 +523,7 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
     uint16_t rede;
     uint16_t count = 0;
     omp_set_num_threads(THREADS);
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic)
     for (rede = 0; rede < redes; rede++){
 
         double avg_degree;
@@ -555,7 +556,7 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
         igraph_destroy(&Grafo);
         count++;
         //printf("\e[1;1H\e[2J");
-        if(count%100 == 0)printf("%d/%d\n",count,redes);
+        if(count%50 == 0)printf("%d/%d\n",count,redes);
     }
     
     

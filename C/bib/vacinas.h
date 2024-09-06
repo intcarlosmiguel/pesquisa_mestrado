@@ -117,7 +117,7 @@ igraph_vector_int_t traditional_centralities(igraph_t* Grafo,int estrategy){
 }
 
 igraph_vector_int_t propose_centralities(igraph_t* Grafo,int estrategy,double* morte,double* hospitalizacao,double* sintomatico){
-    uint32_t i;
+    int i,j,vizinho;
     int N = igraph_vcount(Grafo);
     igraph_vector_int_t centralidade;
     igraph_vector_int_init(&centralidade, N);
@@ -133,28 +133,29 @@ igraph_vector_int_t propose_centralities(igraph_t* Grafo,int estrategy,double* m
     igraph_vector_int_init(&degrees, 0);
     igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
     
-
+    double w;
     for ( i= 0; i < N; i++){
 
         igraph_vector_int_t vizinhos;
         igraph_vector_int_init(&vizinhos, 0);
         igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-
-        for ( int j = 0; j < igraph_vector_int_size(&vizinhos); j++){
-
-            if(estrategy == 11) 
-                VECTOR(prob)[i] = (double) VECTOR(degrees)[i]*morte[ (int) VECTOR(faixas)[i]];
-
+        VECTOR(prob)[i] = (double) VECTOR(degrees)[i]*morte[ (int) VECTOR(faixas)[i]];
+        for (j = 0; j < igraph_vector_int_size(&vizinhos); j++){
+            // Grau morte
+            if(estrategy == 11) break;
             else{
                 
-                VECTOR(prob)[i] += sintomatico[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
+                vizinho = (int) VECTOR(vizinhos)[j];
+                w = sintomatico[(int) VECTOR(faixas)[vizinho]];
+                //VECTOR(prob)[i] += ;
 
-                if(estrategy >=12) 
-                    VECTOR(prob)[i] *= hospitalizacao[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                if((estrategy == 13)||(estrategy == 15)) 
-                    VECTOR(prob)[i] *= morte[(int) VECTOR(faixas)[VECTOR(vizinhos)[j]]];
-                if(estrategy >= 14) 
-                    VECTOR(prob)[i] *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
+                if(estrategy >=12) // Probabilidade dos vizinhos serem hospitalizados;
+                    w *= hospitalizacao[(int) VECTOR(faixas)[vizinho]];
+                if((estrategy == 13)||(estrategy == 15)) // Probabilidade do vizinho morrer & Probabilidade dos vizinhos morrerem e o vértice ser assintomático;
+                    w *= morte[(int) VECTOR(faixas)[vizinho]];
+                if(estrategy >= 14) //Probabilidade dos vizinhos serem hospitalizados e o vértice ser assintomático;
+                    w *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
+                VECTOR(prob)[i] += w;
             }
         }
         igraph_vector_int_destroy(&vizinhos);
@@ -255,8 +256,9 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
     switch (estrategy){
         
         case 21:{
-            igraph_vector_t co_autorship;
-            igraph_vector_init(&co_autorship, N);   
+
+            igraph_vector_t utility;
+            igraph_vector_init(&utility, N);
 
             igraph_vector_int_t degrees;
             igraph_vector_int_init(&degrees, 0);
@@ -269,17 +271,31 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < L; i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
+                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                //w_j = morte[(int) VECTOR(*faixas)[site2]];
+
                 w_i = morte[(int) VECTOR(*faixas)[site1]];
                 w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
+
                 peso = 1;
-                termo_duplo = w_i*w_j*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
-                VECTOR(co_autorship)[site1] += w_j*peso/VECTOR(degrees)[site2] + termo_duplo;
-                VECTOR(co_autorship)[site2] += w_i*peso/VECTOR(degrees)[site1] + termo_duplo;
+                VECTOR(utility)[site1] += (1 - sintomatico[(int) VECTOR(*faixas)[site2]])*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+                //VECTOR(utility)[site1] += morte[(int) VECTOR(*faixas)[site2]]*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+                VECTOR(utility)[site2] += (1 - sintomatico[(int) VECTOR(*faixas)[site1]])*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+                //VECTOR(utility)[site2] += morte[(int) VECTOR(*faixas)[site1]]*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+
             }
-            for (i = 0; i < N; i++) VECTOR(co_autorship)[i] += 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+            for (i = 0; i < N; i++){
+                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                VECTOR(utility)[i] += w_i;
+            }
             igraph_vector_int_destroy(&degrees);
-            igraph_vector_qsort_ind(&co_autorship,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&co_autorship);
+            igraph_vector_qsort_ind(&utility,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&utility);
             break;
         }
         case 22:{
@@ -297,16 +313,20 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < L; i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
-                w_j = morte[(int) VECTOR(*faixas)[site2]];
-                //w_i = morte[(int) VECTOR(*faixas)[site1]];
-                //w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
+                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                //w_j = morte[(int) VECTOR(*faixas)[site2]];
+                w_i = morte[(int) VECTOR(*faixas)[site1]];
+                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = VECTOR(*pesos)[(int)i/2];
                 termo_duplo = w_i*w_j*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
                 VECTOR(co_autorship)[site1] += w_j*peso/VECTOR(degrees)[site2] + termo_duplo;
                 VECTOR(co_autorship)[site2] += w_i*peso/VECTOR(degrees)[site1] + termo_duplo;
             }
-            for (i = 0; i < N; i++) VECTOR(co_autorship)[i] += 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+           for (i = 0; i < N; i++){
+                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                VECTOR(co_autorship)[i] += w_i;
+            }
             igraph_vector_int_destroy(&degrees);
             igraph_vector_qsort_ind(&co_autorship,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&co_autorship);
@@ -327,10 +347,11 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < igraph_vector_int_size(edges); i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-
+                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                //w_j = morte[(int) VECTOR(*faixas)[site2]];
                 w_i = morte[(int) VECTOR(*faixas)[site1]];
                 w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
-                peso = 0.5*(w_i+w_j);
+                peso = (w_i+w_j);
                 x_i[site1] += peso;
                 x_i[site2] += peso;
 
@@ -375,10 +396,11 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
 
-                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
-                w_j = morte[(int) VECTOR(*faixas)[site2]];
-                //w_i = morte[(int) VECTOR(*faixas)[site1]];
-                //w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
+                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
+                //w_j = morte[(int) VECTOR(*faixas)[site2]];
+
+                w_i = morte[(int) VECTOR(*faixas)[site1]];
+                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
                 peso = VECTOR(*pesos)[(int)i/2]*(w_i+w_j);
                 x_i[site1] += peso;
                 x_i[site2] += peso;
@@ -407,21 +429,21 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             
             igraph_vector_t gravity;
             
-            double d = 1/5;
+            double d = 1/3;
             igraph_vector_init(&gravity, N);
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
             igraph_distances(Grafo, &distance, igraph_vss_all(), igraph_vss_all(), IGRAPH_ALL);
+            double w_i,w_j;
             for ( i = 0; i < N; i++){
-                double w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
-                //double w_i = morte[(int) VECTOR(*faixas)[i]];
-
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                //w_i = (1 - sintomatico[(int) VECTOR(*faixas)[i]]);
                 for (int j = i+1; j < N; j++){
-                    double w_j = morte[(int) VECTOR(*faixas)[j]];
-                    //double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
                     double increment = 1.0/ pow(MATRIX(distance,i,j),d);
-                    VECTOR(gravity)[i] += w_j*increment;
-                    VECTOR(gravity)[j] += w_i*increment;
+                    VECTOR(gravity)[i] += (1 - sintomatico[(int) VECTOR(*faixas)[j]])*increment;
+                    VECTOR(gravity)[j] += (1 - sintomatico[(int) VECTOR(*faixas)[i]])*increment;
+                    //VECTOR(gravity)[i] += morte[(int) VECTOR(*faixas)[j]]*increment;
+                    //VECTOR(gravity)[j] += morte[(int) VECTOR(*faixas)[i]]*increment;
                 }
                 VECTOR(gravity)[i] *= w_i;
             }
@@ -431,26 +453,26 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             break;
         }
-        case 26:{
+        case 26:{   
 
             
             igraph_vector_t gravity;
             
-            double d = 1/5;
+            double d = 1/3;
             igraph_vector_init(&gravity, N);
             igraph_matrix_t distance;
             igraph_matrix_init(&distance, 0, 0);
-            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_ALL);
+            igraph_distances_dijkstra(Grafo, &distance, igraph_vss_all(), igraph_vss_all(),pesos, IGRAPH_OUT);
+            double w_i,w_j;
             for ( i = 0; i < N; i++){
-                double w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
-                //double w_i = morte[(int) VECTOR(*faixas)[i]];
-
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                //w_i = (1 - sintomatico[(int) VECTOR(*faixas)[i]]);
                 for (int j = i+1; j < N; j++){
-                    double w_j = morte[(int) VECTOR(*faixas)[j]];
-                    //double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
                     double increment = 1.0/ pow(MATRIX(distance,i,j),d);
-                    VECTOR(gravity)[i] += w_j*increment;
-                    VECTOR(gravity)[j] += w_i*increment;
+                    VECTOR(gravity)[i] += (1 - sintomatico[(int) VECTOR(*faixas)[j]])*increment;
+                    VECTOR(gravity)[j] += (1 - sintomatico[(int) VECTOR(*faixas)[i]])*increment;
+                    //VECTOR(gravity)[i] += morte[(int) VECTOR(*faixas)[j]]*increment;
+                    //VECTOR(gravity)[j] += morte[(int) VECTOR(*faixas)[i]]*increment;
                 }
                 VECTOR(gravity)[i] *= w_i;
             }
@@ -460,136 +482,6 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             break;
         }
-        case 27:{
-            
-            igraph_vector_t efficiency;
-            igraph_vector_init(&efficiency, N);
-
-            double Normalized = 0;
-            int j;
-            for ( i = 0; i < N-1; i++){
-                igraph_matrix_t distance;
-                igraph_matrix_init(&distance, 0, 0);
-                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N), IGRAPH_OUT);
-                for (int j = 0; j < N-i-1; j++){
-                    Normalized += 2.0/(MATRIX(distance,0,j));
-                    VECTOR(efficiency)[i] -= 2.0/(MATRIX(distance,0,j));
-                    VECTOR(efficiency)[j] -= 2.0/(MATRIX(distance,0,j));
-                }
-                igraph_matrix_destroy(&distance);
-            }
-            for ( i = 0; i < N; i++)VECTOR(efficiency)[i] = Normalized - VECTOR(efficiency)[i];
-            igraph_vector_qsort_ind(&efficiency,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&efficiency);
-            break;
-        }
-        case 28:{
-            
-            igraph_vector_t efficiency;
-            igraph_vector_init(&efficiency, N);
-
-            igraph_matrix_t distance;
-            igraph_matrix_init(&distance, 0, 0);
-
-            double Normalized = 0;
-            //omp_set_num_threads(10);
-            //#pragma omp parallel for reduction(+:Normalized)
-            for ( i = 0; i < N-1; i++){
-                igraph_matrix_t distance;
-                igraph_matrix_init(&distance, 0, 0);
-                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N),pesos, IGRAPH_ALL);
-                for (int j = 0; j < N-i-1; j++){
-                    double increment = 2.0 / MATRIX(distance, i, j);
-                    Normalized += increment;
-                    VECTOR(efficiency)[i] -= increment;
-                    //#pragma omp atomic
-                    VECTOR(efficiency)[j] -= increment;
-                }
-                igraph_matrix_destroy(&distance);
-            }
-            for ( i = 0; i < N; i++)VECTOR(efficiency)[i] -= Normalized;
-            igraph_vector_qsort_ind(&efficiency,&centralidade, IGRAPH_ASCENDING);
-            igraph_vector_destroy(&efficiency);
-            break;
-
-        }
-        case 29:{
-
-            igraph_vector_t Energy;
-            
-            double d = 3;
-            igraph_vector_init(&Energy, N);
-
-            double w_i,w_j,Normalized = 0;
-
-            for ( i = 0; i < N-1; i++){
-
-                w_i = morte[(int) VECTOR(*faixas)[i]];
-
-                igraph_matrix_t distance;
-
-                igraph_matrix_init(&distance, 0, 0);
-
-                igraph_distances(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N), IGRAPH_OUT);
-
-                for (int j = 0; j < N-i-1; j++){
-
-                    w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-
-                    VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,0,j),d);
-                    VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,0,j),d);
-                    Normalized += 2*w_i*w_j/pow(MATRIX(distance,0,j),d);
-                }
-                VECTOR(Energy)[i] *= w_i;
-                VECTOR(Energy)[i] -= w_i;
-                Normalized += w_i;
-                igraph_matrix_destroy(&distance);
-                
-            }
-            for ( i = 0; i < N; i++)VECTOR(Energy)[i] = (VECTOR(Energy)[i] + Normalized)/Normalized;
-            igraph_vector_qsort_ind(&Energy,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Energy);
-
-            break;
-        }
-        case 30:{
-
-            igraph_vector_t Energy;
-            
-            double d = 3;
-            igraph_vector_init(&Energy, N);
-
-            igraph_matrix_t distance;
-            igraph_matrix_init(&distance, 0, 0);
-
-            double Normalized = 0;
-            //omp_set_num_threads(10);
-            //#pragma omp parallel for reduction(+:Normalized)
-            for ( i = 0; i < N-1; i++){
-                double w_i = morte[(int) VECTOR(*faixas)[i]];
-                igraph_matrix_t distance;
-                igraph_matrix_init(&distance, 0, 0);
-                igraph_distances_dijkstra(Grafo, &distance, igraph_vss_1(i), igraph_vss_range(i+1,N),pesos, IGRAPH_OUT);
-                for (int j = 0; j < N-i-1; j++){
-                    double w_j = 1 - sintomatico[(int) VECTOR(*faixas)[j]];
-                    VECTOR(Energy)[i] -= w_j/pow(MATRIX(distance,0,j),d);
-                    //#pragma omp atomic
-                    VECTOR(Energy)[j] -= w_i/pow(MATRIX(distance,0,j),d);
-                    Normalized += 2*w_i*w_j/pow(MATRIX(distance,0,j),d);
-                }
-                VECTOR(Energy)[i] *= w_i;
-                VECTOR(Energy)[i] -= w_i;
-                Normalized += w_i;
-                igraph_matrix_destroy(&distance);
-            }
-            for ( i = 0; i < N; i++)VECTOR(Energy)[i] = (VECTOR(Energy)[i] + Normalized)/Normalized;
-            igraph_matrix_destroy(&distance);
-            igraph_vector_qsort_ind(&Energy,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Energy);
-
-            break;
-        }
-        
         
         default:{
             printf("Métrica tradicional ponderada não encontrada!\n");

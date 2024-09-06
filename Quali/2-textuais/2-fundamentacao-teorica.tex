@@ -259,21 +259,21 @@ Ao estudar redes o interesse está voltado em entender suas estruturas e proprie
 Quando falamos de Métricas de Centralidade o interesse é estudar a importância topológica de cada nó perante a rede. 
 Mas em que sentido seria essa importância? Depende do problema, talvez seja necessário estudar qual o autor mais importante em uma rede de citações de artigos~\cite{Leydesdorff2011} ou qual indivíduo devemos retirar de uma rede criminosa para desfazer a rede~\cite{deAndrade2021}. Para ambos os casos e vários outros exemplos existem métricas apropriadas para atingir tais objetivos.
 
-A métrica inicial a ser analisada consiste na contagem das conexões individuais de cada nó, representada pelo grau $k_\nu$. Ao conduzir essa avaliação, identificamos o nó central como aquele que apresenta o grau $k_\nu$ mais elevado, objetivando, assim, encontrar o nó com a maior quantidade de conexões que é a Centralidade de Grau (CG).
+A métrica inicial a ser analisada consiste na contagem das conexões individuais de cada nó, representada pelo grau $k_\nu$. Ao conduzir essa avaliação, identificamos o nó central como aquele que apresenta o grau $k_\nu$ mais elevado, objetivando, assim, encontrar o nó com a maior quantidade de conexões que é a Centralidade de Grau (\gls{CG}).
 
-A segunda métrica importante é a Centralidade de Excentricidade (CE). Essencialmente, a CE de um nó é determinada calculando-se o recíproco da maior distância que separa esse nó de qualquer outro nó na rede. Ela exibe a distância máxima que um nó precisa percorrer para alcançar o ponto mais remoto da rede. O nó cuja maior distância é a menor entre todos os nós da rede é então identificado como o mais central. Formalmente $CE(\nu)\; \forall \nu \in \mathpzc{N}$ é definida como:
+A segunda métrica importante é a Centralidade de Excentricidade (\gls{CE}). Essencialmente, a CE de um nó é determinada calculando-se o recíproco da maior distância que separa esse nó de qualquer outro nó na rede. Ela exibe a distância máxima que um nó precisa percorrer para alcançar o ponto mais remoto da rede. O nó cuja maior distância é a menor entre todos os nós da rede é então identificado como o mais central. Formalmente $CE(\nu)\; \forall \nu \in \mathpzc{N}$ é definida como:
 \begin{equation}
   CE(\nu) = \frac{1}{\max\limits_{\mu} d_{\nu,\mu}}.
 \end{equation}
-Nessa mesma ideia é propício avaliar outras duas métricas parecidas: Centralidade de Proximidade (CP) e Centralidade Harmônica (CH). Em ambas o interesse é entender qual é o nó mais central a partir de quanto ele dista dos outros, a diferença entre as duas é que a primeira é calculada pelo inverso da média aritmética e a segunda com a média harmônica:
+Nessa mesma ideia é propício avaliar outras duas métricas parecidas: Centralidade de Proximidade (\gls{CP}) e Centralidade Harmônica (\gls{CH}). Em ambas o interesse é entender qual é o nó mais central a partir de quanto ele dista dos outros, a diferença entre as duas é que a primeira é calculada pelo inverso da média aritmética e a segunda com a média harmônica:
 \begin{equation}
-  CP(\nu) = \frac{N - 1}{\sum\limits_{\mu \neq \nu} d_{\nu,\mu}},
+  \gls{CP}(\nu) = \frac{N - 1}{\sum\limits_{\mu \neq \nu} d_{\nu,\mu}},
 \end{equation}
 \begin{equation}
-  CH(\nu) = \frac{1}{N - 1}\sum_{\mu \neq \nu}\frac{1}{d_{\nu,\mu}}.
+  \gls{CH}(\nu) = \frac{1}{N - 1}\sum_{\mu \neq \nu}\frac{1}{d_{\nu,\mu}}.
 \end{equation}
 
-Uma generalização da CP e CE é a Centralidade de
+Uma generalização da \gls{CP} e \gls{CE} é a Centralidade de
 Média-$p$ ($C_p$)~\cite{Andrade2019}. A ideia desta medida de centralidade é usar a noção de média
 generalizada das distâncias. Ela é definida como:
 \begin{equation}
@@ -300,23 +300,23 @@ Para ser possível detectar e mensurar esse tipo de importância, considere
 $\mathbb{L}_{\mu,\zeta}$ o número de caminhos mínimos que vão de $\nu$ para $\mu$ e 
 $\mathbb{L}^{\nu}_{\mu,\zeta}$ 
 o número de mínimos caminhos entre $\mu$ e $\zeta$ e passam pelo vértice
-$\nu$. Portanto, podemos definir a Centralidade de Intermediação ($CB$) como
+$\nu$. Portanto, podemos definir a Centralidade de Intermediação (\gls{CB}) como
 \begin{equation}
-  CB(\nu) = \frac{1}{(N - 1)(N - 2)} \sum\limits_{\mu \neq \zeta} \frac{\mathbb{L}^{\nu}_{\mu,\zeta}}{\mathbb{L}_{\mu,\zeta}},
+  \gls{CB}(\nu) = \frac{1}{(N - 1)(N - 2)} \sum\limits_{\mu \neq \zeta} \frac{\mathbb{L}^{\nu}_{\mu,\zeta}}{\mathbb{L}_{\mu,\zeta}},
 \end{equation}
 em que $\mu$ e $\zeta$ são diferentes do nó $\nu$.
 
 Quando se trata de analisar uma rede empresarial, é fundamental reconhecer a relevância do CEO para a organização. No entanto, é importante notar que o CEO mantém comunicação direta apenas com os líderes de cada região da empresa, enquanto esses líderes não necessariamente se comunicam diretamente entre si. Portanto, onde reside a indicação da importância do CEO? A resposta a essa indagação repousa no fato de que o CEO estabelece conexões com indivíduos influentes na rede, um aspecto que não é capturado pelas métricas 
 mencionadas até então
-de análise de rede. Definimos a Centralidade de Autovetor ($CA$) como:
+de análise de rede. Definimos a Centralidade de Autovetor (\gls{CA}) como:
 \begin{equation},
-  CA(\nu_i) = \frac{1}{\lambda}\sum_{\nu_j}A_{i,j}\; CA(\nu_j),
+  \gls{CA}(\nu_i) = \frac{1}{\lambda}\sum_{\nu_j}A_{i,j}\; \gls{CA}(\nu_j),
 \end{equation}
 na qual $\lambda$ é o maior autovalor associado à matriz de adjacência de rede. A importância dessa conexão é que os autovetores e autovalores capturam informações sobre como a informação flui na rede. Se um nó estiver conectado a outros nós importantes (ou seja, nós com alta centralidade), ele terá uma alta centralidade de autovetor, mesmo que tenha poucas conexões diretas. Em contrapartida, se um nó estiver conectado principalmente a nós periféricos, terá uma baixa centralidade de autovetor.
 
 Com o advento das páginas da \textit{internet} é preciso metrificar quais são os \textit{sites} mais importantes. Para isso seria importante não só levar em consideração quem está em posição privilegiada, mas também como essa posição é mitigada pelo número de ligações, portanto~\cite{page1999pagerank} publicaram uma nova métrica que consegue quantificar isso chamada de \textit{PageRank}. Essa métrica é utilizada pelo \textit{Google} para analisar a importância de \textit{sites} na \textit{internet}. Considere um usuário que navega pela \textit{internet} e está em um \textit{site} $\nu_j$ e deseja ir para outro. Existe uma probabilidade $\alpha$ de o usuário seguir um \textit{link} dentro do \textit{site} atual e ir para outro que ele aponta, e uma probabilidade $1 - \alpha$ de ele não seguir essa estrutura e ir para um \textit{site} aleatório. Eles definiram o \textit{PageRank} do nó $\nu_j$ como:
 \begin{equation}
-    PR(\nu_j) =1 - \alpha + \alpha\times \sum_{j \neq i} A_{i,j}\frac{PR(\nu_i)}{k^{out}_{\nu_j}}.
+  \gls{PR}(\nu_j) =1 - \alpha + \alpha\times \sum_{j \neq i} A_{i,j}\frac{\gls{PR}(\nu_i)}{k^{out}_{\nu_j}}.
 \end{equation}
 
 \citeonline{Carmi2007} formularam o algoritmo \textit{K-Shell} que se concentra em decompor a rede não direcionada em camadas, onde cada camada representa um subconjunto de nós com uma centralidade mínima, conhecida como o ``grau mínimo'' K. Inicialmente, os nós são ordenados por grau em ordem decrescente, e aqueles com menor grau são iterativamente removidos até que nenhum nó com grau menor ou igual a K permaneça na rede. Esse processo gera uma sequência de camadas (\textit{K-Shells}), onde as camadas mais internas contêm nós de alta centralidade, enquanto as camadas mais externas contêm nós de menor centralidade. 
@@ -331,7 +331,7 @@ O seguinte algoritmo realiza a descomposição em \textit{K-Shells}:
     \item O algoritmo termina quando todos os vértices são atribuídos a um k-shell e o grafo está completamente decomposto.
 \end{enumerate}
 
-A tabela \ref{tab:centralidade_rede} apresentada resume os valores de diferentes métricas de centralidade para uma rede específica, conforme ilustrado na Figura \ref{fig:redes}. Cada coluna representa um nó individual da rede, numerados de 0 a 7, e cada linha descreve uma métrica específica de centralidade: Centralidade de Excentricidade (CE), Centralidade de Grau (CG), K-shell (CK), Centralidade de Proximidade (CP), Centralidade de Harmonia (CH), Centralidade de Betweenness (CB) e Centralidade de Autovalor (CA). Observa-se uma variabilidade entre os nós nas medidas de Centralidade de Excentricidade (CE), com nós como o 1, 5, 6 e 7 exibindo valores inferiores, indicando uma posição mais periférica na rede. O nó 3 destaca-se com valores altos tanto na Centralidade de Grau (CG) quanto na Centralidade de Betweenness (CB), sublinhando sua influência central como ponto de conexão e intermediário crucial nas interações da rede.
+A tabela \ref{tab:centralidade_rede} apresentada resume os valores de diferentes métricas de centralidade para uma rede específica, conforme ilustrado na Figura \ref{fig:redes}. Cada coluna representa um nó individual da rede, numerados de 0 a 7, e cada linha descreve uma métrica específica de centralidade: Centralidade de Excentricidade (\gls{CE}), Centralidade de Grau (\gls{CG}), K-shell (\gls{CK}), Centralidade de Proximidade (\gls{CP}), Centralidade de Harmonia (\gls{CH}), Centralidade de Betweenness (\gls{CB}) e Centralidade de Autovalor (\gls{CA}). Observa-se uma variabilidade entre os nós nas medidas de Centralidade de Excentricidade (\gls{CE}), com nós como o 1, 5, 6 e 7 exibindo valores inferiores, indicando uma posição mais periférica na rede. O nó 3 destaca-se com valores altos tanto na Centralidade de Grau (\gls{CG}) quanto na Centralidade de Betweenness (\gls{CB}), sublinhando sua influência central como ponto de conexão e intermediário crucial nas interações da rede.
 \begin{table}[H]
     \captionsetup{width=13.5cm}
     \caption{Valores de diferentes métricas de centralidade do exemplo da Figura \ref{Exemplo01}.}
@@ -341,13 +341,13 @@ A tabela \ref{tab:centralidade_rede} apresentada resume os valores de diferentes
         & nó 0 & nó 1 & nó 2 & nó 3 & nó 4 & nó 5 & nó 6 & nó 7 \\
         \midrule
         \midrule
-        CE & 0.5 & 0.333 & 0.5 & 0.5 & 0.5 & 0.333 & 0.333 & 0.333 \\
-        CG & 0.571 & 0.143 & 0.429 & 0.714 & 0.286 & 0.714 & 0.286 & 0.286 \\
-        CK & 2 & 1 & 2 & 2 & 2 & 2 & 2 & 2 \\
-        CP & 0.7 & 0.438 & 0.636 & 0.778 & 0.583 & 0.7 & 0.538 & 0.538 \\
-        CH & 5.5 & 3.5 & 5.0 & 6.0 & 5.833 & 4.5 & 4.333 & 4.333 \\
-        CB & 0.333 & 0.0 & 0.032 & 0.294 & 0.032 & 0.214 & 0.0 & 0.0 \\
-        CA & 0.353 & 0.101 & 0.385 & 0.511 & 0.239 & 0.486 & 0.285 & 0.285 \\
+        \gls{CE} & 0.5 & 0.333 & 0.5 & 0.5 & 0.5 & 0.333 & 0.333 & 0.333 \\
+        \gls{CG} & 0.571 & 0.143 & 0.429 & 0.714 & 0.286 & 0.714 & 0.286 & 0.286 \\
+        \gls{CK} & 2 & 1 & 2 & 2 & 2 & 2 & 2 & 2 \\
+        \gls{CP} & 0.7 & 0.438 & 0.636 & 0.778 & 0.583 & 0.7 & 0.538 & 0.538 \\
+        \gls{CH} & 5.5 & 3.5 & 5.0 & 6.0 & 5.833 & 4.5 & 4.333 & 4.333 \\
+        \gls{CB} & 0.333 & 0.0 & 0.032 & 0.294 & 0.032 & 0.214 & 0.0 & 0.0 \\
+        \gls{CA} & 0.353 & 0.101 & 0.385 & 0.511 & 0.239 & 0.486 & 0.285 & 0.285 \\
         \bottomrule
     \end{tabular}
     \caption*{Valores de diferentes métricas de centralidade calculados para a rede ilustrada na Figura \ref{fig:redes}, os valores foram calculados utilizando a biblioteca Networkx.\\ Fonte:~\cite{hagberg2008exploring}.}
@@ -361,43 +361,27 @@ Na seção anterior, foram discutidas diversas métricas tradicionais empregadas
 \citeonline{Rgo2019} criaram uma métrica para estudar co-autoria em artigos acadêmicos levando em conta a força entre as ligações dos vizinhos de cada autor e também como essa ligação é importante perante outras ligações entre vizinhos. A 
 métrica de Utilidade é definida como:
 \begin{equation}
-    U(\nu) = \sum_{\substack{\mu \in \eta(\nu)}} \left(\frac{w_{\nu,\mu}}{k^w_\nu}+ \frac{w_{\nu,\mu}}{k^w_\mu} + \frac{w_{\nu,\mu}^2}{k^w_\nu k^w_\mu}\right)
+  \gls{UT}(\nu) = \sum_{\substack{\mu \in \eta(\nu)}} \left(\frac{w_{\nu,\mu}}{k^w_\nu}+ \frac{w_{\nu,\mu}}{k^w_\mu} + \frac{w_{\nu,\mu}^2}{k^w_\nu k^w_\mu}\right)
 \end{equation}
 O primeiro termo quantifica o quão importante é a ligação entre o sítio $\nu$ com $\mu$ em relação às ligações de $\nu$, já o segundo é em relação às ligações de $\mu$ e o terceiro termo é um termo misto. Para redes sem ponderação $w_{\nu,\mu} = 1$, $k_\nu^w = k_\nu$~\cite{Jackson1996}.
-\cite{Qi2012} apresentam a chamada Centralidade Laplaciana (CL) na qual tentam mensurar a importância de um nó pela falta que ele faz se o retirarmos da rede (essa premissa vai ser muito presente na literatura atual). Porém como os autores mostram essa métrica não é totalmente local, carregando informação de vizinhos de vizinhos, contudo ela não é definida bem em redes direcionadas.
+\cite{Qi2012} apresentam a chamada Centralidade Laplaciana (\gls{CL}) na qual tentam mensurar a importância de um nó pela falta que ele faz se o retirarmos da rede (essa premissa vai ser muito presente na literatura atual). Porém como os autores mostram essa métrica não é totalmente local, carregando informação de vizinhos de vizinhos, contudo ela não é definida bem em redes direcionadas.
 Seja $W$ a Matriz de Adjacência ponderada e seja a matriz $X$ uma matriz diagonal com cada elemento $X_{i,i} = \sum_{j \in \eta(\nu_i)}w_{\nu_i,\nu_j}$, pode se definir uma matriz chamada de Laplaciana~\cite{networks} $L^a$ como $L^a_{i,j} = X_{i,j} - W_{i,j}$. Sejam
 ${\lambda_{i}}$ os auto-valores de $L^a$. É possível definir a Energia do grafo $G$ como:
 \begin{equation}
     E(G) = \sum_{i} \lambda_{i}^2 = \sum_{i}X_{i,i}^2 + 2\times\sum_{i < j}w_{\nu_i,\nu_j}^2,
 \end{equation}
-Seja $G_\nu$ o grafo $G$ com a ausência do nó $\nu$, assim é possível definir a CL como:
+Seja $G_\nu$ o grafo $G$ com a ausência do nó $\nu$, assim é possível definir a \gls{CL} como:
 \begin{equation}
-    CL(\nu) = \frac{E(G_\nu) - E(G)}{E(G)}.
-\end{equation}
-
-Nessa mesma premissa,~\citeonline{Wang2017} definem uma métrica chamada de eficiência (CEF) contudo ela tem um foco maior na falta da estrutura e é baseada na troca de informações entre dois nós que pode ser aplicada tanto em escalas locais quanto globais. Em uma escala global, a eficiência quantifica a troca de informações em toda a rede onde a informação é trocada simultaneamente. A eficiência local quantifica a resistência da rede a falhas em uma pequena escala. Seja $EFF(G)$ definido como a média harmônica das distâncias entre nós:
-\begin{equation}
-    EFF(G) = \frac{1}{N(N-1)}\sum_{\nu \neq \mu}\frac{1}{d^w_{\nu,\mu}}.
-\end{equation}
-Usando a mesma definição de $G_\nu$ dada anteriormente, é possível então definir a CEF como: 
-\begin{equation}
-    CEF(\nu) = \frac{EFF(G_\nu) - EFF(G)}{EFF(G)}.
+  \gls{CL}(\nu) = \frac{E(G_\nu) - E(G)}{E(G)}.
 \end{equation}
 
 Por fim
-\cite{deAndrade2021} estabelecem duas centralidades, a primeira, baseada na lei da gravitação universal de Newton, chamada de Centralidade Gravitacional (CGR), ela leva em consideração as distâncias entre os nós e a ponderação nos nós da rede. A intuição dessa métrica está atrlada ao fato de que pessoas com características relevantes como conhecimento, idade, etnias,posição social, dentre outras os tornam mais ou menos influentes e atrativos na sua rede de contatos. Já a segunda chamada de Energia Disruptiva (CED) também tem a mesma premissa das últimas duas centralidades, ou seja, a falta que um nó faz na rede. Assim $CGR(\nu)$ é calculada como:
+\citeonline{deAndrade2021} estabelecem uma centralidade baseada na lei da gravitação universal de Newton, chamada de Centralidade Gravitacional (\gls{CGR}), ela leva em consideração as distâncias entre os nós e a ponderação nos nós da rede. A intuição dessa métrica está atrelada ao fato de que pessoas com características relevantes como conhecimento, idade, etnias,posição social, dentre outras os tornam mais ou menos influentes e atrativos na sua rede de contatos. Assim \gls{CGR}($\nu$) é calculada como:
+
 \begin{equation}
-    CGR(\nu) =\sum_{\mu \neq \nu}\frac{w_\nu w_\mu}{(d_{\nu,\mu}^w)^{1/s}}.
+  \gls{CGR}(\nu) =\sum_{\mu \neq \nu}\frac{w_\nu w_\mu}{(d_{\nu,\mu}^w)^{1/s}}.
 \end{equation}
-Na qual $w_\nu$ é o peso do nó $\nu$ e $s$ um parâmetro de controle que para a lei da gravitação $s = \frac{1}{2}$. Portanto podemos definir a Energia da rede como uma 
-soma de todos os graus com a de todos os $CGR(\nu)$:
-\begin{equation}
-    NE(G) = \sum\limits_{\nu}\left(w_\nu + CGR(\nu) \right),
-\end{equation}
-portanto a $CED(\nu)$ é definida como
-\begin{equation}
-    CED(\nu) = \frac{NE(G) - NE(G_\nu)}{NE(G)}.
-\end{equation}
+Na qual $w_\nu$ é o peso do nó $\nu$ e $s$ um parâmetro de controle que para a lei da gravitação $s = \frac{1}{2}$.
 
 \section{Modelos de Formação de Redes}
 

@@ -1,0 +1,26 @@
+\changetocdepth {4}
+\babel@toc {brazil}{}\relax 
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {1}\MakeTextUppercase []{Referencial Teórico}}{12}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Conceitos Fundamentais}{13}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Métricas estruturais de Redes}{14}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Métricas Globais de Redes}{15}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Métricas Locais de Centralidade}{17}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}Métricas em Redes Ponderadas}{21}{subsection.1.2.3}%
+\contentsline {section}{\numberline {1.3}Modelos de Formação de Redes}{22}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Rede de Erdös-Rényi}{23}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Modelo de Configuração}{24}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Modelos de Infecção ou Difusão}{25}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Modelo SI}{26}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Modelo SIS}{29}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.3}Modelo SIR}{31}{subsection.1.4.3}%
+\contentsline {subsection}{\numberline {1.4.4}Modelos em Redes}{33}{subsection.1.4.4}%
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\contentsline {chapter}{\MakeTextUppercase []{REFER\^ENCIAS}}{37}{section*.27}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\contentsline {chapter}{\chapternumberline {2}\MakeTextUppercase []{\hspace {-8pt}\uppercase {APÊNDICE}}}{40}{chapter.2}%

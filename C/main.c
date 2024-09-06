@@ -18,10 +18,12 @@
 
 
 int main(int argc,char *argv[ ]){
-    clock_t inicio = clock();
-    //int seed = atoi(argv[1]);
-    //double prob = atof(argv[2])/100;
-    //generate_local_configuration_model(prob ,100,seed);
+    /*int seed = atoi(argv[1]);
+    int N = atoi(argv[2]);
+    int redes = atoi(argv[3]);
+    double prob = atof(argv[4])/100;
+    generate_local_configuration_model(N,prob ,redes,seed);*/
+
 
     int seed = atoi(argv[1]);
     double N = atof(argv[2]);
@@ -30,8 +32,5 @@ int main(int argc,char *argv[ ]){
     double prob = atof(argv[5])/100;
     bool weight = atoi(argv[6]);
     generate_infect(N,prob,seed, redes,vacina,weight);
-    clock_t fim = clock();
-    // Calcula a diferença e converte para segundos
-    double tempo_gasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
     
 }
