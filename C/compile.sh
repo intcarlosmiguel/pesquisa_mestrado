@@ -1,6 +1,12 @@
-gcc -I/home/carlos/igraph/build/include -I/home/carlos/igraph/include main.c bib/calc.c bib/mtwister.c bib/infect.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3 -lstdc++
-./main 2 10000 400 16 0 1
-./main 4 10000 400 17 0 1
-./main 8 10000 400 18 0 1
-./main 10 10000 400 19 0 1
-./main 12 10000 400 20 0 1
+gcc -I/home/miguel/igraph/build/include -I/home/miguel/igraph/include main.c bib/calc.c bib/mtwister.c bib/infect.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3 -lstdc++
+echo "Compilou!"
+seed=5118
+for ((i = 0; i <= 100; i += 25)); do
+
+    ./main $seed 10000 400 23 $i 0
+    ((seed += 400))
+    ./main $seed 10000 400 23 $i 1
+    ((seed += 400))
+    ./main $seed 10000 400 24 $i 1
+    ((seed += 400))
+done

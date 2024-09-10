@@ -409,7 +409,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     int i,j,k;
     char arquivo[800];
     char arquivo2[800];
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","coautor","wcoautor","laplacian","wlaplacian","gravity-3","wgravity-3"};
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","altruista-coautor","altruista-wcoautor","altruista-laplacian","altruista-wlaplacian","gravity-3","wgravity-3"};
 
     for (i = 0; i < infecao_total; i++)
         for (j = 0; j < q_resultados; j++) 
@@ -458,7 +458,8 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     free(infect_time_pre_vacina);
     free(infect_time_pos_vacina);
 
-    printf("Terminou: %s %f\n",file_vacina[*estrategy],*p);
+    if(*weight)printf("Terminou: %s %f ponderado\n",file_vacina[*estrategy],*p);
+    else printf("Terminou: %s %f não ponderado\n",file_vacina[*estrategy],*p);
 }
 
 void generate_vacina(igraph_t* Grafo,struct INFECCAO* inicio,igraph_vector_int_t* centralidade,double*** infect_time_pos_vacina,igraph_matrix_t* W,const int N,const bool weight,double* avg_degree){
@@ -522,6 +523,7 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
     init_thread_struct(&threads_infect);
     uint16_t rede;
     uint16_t count = 0;
+    double perca;
     omp_set_num_threads(THREADS);
     #pragma omp parallel for schedule(dynamic)
     for (rede = 0; rede < redes; rede++){
@@ -532,7 +534,7 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
 
         igraph_matrix_t W;
         
-        igraph_t Grafo = local_configuration_model( N, p,rede+seed,weight,&avg_degree,&centralidade,estrategy,true,&W);
+        igraph_t Grafo = local_configuration_model( N, p,rede+seed,weight,&avg_degree,&centralidade,estrategy,true,&W,&perca);
         
         struct INFECCAO inicio;
         generate_infeccao(&inicio,N);
@@ -555,7 +557,6 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
         
         igraph_destroy(&Grafo);
         count++;
-        //printf("\e[1;1H\e[2J");
         if(count%50 == 0)printf("%d/%d\n",count,redes);
     }
     

@@ -271,26 +271,21 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             for (i = 0; i < L; i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
-                //w_j = morte[(int) VECTOR(*faixas)[site2]];
-
-                w_i = morte[(int) VECTOR(*faixas)[site1]];
-                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
 
                 peso = 1;
-                VECTOR(utility)[site1] += (1 - sintomatico[(int) VECTOR(*faixas)[site2]])*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+                //VECTOR(utility)[site1] += (1 - sintomatico[(int) VECTOR(*faixas)[site2]])*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
 
-                //VECTOR(utility)[site1] += morte[(int) VECTOR(*faixas)[site2]]*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+                VECTOR(utility)[site1] += morte[(int) VECTOR(*faixas)[site2]]*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
 
-                VECTOR(utility)[site2] += (1 - sintomatico[(int) VECTOR(*faixas)[site1]])*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+                //VECTOR(utility)[site2] += (1 - sintomatico[(int) VECTOR(*faixas)[site1]])*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
 
-                //VECTOR(utility)[site2] += morte[(int) VECTOR(*faixas)[site1]]*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+                VECTOR(utility)[site2] += morte[(int) VECTOR(*faixas)[site1]]*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
 
 
             }
             for (i = 0; i < N; i++){
-                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
-                w_i = morte[(int) VECTOR(*faixas)[i]];
+                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+                //w_i = morte[(int) VECTOR(*faixas)[i]];
                 VECTOR(utility)[i] += w_i;
             }
             igraph_vector_int_destroy(&degrees);
@@ -299,8 +294,8 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             break;
         }
         case 22:{
-            igraph_vector_t co_autorship;
-            igraph_vector_init(&co_autorship, N);   
+            igraph_vector_t utility;
+            igraph_vector_init(&utility, N);   
 
             igraph_vector_int_t degrees;
             igraph_vector_int_init(&degrees, 0);
@@ -311,25 +306,27 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             double termo_duplo,peso,w_i,w_j;
             int L = igraph_vector_int_size(edges);
             for (i = 0; i < L; i+=2 ){
+                peso = VECTOR(*pesos)[(int)i/2];
+
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
-                //w_j = morte[(int) VECTOR(*faixas)[site2]];
-                w_i = morte[(int) VECTOR(*faixas)[site1]];
-                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
-                peso = VECTOR(*pesos)[(int)i/2];
-                termo_duplo = w_i*w_j*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
-                VECTOR(co_autorship)[site1] += w_j*peso/VECTOR(degrees)[site2] + termo_duplo;
-                VECTOR(co_autorship)[site2] += w_i*peso/VECTOR(degrees)[site1] + termo_duplo;
+
+                //VECTOR(utility)[site1] += (1 - sintomatico[(int) VECTOR(*faixas)[site2]])*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+                VECTOR(utility)[site1] += morte[(int) VECTOR(*faixas)[site2]]*peso/VECTOR(degrees)[site2] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+                //VECTOR(utility)[site2] += (1 - sintomatico[(int) VECTOR(*faixas)[site1]])*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site2]]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
+
+                VECTOR(utility)[site2] += morte[(int) VECTOR(*faixas)[site1]]*peso/VECTOR(degrees)[site1] + morte[(int) VECTOR(*faixas)[site1]]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]])*pow(peso,2)/(VECTOR(degrees)[site2])/VECTOR(degrees)[site1];
             }
            for (i = 0; i < N; i++){
-                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
-                w_i = morte[(int) VECTOR(*faixas)[i]];
-                VECTOR(co_autorship)[i] += w_i;
+                w_i = 1 - sintomatico[(int) VECTOR(*faixas)[i]];
+                //w_i = morte[(int) VECTOR(*faixas)[i]];
+                VECTOR(utility)[i] += w_i;
             }
             igraph_vector_int_destroy(&degrees);
-            igraph_vector_qsort_ind(&co_autorship,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&co_autorship);
+            igraph_vector_qsort_ind(&utility,&centralidade, IGRAPH_DESCENDING);
+            igraph_vector_destroy(&utility);
             break;
         }
         case 23:{
@@ -338,41 +335,28 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             int site1,site2;
             uint32_t j;
-            double peso,w_i,w_j,Normalized = 0;
+            double peso,peso_ij,peso_ji,Normalized = 0;
             double* x_i = (double*) calloc(N,sizeof(double));
-            double* w_ij = (double*) calloc(N,sizeof(double));
             double** X = (double**) malloc(N*sizeof(double*));
-            double w = 0;
+
             for (i = 0; i < N; i++ ) X[i] =  (double*) calloc(N,sizeof(double));
             for (i = 0; i < igraph_vector_int_size(edges); i+=2 ){
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
-                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
-                //w_j = morte[(int) VECTOR(*faixas)[site2]];
-                w_i = morte[(int) VECTOR(*faixas)[site1]];
-                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
-                peso = (w_i+w_j);
-                x_i[site1] += peso;
-                x_i[site2] += peso;
+                peso_ij = 0.5*(1 - sintomatico[(int) VECTOR(*faixas)[site1]] +  morte[(int) VECTOR(*faixas)[site2]]);
+                peso_ij = 0.5*(1 - sintomatico[(int) VECTOR(*faixas)[site2]] +  morte[(int) VECTOR(*faixas)[site1]]);
 
-                w += 2*pow(peso,2);
-                w_ij[site1] -= 2*pow(peso,2);
-                w_ij[site2] -= 2*pow(peso,2);
+                x_i[site1] += peso_ij;
+                x_i[site2] += peso_ji;
 
-                X[site1][site2] -= peso;
-                X[site2][site1] -= peso;
+                X[site1][site2] = 1;
+                X[site2][site1] = 1;
             }
-
-            for (i = 0; i < N; i++ )Normalized += pow(x_i[i],2);
-            Normalized += w;
             for (i = 0; i < N; i++ ) {
-                for (j = 0; j < N; j++ ) VECTOR(Laplacian_energy)[i] += pow(x_i[j] + X[i][j],2);
-                VECTOR(Laplacian_energy)[i] += w +  w_ij[i];
-                VECTOR(Laplacian_energy)[i] = (Normalized - VECTOR(Laplacian_energy)[i] )/Normalized;
+                for (j = 0; j < N; j++ ) if(j!=i) VECTOR(Laplacian_energy)[i] += 2*X[j][i]*x_i[j]+ pow(X[j][i],2);
                 free(X[i]);
             }
             free(x_i);
-            free(w_ij);
             free(X);
 
             igraph_vector_qsort_ind(&Laplacian_energy,&centralidade, IGRAPH_DESCENDING);
@@ -385,44 +369,35 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
 
             int site1,site2;
             uint32_t j;
-            double peso,w_i,w_j,Normalized = 0;
+            double peso,peso_ij,peso_ji;
             double* x_i = (double*) calloc(N,sizeof(double));
-            double* w_ij = (double*) calloc(N,sizeof(double));
             double** X = (double**) malloc(N*sizeof(double*));
-            double w = 0;
+
             for (i = 0; i < N; i++ ) X[i] =  (double*) calloc(N,sizeof(double));
+
             for (i = 0; i < igraph_vector_int_size(edges); i+=2 ){
 
                 site1 = VECTOR(*edges)[i+1];
                 site2 = VECTOR(*edges)[i];
 
-                //w_i = 1 - sintomatico[(int) VECTOR(*faixas)[site1]];
-                //w_j = morte[(int) VECTOR(*faixas)[site2]];
+                peso_ij = 0.5*VECTOR(*pesos)[(int)i/2]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]] +  morte[(int) VECTOR(*faixas)[site2]]);
+                peso_ij = 0.5*VECTOR(*pesos)[(int)i/2]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]] +  morte[(int) VECTOR(*faixas)[site1]]);
+                
+                x_i[site1] += peso_ij;
+                x_i[site2] += peso_ji;
 
-                w_i = morte[(int) VECTOR(*faixas)[site1]];
-                w_j = 1 - sintomatico[(int) VECTOR(*faixas)[site2]];
-                peso = VECTOR(*pesos)[(int)i/2]*(w_i+w_j);
-                x_i[site1] += peso;
-                x_i[site2] += peso;
-                w += 2*pow(peso,2);
-                w_ij[site1] -= 2*pow(peso,2);
-                w_ij[site2] -= 2*pow(peso,2);
-                X[site1][site2] -= peso;
-                X[site2][site1] -= peso;
+                X[site1][site2] = VECTOR(*pesos)[(int)i/2];
+                X[site2][site1] = VECTOR(*pesos)[(int)i/2];
             }
-            for (i = 0; i < N; i++ )Normalized += pow(x_i[i],2);
-            Normalized += w;
+
             for (i = 0; i < N; i++ ) {
-                for (j = 0; j < N; j++ ) VECTOR(Laplacian_energy)[i] += pow(x_i[j] + X[i][j],2);
-                VECTOR(Laplacian_energy)[i] += w +  w_ij[i];
-                VECTOR(Laplacian_energy)[i] = (Normalized - VECTOR(Laplacian_energy)[i] )/Normalized;
+                for (j = 0; j < N; j++ ) VECTOR(Laplacian_energy)[i] += 2*X[j][i]*x_i[j]+ pow(X[j][i],2);
                 free(X[i]);
             }
             free(x_i);
-            free(w_ij);
             free(X);
             igraph_vector_qsort_ind(&Laplacian_energy,&centralidade, IGRAPH_DESCENDING);
-            igraph_vector_destroy(&Laplacian_energy);
+            igraph_vector_destroy(&Laplacian_energy);   
             break;
         }
         case 25:{

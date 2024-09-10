@@ -25,6 +25,7 @@ int main(int argc,char *argv[ ]){
     generate_local_configuration_model(N,prob ,redes,seed);*/
 
 
+
     int seed = atoi(argv[1]);
     double N = atof(argv[2]);
     uint16_t redes = atoi(argv[3]);

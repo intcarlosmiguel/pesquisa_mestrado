@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -55,6 +54,15 @@ double** distribution_faixas(){
     return distribution;
 }
 
+void append_vizinhos(struct Graph *G,int site,int vizinho,int plus){
+    G->viz[site][0]++;
+    G->viz[vizinho][0]++;
+    G->viz[site] = (int*) realloc(G->viz[site],(G->viz[site][0]+1)*sizeof(int));
+    G->viz[vizinho] = (int*) realloc(G->viz[vizinho],(G->viz[vizinho][0]+1)*sizeof(int));
+    G->viz[site][G->viz[site][0]] = plus*vizinho;
+    G->viz[vizinho][G->viz[vizinho][0]] = plus*site;
+}
+
 bool check_repetidos(struct Graph *G,int i,int vizinho){
     for (int j = 0; j < G->viz[i][0]; j++) if(vizinho == abs(G->viz[i][j+1])) return true;
     return false;
@@ -63,44 +71,20 @@ bool check_repetidos(struct Graph *G,int i,int vizinho){
 double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas,double p,igraph_t* Grafo){
     int ligacoes_total = 0;
     int i,j;
-    int** matriz = (int**) malloc(5*sizeof(int*));
-    for (i = 0; i < 5; i++) matriz[i] = (int*) calloc(5,sizeof(int));
+    //int** matriz = (int**) malloc(5*sizeof(int*));
+    //for (i = 0; i < 5; i++) matriz[i] = (int*) calloc(5,sizeof(int));
     for (i = 0; i < G->Nodes; i++){
         //print_vetor(degree[i],5,sizeof(int));
-        for (j = 0; j < 5; j++) matriz[(int) VECTOR(*faixas)[i]][j] += degree[i][j];
+        //for (j = 0; j < 5; j++) matriz[(int) VECTOR(*faixas)[i]][j] += degree[i][j];
         ligacoes_total += somatorio(degree,i,5);
     }
-    double agrupamento_medio;
-    igraph_transitivity_avglocal_undirected(Grafo,&agrupamento_medio,IGRAPH_TRANSITIVITY_ZERO);
-    printf("%f\n",agrupamento_medio);
-    for (i = 0; i < 5; i++) free(matriz[i]);
-    free(matriz);
-   
-    /*if((p == 0) || (p ==0.25) || (p ==0.5) || p == (1.0)){
-        FILE *arquivo;
-        char file[800];
-        sprintf(file,"./output/modelo/resultados_%.2f.txt",p);
-        arquivo = fopen(file,"a");
-        igraph_vector_t clustering;
-        igraph_vector_init(&clustering, G->Nodes);
-        igraph_transitivity_local_undirected(Grafo,&clustering,igraph_vss_all(),IGRAPH_TRANSITIVITY_ZERO);
-        for (i = 0; i < G->Nodes; i++){
-            int* grau_ = calloc(5,sizeof(int));
-            for (j = 0; j < G->viz[i][0]; j++){
-                int vizinho = G->viz[i][j+1];
-                if(vizinho <0) continue;
-                grau_[(int) VECTOR(*faixas)[vizinho]]++;
-            }
-            fprintf(arquivo,"%d %d %d %d %d %d %f\n", (int) VECTOR(*faixas)[i],grau_[0],grau_[1],grau_[2],grau_[3],grau_[4],VECTOR(clustering)[i]);
-            free(grau_);
-        }
-        igraph_vector_destroy(&clustering);
-        fclose(arquivo);
-    }*/
+    //for (i = 0; i < 5; i++) free(matriz[i]);
+    //free(matriz);
+
     return ligacoes_total/G->edges;
 }
 
-struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga){
+struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga,igraph_matrix_t *W){
     int i,vizinho,faixa1;
     double duracao = -1;
     faixa1 = (int) VECTOR(*faixas)[site];
@@ -123,6 +107,7 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
             degree[site][faixa]--;
             degree[vizinho][faixa1]--;
             
+            //append_vizinhos(G,site,vizinho,1);
             igraph_vector_int_push_back(edges, site);
             igraph_vector_int_push_back(edges, vizinho);
 
@@ -135,6 +120,8 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
                 while(duracao < 0) duracao = normalRand(mean[faixa1][faixa],std[faixa1][faixa]);
                 igraph_vector_push_back(pesos, duracao/1440);
                 G->edges += duracao/1440;
+                MATRIX(*W,site,vizinho) = duracao/1440;
+                MATRIX(*W,vizinho,site) = duracao/1440;
             }
             else G->edges += 1;
             duracao = -1;
@@ -151,13 +138,15 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
 
 
 
-igraph_t local_configuration_model(int N, double p,int seed,const bool weight,double *avg,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,igraph_matrix_t *W){
+igraph_t local_configuration_model(int N, double p,int seed,const bool weight,double *avg,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,igraph_matrix_t *W,double* perca){
 
     struct Graph G;
     G.Nodes = N;
     G.viz = (int **)malloc(N*sizeof(int*));
     int i = 0,j = 0,k = 0;
 
+    if(weight) igraph_matrix_init(W, N, N); // Inicializa a matriz sem tamanho específico
+    else igraph_matrix_init(W, 0, 0); // Inicializa a matriz sem tamanho específico
     
     G.edges = 0;
 
@@ -267,7 +256,7 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
             seed++;
             if(degree[site][faixa] == 0) continue;
             site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
-            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga);
+            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga,W);
         }
         if(p > 0){
             int **vizinhos = (int**) malloc(5*sizeof(int*));
@@ -296,7 +285,7 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
                         seed++;
                         if(degree[vizinho][faixa] == 0) continue;
                         vizinhos[faixa] = randomize(vizinhos[faixa], q_vizinhos[faixa],seed);
-                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga);
+                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga,W);
                     }
                 }
             }
@@ -312,7 +301,7 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
     igraph_add_edges(&Grafo, &edges, NULL);
     igraph_cattribute_VAN_setv(&Grafo,"faixa",&faixas);
     *avg = (double)G.edges*2/(G.Nodes);
-    //lll += generate_conections(&G,degree,&faixas,p,&Grafo);
+    *perca = generate_conections(&G,degree,&faixas,p,&Grafo);
     if(calcula){
         if(estrategy <11) *centralidade = traditional_centralities(&Grafo,estrategy);
         else{
@@ -323,9 +312,6 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
             }
         }
     }
-    if(weight) igraph_matrix_init(W, N, N); // Inicializa a matriz sem tamanho específico
-    else igraph_matrix_init(W, 0, 0); // Inicializa a matriz sem tamanho específico
-    igraph_get_adjacency(&Grafo, W, IGRAPH_GET_ADJACENCY_BOTH, &pesos, IGRAPH_NO_LOOPS);
     for (i = 0; i < G.Nodes; i++){
         free(G.viz[i]);
         free(degree[i]);
@@ -378,7 +364,7 @@ double calcular_correlacao(igraph_vector_t* vetor1, igraph_vector_t* vetor2) {
 }
 
 
-void calcula_propriedades(igraph_t *Grafo,double p,int N, double *resultados,double* std_vector) {
+void calcula_propriedades(igraph_t *Grafo,double p,int N, double *resultados) {
 
     double caminho_medio;
     double diametro;
@@ -406,11 +392,12 @@ void calcula_propriedades(igraph_t *Grafo,double p,int N, double *resultados,dou
     igraph_vector_mul(&graus,&graus);
     igraph_vector_scale(&graus,1/N);
 
-    double std = pow(igraph_vector_sum(&graus),0.5);
-
+    double std = 0 ;
+    for (int i = 0; i < N; i++) std += pow((double)VECTOR(degrees)[i],2);
+    std = std/N;
     // Mediana dos graus
     igraph_vector_sort(&graus);
-    double mediana = (N%2 == 0)? VECTOR(graus)[(N-1)/2] : (VECTOR(graus)[N/2] + VECTOR(graus)[N/2+1])*0.5;
+    double mediana = (N%2 == 0)? VECTOR(degrees)[(int)(N-1)/2] : (VECTOR(degrees)[(int) N/2] + VECTOR(degrees)[(int) N/2+1])*0.5;
 
     // Calcula o menor caminho médio da Rede
     igraph_average_path_length(Grafo, &caminho_medio, NULL, IGRAPH_UNDIRECTED, 1);
@@ -423,24 +410,14 @@ void calcula_propriedades(igraph_t *Grafo,double p,int N, double *resultados,dou
 
     // Calcula o agrupamento total
     igraph_transitivity_undirected(Grafo,&agrupamento_total,IGRAPH_TRANSITIVITY_NAN);
-    resultados[0] += k_medio;
-    resultados[1] += mediana;
-    resultados[2] += std;
-    resultados[3] += agrupamento_medio;
-    resultados[4] += agrupamento_total;
-    resultados[5] += correlation;
-    resultados[6] += caminho_medio;
-    resultados[7] += diametro;
-
-    std_vector[0] += k_medio*k_medio;
-    std_vector[1] += mediana*mediana;
-    std_vector[2] += std*std;
-    std_vector[3] += agrupamento_medio*agrupamento_medio;
-    std_vector[4] += agrupamento_total*agrupamento_total;
-    std_vector[5] += correlation*correlation;
-    std_vector[6] += caminho_medio*caminho_medio;
-    std_vector[7] += diametro*diametro;
-
+    resultados[0] = k_medio;
+    resultados[1] = mediana;
+    resultados[2] = std;
+    resultados[3] = agrupamento_medio;
+    resultados[4] = agrupamento_total;
+    resultados[5] = correlation;
+    resultados[6] = caminho_medio;
+    resultados[7] = diametro;
     igraph_vector_destroy(&graus);
     igraph_vector_destroy(&clustering);
     igraph_vector_int_destroy(&degrees);
@@ -448,52 +425,60 @@ void calcula_propriedades(igraph_t *Grafo,double p,int N, double *resultados,dou
 }
 
 
-void generate_local_configuration_model(double p, int redes,int seed){
+void generate_local_configuration_model(int N,double p, int redes,int seed){
 
-    int N = 10000;
     int i;
     double a;
 
-    double* resultados = (double *)calloc(8,sizeof(double));
-    double* std = (double *)calloc(8,sizeof(double));
+    double** resultados = (double **)malloc(redes * sizeof(double *));
+    for(i = 0; i < redes; i++) resultados[i] = (double *)calloc(10 , sizeof(double ));  // Aponta para o início de cada linha no vetor resultados
     igraph_vector_int_t centralidade;
     igraph_matrix_t W;
+    clock_t inicio, fim;
+    double perca;
+    int count = 0;
+    omp_set_num_threads(7);
+    #pragma omp parallel for
     for (i = 0; i < redes; i++){
 
         //if(redes!=1) printf("\e[1;1H\e[2J");
 
         igraph_t G;
-        G = local_configuration_model(N,p,seed+i,false,&a,&centralidade,0,false,&W);
-        if(redes!=1) calcula_propriedades(&G,p,N,resultados,std);
+        inicio = clock();
+        G = local_configuration_model(N,p,seed+i,false,&a,&centralidade,0,false,&W,&perca);
+        if(redes!=1) calcula_propriedades(&G,p,N,resultados[i]);
+        fim = clock();
+        resultados[i][8] = ((double) (fim - inicio)) / CLOCKS_PER_SEC;
+        resultados[i][9] = perca;
         igraph_destroy(&G);
-       
+        count += 1;
     }
-    for (i = 0; i < 8; i++){
-        resultados[i] /= redes;
-        std[i] /= redes;
-        std[i] = sqrt(std[i] - pow(resultados[i],2));
-        std[i] /= sqrt(redes);
-    }
+
+
     if(redes > 1){
         FILE *file;
+        int j;
         char filecheck[800];
-        sprintf(filecheck,"./output/modelo/resultados.txt");
-        file = fopen(filecheck,"a");
-        fprintf(file,"%.2f %f %f %f %f %f %f %f %f %f\n",p,resultados[0],resultados[1],resultados[2],resultados[3],resultados[4],resultados[5],resultados[6],resultados[7],lll/redes);
+        sprintf(filecheck,"./output/modelo/resultados_%d_%.2f.txt",N,p);
+        file = fopen(filecheck,"w");
+        char linha[10000];
+        linha[0] = '\0';
+        for ( i = 0; i < redes; i++){
+            
+            for(j = 0; j < 10 ;j++){
+                char buffer[200]; // Buffer para armazenar a representação do número como string
+                snprintf(buffer, sizeof(buffer), "%.2f ", resultados[i][j]); // Converte o número para string com duas casas decimais
+                strcat(linha, buffer); // Adiciona o número à string final
+            }
+            fprintf(file,"%s\n",linha);
+            linha[0] = '\0';
+        }
+        
+        
         fclose(file);
-
-        sprintf(filecheck,"./output/modelo/std.txt");
-        file = fopen(filecheck,"a");
-        fprintf(file,"%.2f %f %f %f %f %f %f %f %f\n",p,std[0],std[1],std[2],std[3],std[4],std[5],std[6],std[7]);
-        fclose(file);
-
-        /* FILE *arquivo;
-        arquivo = fopen("./output/modelo/clustering.txt","a");
-        fprintf(arquivo,"%f %f %f\n",p,resultados[3],std[3]);
-        fclose(arquivo); */
     }
+    for(i = 0; i < redes; i++) free(resultados[i]);
     free(resultados);
-    free(std);
     //igraph_vector_int_destroy(&centralidade);
-    printf("Terminou\n");
+    printf("Terminou %d %.2f\n",N,p);
 }
