@@ -13,11 +13,12 @@
 #include "vacinas.h"
 struct Graph{
     int **viz;
+    double **W;
     int Nodes;
     double edges;
+    double avg;
+    int *faixas;
 };
-
-float lll = 0;
 
 int** get_array(int N,char* ptr){
     FILE* file;
@@ -54,20 +55,6 @@ double** distribution_faixas(){
     return distribution;
 }
 
-void append_vizinhos(struct Graph *G,int site,int vizinho,int plus){
-    G->viz[site][0]++;
-    G->viz[vizinho][0]++;
-    G->viz[site] = (int*) realloc(G->viz[site],(G->viz[site][0]+1)*sizeof(int));
-    G->viz[vizinho] = (int*) realloc(G->viz[vizinho],(G->viz[vizinho][0]+1)*sizeof(int));
-    G->viz[site][G->viz[site][0]] = plus*vizinho;
-    G->viz[vizinho][G->viz[vizinho][0]] = plus*site;
-}
-
-bool check_repetidos(struct Graph *G,int i,int vizinho){
-    for (int j = 0; j < G->viz[i][0]; j++) if(vizinho == abs(G->viz[i][j+1])) return true;
-    return false;
-}
-
 double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas,double p,igraph_t* Grafo){
     int ligacoes_total = 0;
     int i,j;
@@ -81,10 +68,10 @@ double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas
     //for (i = 0; i < 5; i++) free(matriz[i]);
     //free(matriz);
 
-    return ligacoes_total/G->edges;
+    return ligacoes_total/(2*G->edges);
 }
 
-struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga,igraph_matrix_t *W){
+struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_per_faixas,double** mean,double** std,int* n_faixas,int site,int faixa,bool weight,igraph_vector_int_t* edges,igraph_vector_t* faixas,igraph_vector_t* pesos,bool** liga){
     int i,vizinho,faixa1;
     double duracao = -1;
     faixa1 = (int) VECTOR(*faixas)[site];
@@ -120,8 +107,12 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
                 while(duracao < 0) duracao = normalRand(mean[faixa1][faixa],std[faixa1][faixa]);
                 igraph_vector_push_back(pesos, duracao/1440);
                 G->edges += duracao/1440;
-                MATRIX(*W,site,vizinho) = duracao/1440;
-                MATRIX(*W,vizinho,site) = duracao/1440;
+                G->W[site][0]++;
+                G->W[vizinho][0]++;
+                G->W[site][G->viz[site][0]] = duracao/1440;
+                G->W[vizinho][G->viz[vizinho][0]] = duracao/1440;
+                //MATRIX(*W,site,vizinho) = duracao/1440;
+                //MATRIX(*W,vizinho,site) = duracao/1440;
             }
             else G->edges += 1;
             duracao = -1;
@@ -138,25 +129,26 @@ struct Graph weighted_add_edge(struct Graph *G,double p,int** degree,int** site_
 
 
 
-igraph_t local_configuration_model(int N, double p,int seed,const bool weight,double *avg,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,igraph_matrix_t *W,double* perca){
+void local_configuration_model(struct Graph* G,int N, double p,int seed,const bool weight,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,double* perca){
 
-    struct Graph G;
-    G.Nodes = N;
-    G.viz = (int **)malloc(N*sizeof(int*));
+    G->Nodes = N;
+    G->viz = (int **)malloc(N*sizeof(int*));
+    G->W = (double **)malloc(N*sizeof(double*));
+    G->faixas = (int *)malloc(N*sizeof(int));
     int i = 0,j = 0,k = 0;
 
-    if(weight) igraph_matrix_init(W, N, N); // Inicializa a matriz sem tamanho específico
-    else igraph_matrix_init(W, 0, 0); // Inicializa a matriz sem tamanho específico
+    //if(weight) igraph_matrix_init(W, N, N); // Inicializa a matriz sem tamanho específico
+    //else igraph_matrix_init(W, 0, 0); // Inicializa a matriz sem tamanho específico
     
-    G.edges = 0;
+    G->edges = 0;
 
     double r;
     igraph_vector_t faixas;
-    igraph_vector_init(&faixas, G.Nodes);
+    igraph_vector_init(&faixas, G->Nodes);
 
     int** degree = (int**) malloc(N*sizeof(int*));
     int* grau = (int*) calloc(N,sizeof(int));
-    int* n_faixas = (int *) calloc(N, sizeof(int));
+    int* n_faixas = (int *) calloc(5, sizeof(int));
     int** site_per_faixas = (int**) malloc(5*sizeof(int*));
     bool** liga = (bool**) malloc(N*sizeof(bool*));
 
@@ -169,14 +161,6 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
     double** mean = double_get_array(file_name);
     strcpy(file_name, "./dados/std.txt");
     double** std = double_get_array(file_name);
-    
-    // POLYMOD//
-
-    /*p_faixas[0] = 0.34393182;
-    p_faixas[1] =  0.14065873;
-    p_faixas[2] = 0.31957894;
-    p_faixas[3] = 0.15781574;
-    p_faixas[4] = 0.03801476;*/
 
     // BRASILEIRA //
     p_faixas[0] = 0.268392;
@@ -184,28 +168,6 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
     p_faixas[2] = 0.302137;
     p_faixas[3] = 0.206757;
     p_faixas[4] = 0.070380;
-
-    double* sintomatico = (double*) malloc(5*sizeof(double));
-    double* hospitalizacao = (double*) malloc(5*sizeof(double));
-    double* morte = (double*) malloc(5*sizeof(double));
-
-    morte[0] = (double)0.07710809281267686;
-    morte[1] = (double)0.09561476547321676;
-    morte[2] = (double)0.13779231777947765;
-    morte[3] = (double)0.30044562859568047;
-    morte[4] = (double)0.530315172817809;
-
-    sintomatico[0] = 29.1/100;
-    sintomatico[1] = 37.4/100;
-    sintomatico[2] = 41.68/100;
-    sintomatico[3] = 39.4/100;
-    sintomatico[4] = 31.3/100; 
-
-    hospitalizacao[0] = (double)1.04/100;
-    hospitalizacao[1] = (double)1.33/100;
-    hospitalizacao[2] = (double)1.38/100;
-    hospitalizacao[3] = (double)7.6/100;
-    hospitalizacao[4] = (double)24/100;
 
 
     for ( j = 0; j < 5; j++){
@@ -223,6 +185,7 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
         r = genrand64_real1();
         while(r > p_faixas[j]) j++;
         VECTOR(faixas)[i] = j;
+        G->faixas[i] =j;
         n_faixas[j]++;
         site_per_faixas[j] = realloc(site_per_faixas[j],n_faixas[j]*sizeof(int));
         site_per_faixas[j][n_faixas[j] - 1] = i;
@@ -236,10 +199,19 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
     mergeSort(grau,&faixas,0,N-1);
     for (i = 0; i < N; i++){
         generate_multinomial(grau[i], 5, constant[(int) VECTOR(faixas)[i]], degree[i]);
-        G.viz[i] =(int*) malloc((grau[i]+1)*sizeof(int));
-        G.viz[i][0] = 0;
+        G->viz[i] =(int*) malloc((grau[i]+1)*sizeof(int));
+        G->viz[i][0] = 0;
+        G->W[i] = (double*) malloc((grau[i]+1)*sizeof(double));
+        G->W[i][0] = 0;
     }
-    for (i = 0; i < 5; i++) free(distribution[i]);
+    for (i = 0; i < 5; i++){
+        free(distribution[i]);
+        free(constant[i]);
+    }
+    free(distribution);
+    free(grau);
+    free(p_faixas);
+    free(constant);
     
 
     igraph_vector_int_t edges;
@@ -256,16 +228,16 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
             seed++;
             if(degree[site][faixa] == 0) continue;
             site_per_faixas[faixa] = randomize(site_per_faixas[faixa], n_faixas[faixa],seed);
-            G = weighted_add_edge(&G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga,W);
+            weighted_add_edge(G,1,degree,site_per_faixas,mean,std,n_faixas,site,faixa,weight,&edges,&faixas,&pesos,liga);
         }
         if(p > 0){
             int **vizinhos = (int**) malloc(5*sizeof(int*));
             int *q_vizinhos = (int*) calloc(5,sizeof(int));
             for (i = 0; i < 5; i++) vizinhos[i] = (int*) malloc(0*sizeof(int));
             int n = 0;
-            for (i = 0; i < G.viz[site][0]; i++){
+            for (i = 0; i < G->viz[site][0]; i++){
                 
-                vizinho = G.viz[site][i+1];
+                vizinho = G->viz[site][i+1];
                 if(vizinho < 0) continue;
                 if(somatorio(degree,vizinho,5) !=0){
                     faixa1 = (int)VECTOR(faixas)[vizinho];
@@ -277,15 +249,15 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
             }
             if(n > 1){
                 
-                for (int viz = 0; viz < G.viz[site][0]; viz++){
-                    vizinho = G.viz[site][viz+1];
+                for (int viz = 0; viz < G->viz[site][0]; viz++){
+                    vizinho = G->viz[site][viz+1];
                     
                     if(vizinho < 0) continue;
                     for (faixa = 0; faixa < 5; faixa++){
                         seed++;
                         if(degree[vizinho][faixa] == 0) continue;
                         vizinhos[faixa] = randomize(vizinhos[faixa], q_vizinhos[faixa],seed);
-                        G = weighted_add_edge(&G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga,W);
+                        weighted_add_edge(G,p,degree,vizinhos,mean,std,q_vizinhos,vizinho,faixa,weight,&edges,&faixas,&pesos,liga);
                     }
                 }
             }
@@ -297,48 +269,44 @@ igraph_t local_configuration_model(int N, double p,int seed,const bool weight,do
     }
     igraph_t Grafo;
     igraph_set_attribute_table(&igraph_cattribute_table);
-    igraph_empty(&Grafo, G.Nodes, IGRAPH_UNDIRECTED);
+    igraph_empty(&Grafo, G->Nodes, IGRAPH_UNDIRECTED);
     igraph_add_edges(&Grafo, &edges, NULL);
     igraph_cattribute_VAN_setv(&Grafo,"faixa",&faixas);
-    *avg = (double)G.edges*2/(G.Nodes);
-    *perca = generate_conections(&G,degree,&faixas,p,&Grafo);
+    G->avg = (double)G->edges*2/(G->Nodes);
+    //*perca = generate_conections(&G,degree,&faixas,p,Grafo);
+
     if(calcula){
         if(estrategy <11) *centralidade = traditional_centralities(&Grafo,estrategy);
         else{
-            if(estrategy<17) *centralidade = propose_centralities(&Grafo,estrategy,morte,hospitalizacao,sintomatico);
+            if(estrategy<17) *centralidade = propose_centralities(&Grafo,estrategy);
             else{
                 if(estrategy < 21)*centralidade = weighted_traditional_centralities(&Grafo,estrategy,&pesos);
                 else *centralidade = new_centralities(&Grafo,estrategy,&pesos,&edges,&faixas);
             }
         }
     }
-    for (i = 0; i < G.Nodes; i++){
-        free(G.viz[i]);
+    igraph_destroy(&Grafo);
+    for (i = 0; i < G->Nodes; i++){
         free(degree[i]);
         free(liga[i]);
     }
     free(liga);
-    free(G.viz);
     free(degree);
-    free(p_faixas);
-    free(grau);
     for(i = 0;i < 5;i++){
-        free(constant[i]);
         free(site_per_faixas[i]);
         free(mean[i]);
         free(std[i]);
     }
     free(site_per_faixas);
-    free(constant);
     free(mean);
     free(std);
     free(n_faixas);
-    free(distribution);
     igraph_vector_int_destroy(&edges);
     igraph_vector_destroy(&faixas);
+    igraph_vector_destroy(&pesos);
+    
 
     
-    return Grafo;
 }
 
 double calcular_correlacao(igraph_vector_t* vetor1, igraph_vector_t* vetor2) {
@@ -445,7 +413,7 @@ void generate_local_configuration_model(int N,double p, int redes,int seed){
 
         igraph_t G;
         inicio = clock();
-        G = local_configuration_model(N,p,seed+i,false,&a,&centralidade,0,false,&W,&perca);
+        //local_configuration_model(&G,N,p,seed+i,false,&a,&centralidade,0,false,&W,&perca);
         if(redes!=1) calcula_propriedades(&G,p,N,resultados[i]);
         fim = clock();
         resultados[i][8] = ((double) (fim - inicio)) / CLOCKS_PER_SEC;

@@ -2,11 +2,14 @@
 #define LCM_H
 struct Graph{
     int **viz;
+    double **W;
     int Nodes;
-    int edges;
+    double edges;
+    double avg;
+    int *faixas;
 };
 void generate_local_configuration_model(int N,double p, int redes,int seed);
-igraph_t local_configuration_model(int N, double p,int seed,const bool weight,double *avg,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,igraph_matrix_t *W,double* perca);
+void local_configuration_model(struct Graph* Grafo,int N, double p,int seed,const bool weight,igraph_vector_int_t* centralidade,uint8_t estrategy,bool calcula,double* perca);
 
 
 #endif

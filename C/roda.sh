@@ -1,3 +1,2 @@
 gcc -I/home/miguel/igraph/build/include -I/home/miguel/igraph/include main.c bib/calc.c bib/mtwister.c bib/infect.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3 -lstdc++ 
-
-./main 90 10000 1 25 0 0
+./main 2222 10000 1 0 100 1

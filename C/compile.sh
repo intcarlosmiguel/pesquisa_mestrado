@@ -1,12 +1,22 @@
+
+
 gcc -I/home/miguel/igraph/build/include -I/home/miguel/igraph/include main.c bib/calc.c bib/mtwister.c bib/infect.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3 -lstdc++
 echo "Compilou!"
-seed=5118
+seed=12
 for ((i = 0; i <= 100; i += 25)); do
 
-    ./main $seed 10000 400 23 $i 0
+    ./main $seed 10000 400 25 $i 1
     ((seed += 400))
-    ./main $seed 10000 400 23 $i 1
+    ./main $seed 10000 400 26 $i 1
     ((seed += 400))
-    ./main $seed 10000 400 24 $i 1
+done
+
+gcc -I/home/miguel/igraph/build/include -I/home/miguel/igraph/include main.c bib/calc.c bib/mtwister.c bib/infect.c bib/SBM.c bib/LCM.c -o main -lm -Ibib -ligraph -fopenmp -O3 -lstdc++
+echo "Compilou!"
+for ((i = 0; i <= 100; i += 25)); do
+
+    ./main $seed 10000 400 25 $i 1
+    ((seed += 400))
+    ./main $seed 10000 400 26 $i 1
     ((seed += 400))
 done
