@@ -3,6 +3,7 @@
 #include "calc.h"
 #include <igraph.h>
 #include <math.h>
+#include "LCM.h"
 
 igraph_vector_int_t traditional_centralities(igraph_t* Grafo,int estrategy){
     int N = igraph_vcount(Grafo);
@@ -161,24 +162,38 @@ igraph_vector_int_t propose_centralities(igraph_t* Grafo,int estrategy){
         igraph_vector_int_t vizinhos;
         igraph_vector_int_init(&vizinhos, 0);
         igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
-        VECTOR(prob)[i] = (double) VECTOR(degrees)[i]*morte[ (int) VECTOR(faixas)[i]];
+        if(estrategy == 11) VECTOR(prob)[i] = (double) VECTOR(degrees)[i]*morte[ (int) VECTOR(faixas)[i]];
+        w = 0;
         for (j = 0; j < igraph_vector_int_size(&vizinhos); j++){
             // Grau morte
             if(estrategy == 11) break;
             else{
-                
                 vizinho = (int) VECTOR(vizinhos)[j];
-                w = sintomatico[(int) VECTOR(faixas)[vizinho]];
-                //VECTOR(prob)[i] += ;
-
-                if(estrategy >=12) // Probabilidade dos vizinhos serem hospitalizados;
-                    w *= hospitalizacao[(int) VECTOR(faixas)[vizinho]];
-                if((estrategy == 13)||(estrategy == 15)) // Probabilidade do vizinho morrer & Probabilidade dos vizinhos morrerem e o vértice ser assintomático;
-                    w *= morte[(int) VECTOR(faixas)[vizinho]];
-                if(estrategy >= 14) //Probabilidade dos vizinhos serem hospitalizados e o vértice ser assintomático;
-                    w *= (1 - sintomatico[(int) VECTOR(faixas)[i]]);
-                VECTOR(prob)[i] += w;
+                switch (estrategy){
+                    case 12:{
+                        w *= 1 - hospitalizacao[(int) VECTOR(faixas)[vizinho]]*sintomatico[(int) VECTOR(faixas)[vizinho]];
+                        break;
+                    }
+                    case 13:{
+                        w *= 1 - hospitalizacao[(int) VECTOR(faixas)[vizinho]]*sintomatico[(int) VECTOR(faixas)[vizinho]]*morte[(int) VECTOR(faixas)[vizinho]];
+                        break;
+                    }
+                    case 14:{
+                        w *= (1 - sintomatico[(int) VECTOR(faixas)[vizinho]])*(1 - hospitalizacao[(int) VECTOR(faixas)[vizinho]]*sintomatico[(int) VECTOR(faixas)[vizinho]]);
+                        break;
+                    }
+                    case 15:{
+                        w *= (1 - sintomatico[(int) VECTOR(faixas)[vizinho]])*(1 - hospitalizacao[(int) VECTOR(faixas)[vizinho]]*sintomatico[(int) VECTOR(faixas)[vizinho]]*morte[(int) VECTOR(faixas)[vizinho]]);
+                        break;
+                    }
+                
+                    default:
+                        break;
+                }
+                
             }
+            if(estrategy < 14)VECTOR(prob)[i] = 1 - w;
+            else VECTOR(prob)[i] = (1 - sintomatico[(int) VECTOR(faixas)[vizinho]]) - w;
         }
         igraph_vector_int_destroy(&vizinhos);
     }
@@ -259,7 +274,7 @@ igraph_vector_int_t weighted_traditional_centralities(igraph_t* Grafo,int estrat
     return centralidade;
 }
 
-igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector_t* pesos,igraph_vector_int_t* edges,igraph_vector_t* faixas){
+igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector_t* pesos,igraph_vector_int_t* edges,igraph_vector_t* faixas,struct Graph *G){
 
     uint32_t i;
     int N = igraph_vcount(Grafo);
@@ -356,74 +371,35 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
         case 23:{
             igraph_vector_t Laplacian_energy;
             igraph_vector_init(&Laplacian_energy, N);
-
-            int site1,site2;
             uint32_t j;
-            double peso,peso_ij,peso_ji,Normalized = 0;
-            double* x_i = (double*) calloc(N,sizeof(double));
-            double** X = (double**) malloc(N*sizeof(double*));
+            igraph_vector_int_t degrees;
+            igraph_vector_int_init(&degrees, 0);
+            igraph_degree(Grafo, &degrees, igraph_vss_all(), IGRAPH_ALL, IGRAPH_NO_LOOPS);
 
-            for (i = 0; i < N; i++ ) X[i] =  (double*) calloc(N,sizeof(double));
-            for (i = 0; i < igraph_vector_int_size(edges); i+=2 ){
-                site1 = VECTOR(*edges)[i+1];
-                site2 = VECTOR(*edges)[i];
-                //peso_ij = 0.5*(1 - sintomatico[(int) VECTOR(*faixas)[site1]] +  morte[(int) VECTOR(*faixas)[site2]]);
-                //peso_ij = 0.5*(1 - sintomatico[(int) VECTOR(*faixas)[site2]] +  morte[(int) VECTOR(*faixas)[site1]]);
-                peso_ij = 0.5*(1 - sintomatico[(int) VECTOR(*faixas)[site2]] +  morte[(int) VECTOR(*faixas)[site1]]);
-                peso_ij = 0.5*(1 - sintomatico[(int) VECTOR(*faixas)[site1]] +  morte[(int) VECTOR(*faixas)[site2]]);
-
-                x_i[site1] += peso_ij;
-                x_i[site2] += peso_ji;
-
-                X[site1][site2] = 1;
-                X[site2][site1] = 1;
+            for ( i = 0; i < N; i++){
+                igraph_vector_int_t vizinhos;
+                igraph_vector_int_init(&vizinhos, 0);
+                igraph_neighbors(Grafo, &vizinhos, i,IGRAPH_ALL);
+                for (j = 0; j < igraph_vector_int_size(&vizinhos); j++) VECTOR(Laplacian_energy)[i] += 2*VECTOR(degrees)[(int) VECTOR(vizinhos)[j]];
+                VECTOR(Laplacian_energy)[i] += VECTOR(degrees)[i] + VECTOR(degrees)[i]*VECTOR(degrees)[i];
+                igraph_vector_int_destroy(&vizinhos);
             }
-            for (i = 0; i < N; i++ ) {
-                for (j = 0; j < N; j++ ) if(j!=i) VECTOR(Laplacian_energy)[i] += 2*X[j][i]*x_i[j]+ pow(X[j][i],2);
-                free(X[i]);
-            }
-            free(x_i);
-            free(X);
+            
 
             igraph_vector_qsort_ind(&Laplacian_energy,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&Laplacian_energy);
+            igraph_vector_int_destroy(&degrees);
             break;
         }
         case 24:{
             igraph_vector_t Laplacian_energy;
             igraph_vector_init(&Laplacian_energy, N);
 
-            int site1,site2;
             uint32_t j;
-            double peso,peso_ij,peso_ji;
-            double* x_i = (double*) calloc(N,sizeof(double));
-            double** X = (double**) malloc(N*sizeof(double*));
-
-            for (i = 0; i < N; i++ ) X[i] =  (double*) calloc(N,sizeof(double));
-
-            for (i = 0; i < igraph_vector_int_size(edges); i+=2 ){
-
-                site1 = VECTOR(*edges)[i+1];
-                site2 = VECTOR(*edges)[i];
-
-                //peso_ij = 0.5*VECTOR(*pesos)[(int)i/2]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]] +  morte[(int) VECTOR(*faixas)[site1]]);
-                //peso_ij = 0.5*VECTOR(*pesos)[(int)i/2]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]] +  morte[(int) VECTOR(*faixas)[site2]]);
-                peso_ij = 0.5*VECTOR(*pesos)[(int)i/2]*(1 - sintomatico[(int) VECTOR(*faixas)[site2]] +  morte[(int) VECTOR(*faixas)[site1]]);
-                peso_ij = 0.5*VECTOR(*pesos)[(int)i/2]*(1 - sintomatico[(int) VECTOR(*faixas)[site1]] +  morte[(int) VECTOR(*faixas)[site2]]);
-                
-                x_i[site1] += peso_ij;
-                x_i[site2] += peso_ji;
-
-                X[site1][site2] = VECTOR(*pesos)[(int)i/2];
-                X[site2][site1] = VECTOR(*pesos)[(int)i/2];
+            for (i = 0; i < N; i++ ){
+                VECTOR(Laplacian_energy)[i] = G->W[i][0]*G->W[i][0];
+                for(j = 0; j < G->viz[i][0]; j++) VECTOR(Laplacian_energy)[i] += 2*G->W[i][j+1]*G->W[i][0] + G->W[i][j+1]*G->W[i][j+1];
             }
-
-            for (i = 0; i < N; i++ ) {
-                for (j = 0; j < N; j++ ) VECTOR(Laplacian_energy)[i] += 2*X[j][i]*x_i[j]+ pow(X[j][i],2);
-                free(X[i]);
-            }
-            free(x_i);
-            free(X);
             igraph_vector_qsort_ind(&Laplacian_energy,&centralidade, IGRAPH_DESCENDING);
             igraph_vector_destroy(&Laplacian_energy);   
             break;
@@ -439,14 +415,14 @@ igraph_vector_int_t new_centralities(igraph_t* Grafo,int estrategy,igraph_vector
             igraph_distances(Grafo, &distance, igraph_vss_all(), igraph_vss_all(), IGRAPH_ALL);
             double w_i,w_j;
             for ( i = 0; i < N; i++){
-               // w_i = morte[(int) VECTOR(*faixas)[i]];
-                w_i = (1 - sintomatico[(int) VECTOR(*faixas)[i]]);
+                w_i = morte[(int) VECTOR(*faixas)[i]];
+                //w_i = (1 - sintomatico[(int) VECTOR(*faixas)[i]]);
                 for (int j = i+1; j < N; j++){
                     double increment = 1.0/ pow(MATRIX(distance,i,j),d);
-                    //VECTOR(gravity)[i] += (1 - sintomatico[(int) VECTOR(*faixas)[j]])*increment;
-                    //VECTOR(gravity)[j] += (1 - sintomatico[(int) VECTOR(*faixas)[i]])*increment;
-                    VECTOR(gravity)[i] += morte[(int) VECTOR(*faixas)[j]]*increment;
-                    VECTOR(gravity)[j] += morte[(int) VECTOR(*faixas)[i]]*increment;
+                    VECTOR(gravity)[i] += (1 - sintomatico[(int) VECTOR(*faixas)[j]])*increment;
+                    VECTOR(gravity)[j] += (1 - sintomatico[(int) VECTOR(*faixas)[i]])*increment;
+                    //VECTOR(gravity)[i] += morte[(int) VECTOR(*faixas)[j]]*increment;
+                    //VECTOR(gravity)[j] += morte[(int) VECTOR(*faixas)[i]]*increment;
                 }
                 VECTOR(gravity)[i] *= w_i;
             }

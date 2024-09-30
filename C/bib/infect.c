@@ -390,7 +390,7 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     int i,j,k;
     char arquivo[800];
     char arquivo2[800];
-    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","altruista-coautor","altruista-wcoautor","laplacian","wlaplacian","altruista-gravity-2","altruista-wgravity-2"};
+    char *file_vacina[] = {"idade", "grau", "close", "harmonic","betwenness","eigenvector","eccentricity","clustering","kshell","random","pagerank","graumorte","probhosp","probmorte","probhospassin","probmortepassin","wclose","wharmonic","wbetwenness","weigenvector","wpagerank","altruista-coautor","altruista-wcoautor","laplacian","wlaplacian","wgravity-2","altruista-wgravity-2"};
 
     for (i = 0; i < infecao_total; i++)
         for (j = 0; j < q_resultados; j++) 
@@ -399,10 +399,9 @@ void save_file(double*** infect_time_pos_vacina,double** infect_time_pre_vacina,
     if(*weight)sprintf(arquivo,"./output/time/%d/ponderado/p/infect_%.2f.txt",(int)*N,*p);
     else sprintf(arquivo,"./output/time/%d/nponderado/p/infect_%.2f.txt",(int)*N,*p);
 
-    if(!fileExists(arquivo)) generate_file(arquivo,infect_time_pos_vacina[0],infecao_total,q_resultados,sizeof(double),0,"w");
-
+    generate_file(arquivo,infect_time_pre_vacina,infecao_total,q_resultados,sizeof(double),0,"w");
     double f;
-
+    exit(0);
     if(*weight) sprintf(arquivo2,"./output/vacina/%d/ponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
     else sprintf(arquivo2,"./output/vacina/%d/nponderado/%s_%.2f.txt",(int)*N,file_vacina[*estrategy],*p);
 
@@ -495,7 +494,7 @@ void init_thread_struct(struct THREAD_INFECCAO *thread_infect){
 }
 
 void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8_t estrategy,bool weight){
-        create_folder((int)N);
+    create_folder((int)N);
     
     constant_init();
     struct THREAD_INFECCAO threads_infect;
@@ -520,7 +519,6 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
         infect(&Grafo,&inicio,threads_infect.infect_time_pre_vacina,weight,dia_infecao,0);
         generate_vacina(&Grafo,&inicio,&centralidade,threads_infect.infect_time_pos_vacina, N, weight);
         
-        //igraph_matrix_destroy(&W);
         igraph_vector_int_destroy(&centralidade);
         free(inicio.rates);
         free(inicio.dias_hospitalizados);
@@ -533,10 +531,10 @@ void generate_infect(double N,double p,int seed,const uint16_t redes,const uint8
         if(count%50 == 0)printf("%d/%d\n",count,redes);
         for ( int i = 0; i < Grafo.Nodes; i++){
             free(Grafo.viz[i]);
-            free(Grafo.W[i]);
+            if(weight) free(Grafo.W[i]);
         }
         free(Grafo.viz);
-        free(Grafo.W);
+        if(weight)free(Grafo.W);
         free(Grafo.faixas);
     }
     

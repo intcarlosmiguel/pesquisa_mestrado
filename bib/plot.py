@@ -459,8 +459,6 @@ def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores
 
         'altruista-coautor':'A-UT',
         "wgravity2":"WCGR2",
-        "efficiency":"CF",
-        "wefficiency":"WCF",
         
     }
     filter = np.array(filter)
@@ -819,8 +817,6 @@ def plot_idades(a):
 
 def heat_map(
         Matrix,
-        xlabel,
-        ylabel,
         name,
         xname = 'Faixa etária',
         yname = 'Faixa etária',
@@ -846,13 +842,13 @@ def heat_map(
         xaxis=dict(
             title=xname,
             tickvals = np.arange(Matrix.shape[1]),
-            ticktext = xlabel,
+            #ticktext = xlabel,
             tickfont=dict(size=fontsize)
         ),
         yaxis=dict(
             title=yname,
             tickvals = np.arange(Matrix.shape[0]),
-            ticktext = ylabel,
+            #ticktext = ylabel,
             tickfont=dict(size=fontsize)
         ),
         paper_bgcolor='rgba(0,0,0,0)',
@@ -865,8 +861,8 @@ def heat_map(
     s = 20
     fig.update_layout(margin=dict(l=s, r=s, t=s, b=s))
     fig.show()
-    if(len(name) != 0):
-        fig.write_image(f"./img/{name}.png")
+    #if(len(name) != 0):
+    #    fig.write_image(f"./img/{name}.png")
 
 
 def creates_plot(data,coluna1,coluna2,tr1,tr2,fig,row,col,showlegend =True,cor = px.colors.qualitative.T10):
@@ -1335,12 +1331,12 @@ def vacina_infect(
 
 def compara_probability(N,ponderado):
 
-    files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/test/")]
+    files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/")]
     print(files)
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Expostos', 'Mortos'))
     cores = px.colors.qualitative.Dark24
     for file,cor in zip(files,cores):
-        infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/test/{file}").T
+        infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/{file}").T
         dados = {
             'Tempo': np.arange(len(infect[0]))/2,
             #'Suscetíveis': infect[0],
@@ -1451,8 +1447,6 @@ def compara_weight(N,p):
 
         'altruista-coautor':'A-UT',
         "wgravity2":"WCGR2",
-        "efficiency":"CF",
-        "wefficiency":"WCF",
         
     }
     cmd = f"./C/output/vacina/{N}/ponderado/"
