@@ -383,7 +383,7 @@ void local_configuration_model(struct Graph* G,int N, double p,int seed,const bo
             
         for(i = 0; i < 10; i++){
             char buffer[200]; // Buffer para armazenar a representação do número como string
-            snprintf(buffer, sizeof(buffer), "%.2f ", resultados[i]); // Converte o número para string com duas casas decimais
+            snprintf(buffer, sizeof(buffer), "%.4f ", resultados[i]); // Converte o número para string com duas casas decimais
             strcat(linha, buffer); // Adiciona o número à string final
         }
         fprintf(file,"%s\n",linha);

@@ -310,7 +310,6 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
         "coautor":"CO",
         "wcoautor":"WUT",
         "altruista-wcoautor":"A-WUT",
-        "altruista-wlaplacian":"A-WCL",
         "gravity":"CGR",
         "wgravity":"WCGR",
         "gravity2":"CGR2",
@@ -1334,7 +1333,7 @@ def compara_probability(N,ponderado):
     files = [i for i in os.listdir(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/")]
     print(files)
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Expostos', 'Mortos'))
-    cores = px.colors.qualitative.Dark24
+    cores = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     for file,cor in zip(files,cores):
         infect = np.loadtxt(f"./C/output/time/{N}/{'ponderado' if(ponderado)  else 'nponderado'}/p/{file}").T
         dados = {
@@ -1357,13 +1356,18 @@ def compara_probability(N,ponderado):
         xaxis=dict(title='Tempo'),
         #xaxis=dict(),
         yaxis=dict(title='Fração'),
-        #paper_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
         template = "seaborn",
         font=dict(
             #family="Courier New, monospace",
             size=15,
             #color="RebeccaPurple"
         ),
+        legend=dict(
+            font=dict(
+                size=17  # Aumente o valor para o tamanho desejado
+            )
+        )
     )
     fig.update_yaxes(title_text='Fração',tickfont=dict(size=15), row=1, col=1)
     fig.update_xaxes(title_text='Tempo',tickfont=dict(size=15), row=1, col=2)
@@ -1545,16 +1549,13 @@ def compara_weight(N,p):
 
 def with_altruista(df):
     with_altruista = list(df[df['Estratégia'].str.contains('A-')]['Estratégia'])
-
     resultado_altruista = df[df['Estratégia'].isin(with_altruista)].reset_index(drop=True)
-
     individualista = []
 
     for i in resultado_altruista['Estratégia']:
         individualista.append(i[2:])
 
     resultado = df[df['Estratégia'].isin(individualista)].copy()
-
     # Ordenar o resultado de acordo com a ordem do vetor
     resultado['Estratégia'] = pd.Categorical(resultado['Estratégia'], categories=individualista, ordered=True)
     resultado = resultado.sort_values('Estratégia').reset_index(drop=True)
@@ -1607,7 +1608,6 @@ def compara_altruismo(N,p):
         "coautor":"UT",
         "wcoautor":"WUT",
         "altruista-wcoautor":"A-WUT",
-        "altruista-wlaplacian":"A-WCL",
         "gravity":"CGR",
         "wgravity":"WCGR",
         "gravity2":"CGR2",
@@ -1652,8 +1652,6 @@ def compara_altruismo(N,p):
 
         'altruista-coautor':'A-UT',
         "wgravity2":"WCGR2",
-        "efficiency":"CF",
-        "wefficiency":"WCF",
         
     }
     cmd = f"./C/output/vacina/{N}/ponderado/"
