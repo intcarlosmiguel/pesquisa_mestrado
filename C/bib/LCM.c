@@ -134,12 +134,15 @@ double** distribution_faixas(){
 double generate_conections(struct Graph *G,int** degree, igraph_vector_t* faixas,double p,igraph_t* Grafo){
     int ligacoes_total = 0;
     int i,j;
-    //int** matriz = (int**) malloc(5*sizeof(int*));
-    //for (i = 0; i < 5; i++) matriz[i] = (int*) calloc(5,sizeof(int));
+    
     for (i = 0; i < G->Nodes; i++){
+        int* matriz = (int*) calloc(5,sizeof(int));
+        for( j = 0; j < G->viz[i][0]; j++) matriz[(int) VECTOR(*faixas)[G->viz[i][j+1]]]++;
+        printf("%d %d %d %d %d %d %d\n",G->viz[i][0],(int) VECTOR(*faixas)[i],matriz[0],matriz[1],matriz[2],matriz[3],matriz[4]);
+        free(matriz);
         //print_vetor(degree[i],5,sizeof(int));
         //for (j = 0; j < 5; j++) matriz[(int) VECTOR(*faixas)[i]][j] += degree[i][j];
-        ligacoes_total += somatorio(degree,i,5);
+        //ligacoes_total += somatorio(degree,i,5);
     }
     //for (i = 0; i < 5; i++) free(matriz[i]);
     //free(matriz);
@@ -368,7 +371,8 @@ void local_configuration_model(struct Graph* G,int N, double p,int seed,const bo
         }
     }
     else{
-        fim = clock();
+        generate_conections(G,degree,&faixas,p,&Grafo);
+        /*fim = clock();
         double* resultados = (double *)calloc(10 ,sizeof(double));
         calcula_propriedades(&Grafo,p,N,resultados);
         resultados[8] = ((double) (fim - inicio)) / CLOCKS_PER_SEC;
@@ -390,7 +394,7 @@ void local_configuration_model(struct Graph* G,int N, double p,int seed,const bo
         linha[0] = '\0';
         free(resultados);
 
-        fclose(file);
+        fclose(file);*/
 
     }
     /* fim = clock();
@@ -443,5 +447,5 @@ void generate_local_configuration_model(int N,double p, int redes,int seed){
         if(count%50 == 0)printf("%d/%d\n",count,redes);
     }
     //igraph_vector_int_destroy(&centralidade);
-    printf("Terminou %d %.2f\n",N,p);
+    //printf("Terminou %d %.2f\n",N,p);
 }

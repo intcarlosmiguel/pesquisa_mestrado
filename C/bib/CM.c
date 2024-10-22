@@ -34,7 +34,7 @@ struct Graph conf_model_p(struct Graph G,int* degree,double p,int* shuff,int n,i
         if(genrand64_real2()<=p){
             int rep = 0;
             for (int k = 0; k < G.viz[site][0]; k++) if((vizinho == G.viz[site][k+1]) || (vizinho == -G.viz[site][k+1])) {rep = 1; break;}
-            if((rep == 1) || (degree[vizinho] == 0)) continue;
+            if((rep == 1) || (degree[vizinho] == 0)) continue;  
 
             G.edges += 1;
 

@@ -377,13 +377,14 @@ def generate_vacinado(plot = 0,N = 7189,ponderado = False,clustering = 0.0):
     ylabel = np.array(ylabel)
     texto = np.array(texto)
     x = integral[np.argsort(texto)]
-    return (x - np.min(x))/(np.max(x) - np.min(x)),texto[np.argsort(texto)]
+    return x,texto[np.argsort(texto)]
 
 def make_plot(fig,row,col,x,soma,texto,N,ponderado,p,coluna,eixo,cor_value,cores,estrategy_to_color,estrategy_to_symbols,symbols):
+
     cmd = f"./C/output/vacina/{N}/{'ponderado' if(ponderado) else 'nponderado'}/"
     df = np.array([[i.split("_")[0],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if('energy' not in i)] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
-    filter = ['random','idade'] + [(texto[np.argsort(x)][0])]+ [(texto[np.argsort(soma)][0])]
+    filter = ['random','idade'] + [(texto[np.argmin(x)])]+ [(texto[np.argmin(soma)])]
     df_filtrado = df[df['Estratégia'].isin(filter)]
     df_filtrado = df_filtrado[df_filtrado["Clustering"] == p]
     arquivo = {
@@ -522,24 +523,72 @@ def add_heatmap_values(ax, im, data):
     for i in range(len(data)):
         for j in range(len(data)):
             text = ax.text(j, i, f"{data[i, j]:.2f}",ha="center", va="center", color="w" if Z[i, j] > 0.2 else 'k',fontsize = 25)
+def normalized(x):
+    return (x - np.min(x))/(np.max(x) - np.min(x))
+def correlacao_pearson(x, y):
+    """
+    Calcula o coeficiente de correlação de Pearson entre dois arrays.
 
+    Parâmetros:
+    x (array-like): Conjunto de dados para a primeira variável.
+    y (array-like): Conjunto de dados para a segunda variável.
+
+    Retorna:
+    float: Coeficiente de correlação de Pearson.
+    """
+    if len(x) != len(y):
+        raise ValueError("Os dois conjuntos de dados devem ter o mesmo tamanho.")
+
+    # Calcular a média de x e y
+    mean_x = np.mean(x)
+    mean_y = np.mean(y)
+    
+    # Subtrair a média de cada valor
+    x_diff = x - mean_x
+    y_diff = y - mean_y
+    
+    # Calcular o numerador (covariância)
+    numerador = np.sum(x_diff * y_diff)
+    
+    # Calcular o denominador (produto dos desvios padrões)
+    denominador = np.sqrt(np.sum(x_diff ** 2)) * np.sqrt(np.sum(y_diff ** 2))
+    
+    if denominador == 0:
+        raise ValueError("O denominador é zero, correlação não pode ser calculada.")
+    
+    # Coeficiente de correlação de Pearson
+    return numerador / denominador
 def make_heat_prob(value,axes,ponderado,title,labels):
 
     x00,texto1 = generate_vacinado(value,10000,ponderado,0.)
+    x00 = normalized(x00)
+    print(texto1[np.argsort(x00)])
     x25,texto2 = generate_vacinado(value,10000,ponderado,0.25)
+    x25 = normalized(x25)
+    print(texto1[np.argsort(x25)])
     x50,_ = generate_vacinado(value,10000,ponderado,0.50)
+    x50 = normalized(x50)
     x75,_ = generate_vacinado(value,10000,ponderado,0.75)
+    x75 = normalized(x75)
     x100,_ = generate_vacinado(value,10000,ponderado,1.00)
-    M = np.array([x00,x25,x50,x75,x100])
-    data =pd.DataFrame(M.T)
+    x100 = normalized(x100)
 
-    correlation_matrix = data.corr(method='spearman')
+    M = {
+        'Estratégia:' :texto1,
+        'p = 0':x00,
+        'p = 0.25':x25,
+        'p = 0.50':x50,
+        'p = 0.75':x75,
+        'p = 1.00':x100,
+    }
+    data =pd.DataFrame(M)
+    #display(data)
+    correlation_matrix = data.corr(method='kendall',numeric_only = True)
     correlation_matrix = np.array(correlation_matrix)
-
     heatmap1 = axes.imshow(correlation_matrix, cmap='bone_r', aspect='auto')
     axes.set_title(title,fontsize = 30)
     add_heatmap_values(axes, heatmap1, correlation_matrix)
-    set_labels(axes,labels)
+    set_labels(axes,labels) 
     return axes
 
 def make_heat(axes,p,ponderado,title,labels):
@@ -1658,7 +1707,6 @@ def compara_altruismo(N,p):
     df = np.array([[arquivo[i.split("_")[0]],float(i.split("_")[-1].split(".txt")[0]),cmd+i] for i in os.listdir(cmd) if(('energy' not in i) and ('efficiency' not in i)) ] )
     df = pd.DataFrame({'Estratégia': df.T[0], 'Clustering': df.T[1].astype(float),'Files':df.T[-1]})
     df = df[df['Clustering'] == p].reset_index(drop=True)
-    display(df)
     resultado_ponderado,resultado_ponderado_altruista = with_altruista(df)
 
     cmd = f"./C/output/vacina/{N}/nponderado/"
@@ -1667,12 +1715,10 @@ def compara_altruismo(N,p):
     df = df[df['Clustering'] == p].reset_index(drop=True)
 
     resultado_nao_ponderado,resultado_nao_ponderado_altruista = with_altruista(df)
-
     if(resultado_ponderado.shape[0] == resultado_ponderado_altruista.shape[0]):
         data_ponderado = get_data(resultado_ponderado,resultado_ponderado_altruista)
         data_nao_ponderado = get_data(resultado_nao_ponderado,resultado_nao_ponderado_altruista)
-
-        fig = make_subplots(rows=3, cols=2,vertical_spacing=0.05,horizontal_spacing=0.05,column_titles=['Ponderado','Não Ponderado'])
+        fig = make_subplots(rows=3, cols=2,shared_yaxes = True,vertical_spacing=0.05,horizontal_spacing=0.05,column_titles=['Ponderado','Não Ponderado'])
         fig.add_trace(
             go.Bar(
                 x=data_nao_ponderado['Estratégia'], 
@@ -1772,27 +1818,3 @@ def compara_altruismo(N,p):
         fig.write_image(f"./img/infect/compara_altruismo_{p}.png")
         # Exibindo a figura
         fig.show()
-
-
-def make_heat_prob(value,axes,ponderado,title,labels,islabel = True):
-
-    x00,texto1 = generate_vacinado(value,10000,ponderado,0.)
-    x25,texto2 = generate_vacinado(value,10000,ponderado,0.25)
-    x50,_ = generate_vacinado(value,10000,ponderado,0.50)
-    x75,_ = generate_vacinado(value,10000,ponderado,0.75)
-    x100,_ = generate_vacinado(value,10000,ponderado,1.00)
-    print(len(x00))
-    M = np.array([x00,x25,x50,x75,x100])
-    data =pd.DataFrame(M.T)
-
-    correlation_matrix = data.corr(method='spearman')
-    correlation_matrix = np.array(correlation_matrix)
-
-    heatmap1 = axes.imshow(correlation_matrix, cmap='bone_r', aspect='auto')
-    axes.set_title(title,fontsize = 30)
-    add_heatmap_values(axes, heatmap1, correlation_matrix)
-    if(islabel):
-        set_labels(axes,labels)
-    else:
-        set_labels(axes,[])
-    return axes
